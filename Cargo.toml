@@ -1,0 +1,15 @@
+[package]
+name = "cucumber"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+kuzu = "0.8"
+
+[dev-dependencies]
+cucumber = "0.20"
+futures = "0.3"
+
+[[test]]
+name = "cypher"
+harness = false
