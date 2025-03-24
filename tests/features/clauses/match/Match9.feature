@@ -30,36 +30,41 @@
 
 Feature: Match9 - Match deprecated scenarios
 
+  @kuzuFuncMissing
+  # Kuzu missing last()
   Scenario: [1] Variable length relationship variables are lists of relationships
     Given an empty graph
+    And having defined kuzu types: n:t
     And having executed:
       """
-      CREATE (a), (b), (c)
+      CREATE (a:N), (b:N), (c:N)
       CREATE (a)-[:T]->(b)
       """
     When executing query:
       """
       MATCH ()-[r*0..1]-()
-      RETURN last(r) AS l
+      RETURN r as l
       """
     Then the result should be, in any order:
-      | l    |
-      | [:T] |
-      | [:T] |
-      | null |
-      | null |
-      | null |
+      | l      |
+      | [[:T]] |
+      | [[:T]] |
+      | []     |
+      | []     |
+      | []     |
     And no side effects
 
+  @keywordClash
   Scenario: [2] Return relationships by collecting them as a list - directed, one way
     Given an empty graph
+    And having defined kuzu types: abe:r_num
     And having executed:
       """
-      CREATE (a:A)-[:REL {num: 1}]->(b:B)-[:REL {num: 2}]->(e:End)
+      CREATE (a:A)-[:REL {num: 1}]->(b:B)-[:REL {num: 2}]->(e:Endd)
       """
     When executing query:
       """
-      MATCH (a)-[r:REL*2..2]->(b:End)
+      MATCH (a)-[r:REL*2..2]->(b:Endd)
       RETURN r
       """
     Then the result should be, in any order:
@@ -67,25 +72,29 @@ Feature: Match9 - Match deprecated scenarios
       | [[:REL {num: 1}], [:REL {num: 2}]] |
     And no side effects
 
+  @keywordClash @testbug @fails @extraOutputUndirected
   Scenario: [3] Return relationships by collecting them as a list - undirected, starting from two extremes
     Given an empty graph
+    And having defined kuzu types: abe:r_num
     And having executed:
       """
-      CREATE (a:End)-[:REL {num: 1}]->(b:B)-[:REL {num: 2}]->(c:End)
+      CREATE (a:Endd)-[:REL {num: 1}]->(b:B)-[:REL {num: 2}]->(c:Endd)
       """
     When executing query:
       """
-      MATCH (a)-[r:REL*2..2]-(b:End)
-      RETURN r
+      MATCH (a)-[r:REL*2..2]-(b:Endd)
+      RETURN list_transform(rels(r), i->concat('[:', label(i), ' {num: ', i.num, '}]')) as r
       """
     Then the result should be, in any order:
-      | r                                |
-      | [[:REL {num:1}], [:REL {num:2}]] |
-      | [[:REL {num:2}], [:REL {num:1}]] |
+      | r                                 |
+      | [[:REL {num: 1}],[:REL {num: 2}]] |
+      | [[:REL {num: 2}],[:REL {num: 1}]] |
     And no side effects
 
+  @testbug @fails @extraOutputUndirected
   Scenario: [4] Return relationships by collecting them as a list - undirected, starting from one extreme
     Given an empty graph
+    And having defined kuzu types: bce:r_num
     And having executed:
       """
       CREATE (s:Start)-[:REL {num: 1}]->(b:B)-[:REL {num: 2}]->(c:C)
@@ -93,15 +102,16 @@ Feature: Match9 - Match deprecated scenarios
     When executing query:
       """
       MATCH (a:Start)-[r:REL*2..2]-(b)
-      RETURN r
+      RETURN list_transform(rels(r), i->concat('[:', label(i), ' {num: ', i.num, '}]')) as r
       """
     Then the result should be, in any order:
-      | r                                  |
-      | [[:REL {num: 1}], [:REL {num: 2}]] |
+      | r                                 |
+      | [[:REL {num: 1}],[:REL {num: 2}]] |
     And no side effects
 
   Scenario: [5] Variable length pattern with label predicate on both sides
     Given an empty graph
+    And having defined kuzu types: bgry:t
     And having executed:
       """
       CREATE (a:Blue), (b:Red), (c:Green), (d:Yellow)
@@ -115,12 +125,15 @@ Feature: Match9 - Match deprecated scenarios
       RETURN count(r)
       """
     Then the result should be, in any order:
-      | count(r) |
+      | COUNT(r) |
       | 1        |
     And no side effects
 
+  @fails @bugFailedVarBinding
+  # Query execution failed: Binder exception: rs has data type REL[] but RECURSIVE_REL was expected.
   Scenario: [6] Matching relationships into a list and matching variable length using the list, with bound nodes
     Given an empty graph
+    And having defined kuzu types: abc:y
     And having executed:
       """
       CREATE (a:A), (b:B), (c:C)
@@ -140,8 +153,11 @@ Feature: Match9 - Match deprecated scenarios
       | (:A)  | (:C)   |
     And no side effects
 
+  @fails @bugFailedVarBinding
+  # Query execution failed: Binder exception: rs has data type REL[] but RECURSIVE_REL was expected.
   Scenario: [7] Matching relationships into a list and matching variable length using the list, with bound nodes, wrong direction
     Given an empty graph
+    And having defined kuzu types: abc:y
     And having executed:
       """
       CREATE (a:A), (b:B), (c:C)
@@ -162,6 +178,7 @@ Feature: Match9 - Match deprecated scenarios
 
   Scenario: [8] Variable length relationship in OPTIONAL MATCH
     Given an empty graph
+    And having defined kuzu types: ab
     And having executed:
       """
       CREATE (:A), (:B)
@@ -179,11 +196,13 @@ Feature: Match9 - Match deprecated scenarios
       | (:B) |
     And no side effects
 
+  @fails @optionalMatchNull
   Scenario: [9] Optionally matching named paths with variable length patterns
     Given an empty graph
+    And having defined kuzu types: n_name:x
     And having executed:
       """
-      CREATE (a {name: 'A'}), (b {name: 'B'}), (c {name: 'C'})
+      CREATE (a:N {name: 'A'}), (b:N {name: 'B'}), (c:N {name: 'C'})
       CREATE (a)-[:X]->(b)
       """
     When executing query:
@@ -194,7 +213,7 @@ Feature: Match9 - Match deprecated scenarios
       RETURN r, x, p
       """
     Then the result should be, in any order:
-      | r      | x             | p                                   |
-      | [[:X]] | ({name: 'B'}) | <({name: 'A'})-[:X]->({name: 'B'})> |
-      | null   | ({name: 'C'}) | null                                |
+      | r      | x                | p      |
+      | [[:X]] | (:N {name: 'B'}) | [[:X]] |
+      | null   | (:N {name: 'C'}) | null   |
     And no side effects
