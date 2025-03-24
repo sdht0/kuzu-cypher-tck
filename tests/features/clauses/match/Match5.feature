@@ -33,6 +33,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
   # TODO: Replace this with a named graph (or two)
   Background:
     Given an empty graph
+    And having defined kuzu types: abce_name:l
     And having executed:
       """
       CREATE (n0:A {name: 'n0'}),
@@ -66,15 +67,16 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
              (n011)-[:LIKES]->(n0111)
       """
 
+  @modified @outputHeaderModified
   Scenario: [1] Handling unbounded variable length match
     When executing query:
       """
       MATCH (a:A)
       MATCH (a)-[:LIKES*]->(c)
-      RETURN c.name
+      RETURN concat('\'', c.name, '\'') as c
       """
     Then the result should be, in any order:
-      | c.name  |
+      | c       |
       | 'n00'   |
       | 'n01'   |
       | 'n000'  |
@@ -91,15 +93,16 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n0111' |
     And no side effects
 
+  @modified @outputHeaderModified
   Scenario: [2] Handling explicitly unbounded variable length match
     When executing query:
       """
       MATCH (a:A)
       MATCH (a)-[:LIKES*..]->(c)
-      RETURN c.name
+      RETURN concat('\'', c.name, '\'') as c
       """
     Then the result should be, in any order:
-      | c.name  |
+      | c       |
       | 'n00'   |
       | 'n01'   |
       | 'n000'  |
@@ -116,55 +119,59 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n0111' |
     And no side effects
 
+  @modified @outputHeaderModified
   Scenario: [3] Handling single bounded variable length match 1
     When executing query:
       """
       MATCH (a:A)
       MATCH (a)-[:LIKES*0]->(c)
-      RETURN c.name
+      RETURN concat('\'', c.name, '\'') as c
       """
     Then the result should be, in any order:
-      | c.name |
-      | 'n0'   |
+      | c    |
+      | 'n0' |
     And no side effects
 
+  @modified @outputHeaderModified
   Scenario: [4] Handling single bounded variable length match 2
     When executing query:
       """
       MATCH (a:A)
       MATCH (a)-[:LIKES*1]->(c)
-      RETURN c.name
+      RETURN concat('\'', c.name, '\'') as c
       """
     Then the result should be, in any order:
-      | c.name |
-      | 'n00'  |
-      | 'n01'  |
+      | c     |
+      | 'n00' |
+      | 'n01' |
     And no side effects
 
+  @modified @outputHeaderModified
   Scenario: [5] Handling single bounded variable length match 3
     When executing query:
       """
       MATCH (a:A)
       MATCH (a)-[:LIKES*2]->(c)
-      RETURN c.name
+      RETURN concat('\'', c.name, '\'') as c
       """
     Then the result should be, in any order:
-      | c.name |
+      | c      |
       | 'n000' |
       | 'n001' |
       | 'n010' |
       | 'n011' |
     And no side effects
 
+  @modified @outputHeaderModified
   Scenario: [6] Handling upper and lower bounded variable length match 1
     When executing query:
       """
       MATCH (a:A)
       MATCH (a)-[:LIKES*0..2]->(c)
-      RETURN c.name
+      RETURN concat('\'', c.name, '\'') as c
       """
     Then the result should be, in any order:
-      | c.name |
+      | c      |
       | 'n0'   |
       | 'n00'  |
       | 'n01'  |
@@ -174,15 +181,16 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n011' |
     And no side effects
 
+  @modified @outputHeaderModified
   Scenario: [7] Handling upper and lower bounded variable length match 2
     When executing query:
       """
       MATCH (a:A)
       MATCH (a)-[:LIKES*1..2]->(c)
-      RETURN c.name
+      RETURN concat('\'', c.name, '\'') as c
       """
     Then the result should be, in any order:
-      | c.name |
+      | c      |
       | 'n00'  |
       | 'n01'  |
       | 'n000' |
@@ -191,46 +199,51 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n011' |
     And no side effects
 
+  @modified @outputHeaderModified
   Scenario: [8] Handling symmetrically bounded variable length match, bounds are zero
     When executing query:
       """
       MATCH (a:A)
       MATCH (a)-[:LIKES*0..0]->(c)
-      RETURN c.name
+      RETURN concat('\'', c.name, '\'') as c
       """
     Then the result should be, in any order:
-      | c.name |
-      | 'n0'   |
+      | c    |
+      | 'n0' |
     And no side effects
 
+  @modified @outputHeaderModified
   Scenario: [9] Handling symmetrically bounded variable length match, bounds are one
     When executing query:
       """
       MATCH (a:A)
       MATCH (a)-[:LIKES*1..1]->(c)
-      RETURN c.name
+      RETURN concat('\'', c.name, '\'') as c
       """
     Then the result should be, in any order:
-      | c.name |
-      | 'n00'  |
-      | 'n01'  |
+      | c     |
+      | 'n00' |
+      | 'n01' |
     And no side effects
 
+  @modified @outputHeaderModified
   Scenario: [10] Handling symmetrically bounded variable length match, bounds are two
     When executing query:
       """
       MATCH (a:A)
       MATCH (a)-[:LIKES*2..2]->(c)
-      RETURN c.name
+      RETURN concat('\'', c.name, '\'') as c
       """
     Then the result should be, in any order:
-      | c.name |
+      | c      |
       | 'n000' |
       | 'n001' |
       | 'n010' |
       | 'n011' |
     And no side effects
 
+  @fails @unsupportedReverseRange
+  # Binder exception: Lower bound of rel  is greater than upperBound.
   Scenario: [11] Handling upper and lower bounded variable length match, empty interval 1
     When executing query:
       """
@@ -242,6 +255,8 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | c.name |
     And no side effects
 
+  @fails @unsupportedReverseRange
+  # Binder exception: Lower bound of rel  is greater than upperBound.
   Scenario: [12] Handling upper and lower bounded variable length match, empty interval 2
     When executing query:
       """
@@ -253,6 +268,8 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | c.name |
     And no side effects
 
+  @fails @unsupportedReverseRange
+  # Binder exception: Lower bound of rel  is greater than upperBound.
   Scenario: [13] Handling upper bounded variable length match, empty interval
     When executing query:
       """
@@ -264,28 +281,30 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | c.name |
     And no side effects
 
+  @modified @outputHeaderModified
   Scenario: [14] Handling upper bounded variable length match 1
     When executing query:
       """
       MATCH (a:A)
       MATCH (a)-[:LIKES*..1]->(c)
-      RETURN c.name
+      RETURN concat('\'', c.name, '\'') as c
       """
     Then the result should be, in any order:
-      | c.name |
-      | 'n00'  |
-      | 'n01'  |
+      | c     |
+      | 'n00' |
+      | 'n01' |
     And no side effects
 
+  @modified @outputHeaderModified
   Scenario: [15] Handling upper bounded variable length match 2
     When executing query:
       """
       MATCH (a:A)
       MATCH (a)-[:LIKES*..2]->(c)
-      RETURN c.name
+      RETURN concat('\'', c.name, '\'') as c
       """
     Then the result should be, in any order:
-      | c.name |
+      | c      |
       | 'n00'  |
       | 'n01'  |
       | 'n000' |
@@ -294,15 +313,16 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n011' |
     And no side effects
 
+  @modified @outputHeaderModified
   Scenario: [16] Handling lower bounded variable length match 1
     When executing query:
       """
       MATCH (a:A)
       MATCH (a)-[:LIKES*0..]->(c)
-      RETURN c.name
+      RETURN concat('\'', c.name, '\'') as c
       """
     Then the result should be, in any order:
-      | c.name  |
+      | c       |
       | 'n0'    |
       | 'n00'   |
       | 'n01'   |
@@ -320,15 +340,16 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n0111' |
     And no side effects
 
+  @modified @outputHeaderModified
   Scenario: [17] Handling lower bounded variable length match 2
     When executing query:
       """
       MATCH (a:A)
       MATCH (a)-[:LIKES*1..]->(c)
-      RETURN c.name
+      RETURN concat('\'', c.name, '\'') as c
       """
     Then the result should be, in any order:
-      | c.name  |
+      | c       |
       | 'n00'   |
       | 'n01'   |
       | 'n000'  |
@@ -345,15 +366,16 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n0111' |
     And no side effects
 
+  @modified @outputHeaderModified
   Scenario: [18] Handling lower bounded variable length match 3
     When executing query:
       """
       MATCH (a:A)
       MATCH (a)-[:LIKES*2..]->(c)
-      RETURN c.name
+      RETURN concat('\'', c.name, '\'') as c
       """
     Then the result should be, in any order:
-      | c.name  |
+      | c       |
       | 'n000'  |
       | 'n001'  |
       | 'n010'  |
@@ -368,71 +390,76 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n0111' |
     And no side effects
 
+  @modified @outputHeaderModified
   Scenario: [19] Handling a variable length relationship and a standard relationship in chain, zero length 1
     When executing query:
       """
       MATCH (a:A)
       MATCH (a)-[:LIKES*0]->()-[:LIKES]->(c)
-      RETURN c.name
+      RETURN concat('\'', c.name, '\'') as c
       """
     Then the result should be, in any order:
-      | c.name |
-      | 'n00'  |
-      | 'n01'  |
+      | c     |
+      | 'n00' |
+      | 'n01' |
     And no side effects
 
+  @modified @outputHeaderModified
   Scenario: [20] Handling a variable length relationship and a standard relationship in chain, zero length 2
     When executing query:
       """
       MATCH (a:A)
       MATCH (a)-[:LIKES]->()-[:LIKES*0]->(c)
-      RETURN c.name
+      RETURN concat('\'', c.name, '\'') as c
       """
     Then the result should be, in any order:
-      | c.name |
-      | 'n00'  |
-      | 'n01'  |
+      | c     |
+      | 'n00' |
+      | 'n01' |
     And no side effects
 
+  @modified @outputHeaderModified
   Scenario: [21] Handling a variable length relationship and a standard relationship in chain, single length 1
     When executing query:
       """
       MATCH (a:A)
       MATCH (a)-[:LIKES*1]->()-[:LIKES]->(c)
-      RETURN c.name
+      RETURN concat('\'', c.name, '\'') as c
       """
     Then the result should be, in any order:
-      | c.name |
+      | c      |
       | 'n000' |
       | 'n001' |
       | 'n010' |
       | 'n011' |
     And no side effects
 
+  @modified @outputHeaderModified
   Scenario: [22] Handling a variable length relationship and a standard relationship in chain, single length 2
     When executing query:
       """
       MATCH (a:A)
       MATCH (a)-[:LIKES]->()-[:LIKES*1]->(c)
-      RETURN c.name
+      RETURN concat('\'', c.name, '\'') as c
       """
     Then the result should be, in any order:
-      | c.name |
+      | c      |
       | 'n000' |
       | 'n001' |
       | 'n010' |
       | 'n011' |
     And no side effects
 
+  @modified @outputHeaderModified
   Scenario: [23] Handling a variable length relationship and a standard relationship in chain, longer 1
     When executing query:
       """
       MATCH (a:A)
       MATCH (a)-[:LIKES*2]->()-[:LIKES]->(c)
-      RETURN c.name
+      RETURN concat('\'', c.name, '\'') as c
       """
     Then the result should be, in any order:
-      | c.name  |
+      | c       |
       | 'n0000' |
       | 'n0001' |
       | 'n0010' |
@@ -443,15 +470,16 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n0111' |
     And no side effects
 
+  @stepModified @modified @outputHeaderModified
   Scenario: [24] Handling a variable length relationship and a standard relationship in chain, longer 2
     When executing query:
       """
       MATCH (a:A)
       MATCH (a)-[:LIKES]->()-[:LIKES*2]->(c)
-      RETURN c.name
+      RETURN concat('\'', c.name, '\'') as c
       """
     Then the result should be, in any order:
-      | c.name  |
+      | c       |
       | 'n0000' |
       | 'n0001' |
       | 'n0010' |
@@ -462,8 +490,9 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n0111' |
     And no side effects
 
+  @modified @outputHeaderModified
   Scenario: [25] Handling a variable length relationship and a standard relationship in chain, longer 3
-    And having executed:
+    Given having executed:
       """
       MATCH (d:D)
       CREATE (e1:E {name: d.name + '0'}),
@@ -475,10 +504,10 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       """
       MATCH (a:A)
       MATCH (a)-[:LIKES]->()-[:LIKES*3]->(c)
-      RETURN c.name
+      RETURN concat('\'', c.name, '\'') as c
       """
     Then the result should be, in any order:
-      | c.name   |
+      | c        |
       | 'n00000' |
       | 'n00001' |
       | 'n00010' |
@@ -497,8 +526,10 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n01111' |
     And no side effects
 
+  @stepModified @modified @outputHeaderModified @fails @bugFailedVarBinding
+  # Binder exception: Create rel  bound by multiple node labels is not supported.
   Scenario: [26] Handling mixed relationship patterns and directions 1
-    And having executed:
+    Given having executed:
       """
       MATCH (a:A)-[r]->(b)
       DELETE r
@@ -516,10 +547,10 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       """
       MATCH (a:A)
       MATCH (a)<-[:LIKES]-()-[:LIKES*3]->(c)
-      RETURN c.name
+      RETURN concat('\'', c.name, '\'') as c
       """
     Then the result should be, in any order:
-      | c.name   |
+      | c        |
       | 'n00000' |
       | 'n00001' |
       | 'n00010' |
@@ -538,9 +569,11 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n01111' |
     And no side effects
 
+  @stepModified @modified @outputHeaderModified @fails @parserErrorLabelInWhere
+  # Parser exception: Invalid input <MATCH (a)-[r]->(b) WHERE NOT a:>: expected rule oC_SingleQuery (line: 2, offset: 11)
   Scenario: [27] Handling mixed relationship patterns and directions 2
     # This gets hard to follow for a human mind. The answer is named graphs, but it's not crucial to fix.
-    And having executed:
+    Given having executed:
       """
       MATCH (a)-[r]->(b)
       WHERE NOT a:A
@@ -559,10 +592,10 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       """
       MATCH (a:A)
       MATCH (a)-[:LIKES]->()<-[:LIKES*3]->(c)
-      RETURN c.name
+      RETURN concat('\'', c.name, '\'') as c
       """
     Then the result should be, in any order:
-      | c.name   |
+      | c        |
       | 'n00000' |
       | 'n00001' |
       | 'n00010' |
@@ -581,8 +614,10 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n01111' |
     And no side effects
 
+  @stepModified
+  @modified @outputHeaderModified
   Scenario: [28] Handling mixed relationship patterns 1
-    And having executed:
+    Given having executed:
       """
       MATCH (d:D)
       CREATE (e1:E {name: d.name + '0'}),
@@ -594,10 +629,10 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       """
       MATCH (a:A)
       MATCH (p)-[:LIKES*1]->()-[:LIKES]->()-[r:LIKES*2]->(c)
-      RETURN c.name
+      RETURN concat('\'', c.name, '\'') as c
       """
     Then the result should be, in any order:
-      | c.name   |
+      | c        |
       | 'n00000' |
       | 'n00001' |
       | 'n00010' |
@@ -616,8 +651,9 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n01111' |
     And no side effects
 
+  @stepModified @modified @outputHeaderModified
   Scenario: [29] Handling mixed relationship patterns 2
-    And having executed:
+    Given having executed:
       """
       MATCH (d:D)
       CREATE (e1:E {name: d.name + '0'}),
@@ -629,10 +665,10 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       """
       MATCH (a:A)
       MATCH (p)-[:LIKES]->()-[:LIKES*2]->()-[r:LIKES]->(c)
-      RETURN c.name
+      RETURN concat('\'', c.name, '\'') as c
       """
     Then the result should be, in any order:
-      | c.name   |
+      | c        |
       | 'n00000' |
       | 'n00001' |
       | 'n00010' |

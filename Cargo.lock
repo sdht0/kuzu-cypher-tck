@@ -233,15 +233,6 @@ checksum = "d0a5c400df2834b80a4c3327b3aad3a4c4cd4de0629063962b03235697506a28"
 
 [[package]]
 name = "cucumber"
-version = "0.1.0"
-dependencies = [
- "cucumber 0.20.2",
- "futures",
- "kuzu",
-]
-
-[[package]]
-name = "cucumber"
 version = "0.20.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8e5063d8cf24f4998ad01cac265da468a15ca682a8f4f826d50e661964e8d9b8"
@@ -633,6 +624,15 @@ dependencies = [
  "rustversion",
  "time",
  "uuid",
+]
+
+[[package]]
+name = "kuzu-cypher-tck"
+version = "0.1.0"
+dependencies = [
+ "cucumber",
+ "futures",
+ "kuzu",
 ]
 
 [[package]]

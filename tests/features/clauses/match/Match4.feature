@@ -30,28 +30,32 @@
 
 Feature: Match4 - Match variable length patterns scenarios
 
+  @modified
   Scenario: [1] Handling fixed-length variable length pattern
     Given an empty graph
+    And having defined kuzu types: n:t
     And having executed:
       """
-      CREATE ()-[:T]->()
+      CREATE (:N)-[:T]->(:N)
       """
     When executing query:
       """
       MATCH (a)-[r*1..1]->(b)
-      RETURN r
+      RETURN list_transform(rels(r), n -> concat('[:', label(n), ']')) as r
       """
     Then the result should be, in any order:
       | r      |
       | [[:T]] |
     And no side effects
 
+  @modified
   Scenario: [2] Simple variable length pattern
     Given an empty graph
+    And having defined kuzu types: n_name:c
     And having executed:
       """
-      CREATE (a {name: 'A'}), (b {name: 'B'}),
-             (c {name: 'C'}), (d {name: 'D'})
+      CREATE (a:N {name: 'A'}), (b:N {name: 'B'}),
+             (c:N {name: 'C'}), (d:N {name: 'D'})
       CREATE (a)-[:CONTAINS]->(b),
              (b)-[:CONTAINS]->(c),
              (c)-[:CONTAINS]->(d)
@@ -59,7 +63,7 @@ Feature: Match4 - Match variable length patterns scenarios
     When executing query:
       """
       MATCH (a {name: 'A'})-[*]->(x)
-      RETURN x
+      RETURN concat('({name: \'', x.name, '\'})') as x
       """
     Then the result should be, in any order:
       | x             |
@@ -68,20 +72,24 @@ Feature: Match4 - Match variable length patterns scenarios
       | ({name: 'D'}) |
     And no side effects
 
+  @modified
   Scenario: [3] Zero-length variable length pattern in the middle of the pattern
     Given an empty graph
+    And having defined kuzu types: n_name:cf
     And having executed:
       """
-      CREATE (a {name: 'A'}), (b {name: 'B'}),
-             (c {name: 'C'}), ({name: 'D'}),
-             ({name: 'E'})
+      CREATE (a:N {name: 'A'}), (b:N {name: 'B'}),
+             (c:N {name: 'C'}), (:N {name: 'D'}),
+             (:N {name: 'E'})
       CREATE (a)-[:CONTAINS]->(b),
              (b)-[:FRIEND]->(c)
       """
     When executing query:
       """
       MATCH (a {name: 'A'})-[:CONTAINS*0..1]->(b)-[:FRIEND*0..1]->(c)
-      RETURN a, b, c
+      RETURN concat('({name: \'', a.name, '\'})') as a,
+             concat('({name: \'', b.name, '\'})') as b,
+             concat('({name: \'', c.name, '\'})') as c
       """
     Then the result should be, in any order:
       | a             | b             | c             |
@@ -90,14 +98,17 @@ Feature: Match4 - Match variable length patterns scenarios
       | ({name: 'A'}) | ({name: 'B'}) | ({name: 'C'}) |
     And no side effects
 
+  @modified @fails @bugFailedVarBinding
+  # Binder exception: Cannot bind n1 as node pattern.
   Scenario: [4] Matching longer variable length paths
     Given an empty graph
+    And having defined kuzu types: n_var:t
     And having executed:
       """
-      CREATE (a {var: 'start'}), (b {var: 'end'})
+      CREATE (a:N {var: 'start'}), (b:N {var: 'end'})
       WITH *
       UNWIND range(1, 20) AS i
-      CREATE (n {var: i})
+      CREATE (n:N {var: i})
       WITH a, b, [a] + collect(n) + [b] AS nodeList
       UNWIND range(0, size(nodeList) - 2, 1) AS i
       WITH nodeList[i] AS n1, nodeList[i+1] AS n2
@@ -106,36 +117,41 @@ Feature: Match4 - Match variable length patterns scenarios
     When executing query:
       """
       MATCH (n {var: 'start'})-[:T*]->(m {var: 'end'})
-      RETURN m
+      RETURN concat('({var: \'', m.var, '\'})') as m
       """
     Then the result should be, in any order:
       | m              |
       | ({var: 'end'}) |
     And no side effects
 
+  @modified
   Scenario: [5] Matching variable length pattern with property predicate
     Given an empty graph
+    And having defined kuzu types: a_label:w_year
     And having executed:
       """
-      CREATE (a:Artist:A), (b:Artist:B), (c:Artist:C)
+      CREATE (a:Artist {label: ':A'}), (b:Artist {label: ':B'}), (c:Artist {label: ':C'})
       CREATE (a)-[:WORKED_WITH {year: 1987}]->(b),
              (b)-[:WORKED_WITH {year: 1988}]->(c)
       """
     When executing query:
       """
       MATCH (a:Artist)-[:WORKED_WITH* {year: 1988}]->(b:Artist)
-      RETURN *
+      RETURN concat('(:', label(a), a.label, ')') as a,
+             concat('(:', label(b), b.label, ')') as b
       """
     Then the result should be, in any order:
       | a           | b           |
       | (:Artist:B) | (:Artist:C) |
     And no side effects
 
+  @modified
   Scenario: [6] Matching variable length patterns from a bound node
     Given an empty graph
+    And having defined kuzu types: an:xy
     And having executed:
       """
-      CREATE (a:A), (b), (c)
+      CREATE (a:A), (b:N), (c:N)
       CREATE (a)-[:X]->(b),
              (b)-[:Y]->(c)
       """
@@ -143,15 +159,20 @@ Feature: Match4 - Match variable length patterns scenarios
       """
       MATCH (a:A)
       MATCH (a)-[r*2]->()
-      RETURN r
+      RETURN concat('[',
+        list_to_string(list_transform(rels(r), n -> concat('[:', label(n), ']')), ', '),
+        ']') as r
       """
     Then the result should be (ignoring element order for lists):
       | r            |
       | [[:X], [:Y]] |
     And no side effects
 
+  @modified @fails @bugFailedVarBinding
+  # Binder exception: Bind relationship r to relationship with same name is not supported.
   Scenario: [7] Matching variable length patterns including a bound relationship
     Given an empty graph
+    And having defined kuzu types: n:e
     And having executed:
       """
       CREATE (n0:Node),
@@ -173,8 +194,11 @@ Feature: Match4 - Match variable length patterns scenarios
       | 32 |
     And no side effects
 
+  @modified @fails @bugFailedVarBinding
+  # Binder exception: rs has data type REL[] but RECURSIVE_REL was expected.
   Scenario: [8] Matching relationships into a list and matching variable length using the list
     Given an empty graph
+    And having defined kuzu types: abc:y
     And having executed:
       """
       CREATE (a:A), (b:B), (c:C)
@@ -195,8 +219,10 @@ Feature: Match4 - Match variable length patterns scenarios
     And no side effects
 
   @skipGrammarCheck
+  @modified
   Scenario: [9] Fail when asterisk operator is missing
     Given an empty graph
+    And having defined kuzu types: abcd_name:l
     And having executed:
       """
       CREATE (n0:A {name: 'n0'}),
@@ -238,8 +264,10 @@ Feature: Match4 - Match variable length patterns scenarios
     Then a SyntaxError should be raised at compile time: InvalidRelationshipPattern
 
   @skipGrammarCheck
+  @modified
   Scenario: [10] Fail on negative bound
     Given an empty graph
+    And having defined kuzu types: abcd_name:l
     And having executed:
       """
       CREATE (n0:A {name: 'n0'}),

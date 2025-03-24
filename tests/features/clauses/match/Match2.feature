@@ -41,8 +41,10 @@ Feature: Match2 - Match relationships
       | r |
     And no side effects
 
+  @modified
   Scenario: [2] Matching a relationship pattern using a label predicate on both sides
     Given an empty graph
+    And having defined kuzu types: ab:t14
     And having executed:
       """
       CREATE (:A)-[:T1]->(:B),
@@ -53,41 +55,45 @@ Feature: Match2 - Match relationships
     When executing query:
       """
       MATCH (:A)-[r]->(:B)
-      RETURN r
+      RETURN concat('[:', LABEL(r), ']') as r
       """
     Then the result should be, in any order:
       | r     |
       | [:T1] |
     And no side effects
 
+  @modified @testbug @fails @extraOutputBackTraversal
   Scenario: [3] Matching a self-loop with an undirected relationship pattern
     Given an empty graph
+    And having defined kuzu types: n:t
     And having executed:
       """
-      CREATE (a)
-      CREATE (a)-[:T]->(a)
+      CREATE (a:N),
+        (a:N)-[:T]->(a:N)
       """
     When executing query:
       """
       MATCH ()-[r]-()
-      RETURN type(r) AS r
+      RETURN concat('\'', LABEL(r), '\'') as r
       """
     Then the result should be, in any order:
       | r   |
       | 'T' |
     And no side effects
 
+  @modified
   Scenario: [4] Matching a self-loop with a directed relationship pattern
     Given an empty graph
+    And having defined kuzu types: n:t
     And having executed:
       """
-      CREATE (a)
-      CREATE (a)-[:T]->(a)
+      CREATE (a:N),
+        (a:N)-[:T]->(a:N)
       """
     When executing query:
       """
       MATCH ()-[r]->()
-      RETURN type(r) AS r
+      RETURN concat('\'', LABEL(r), '\'') as r
       """
     Then the result should be, in any order:
       | r   |
@@ -96,22 +102,25 @@ Feature: Match2 - Match relationships
 
   Scenario: [5] Match relationship with inline property value
     Given an empty graph
+    And having defined kuzu types: abx:k_name
     And having executed:
       """
-      CREATE (:A)<-[:KNOWS {name: 'monkey'}]-()-[:KNOWS {name: 'woot'}]->(:B)
+      CREATE (:A)<-[:KNOWS {name: 'monkey'}]-(:X)-[:KNOWS {name: 'woot'}]->(:B)
       """
     When executing query:
       """
       MATCH (node)-[r:KNOWS {name: 'monkey'}]->(a)
-      RETURN a
+      RETURN concat('(:', LABEL(a), ')') as a
       """
     Then the result should be, in any order:
       | a    |
       | (:A) |
     And no side effects
 
+  @modified
   Scenario: [6] Match relationships with multiple types
     Given an empty graph
+    And having defined kuzu types: n_name:hkw
     And having executed:
       """
       CREATE (a {name: 'A'}),
@@ -124,7 +133,7 @@ Feature: Match2 - Match relationships
     When executing query:
       """
       MATCH (n)-[r:KNOWS|HATES]->(x)
-      RETURN r
+      RETURN concat('[:', LABEL(r), ']') as r
       """
     Then the result should be, in any order:
       | r        |
@@ -132,11 +141,14 @@ Feature: Match2 - Match relationships
       | [:HATES] |
     And no side effects
 
+  @fails @bugFailedVarBinding
+  # Binder exception: Bind relationship r to relationship with same name is not supported.
   Scenario: [7] Matching twice with conflicting relationship types on same relationship
     Given an empty graph
+    And having defined kuzu types: n:t
     And having executed:
       """
-      CREATE ()-[:T]->()
+      CREATE (:N)-[:T]->(:N)
       """
     When executing query:
       """
