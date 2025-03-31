@@ -41,16 +41,22 @@ impl Kuzu {
 
     fn get_state(&self) -> (usize, usize) {
         let mut res = self
-            .execute_query("MATCH (n)-[e]->() RETURN count(n), count(e)")
+            .execute_query("MATCH (n) RETURN count(n)")
             .expect("Failed to execute query");
-        let out = res.next().expect("Graph counts missing");
-        match (&out[0], &out[1]) {
-            (Value::Int64(nodes), Value::Int64(edges)) => (
-                usize::try_from(*nodes).unwrap(),
-                usize::try_from(*edges).unwrap(),
-            ),
+        let out = res.next().expect("Node count missing");
+        let nodes = match &out[0] {
+            Value::Int64(c) => usize::try_from(*c).unwrap(),
             _ => panic!("Cannot parse counts from: {out:?}"),
-        }
+        };
+        let mut res = self
+            .execute_query("MATCH ()-[r]->() RETURN count(r)")
+            .expect("Failed to execute query");
+        let out = res.next().expect("Edge count missing");
+        let edges = match &out[0] {
+            Value::Int64(c) => usize::try_from(*c).unwrap(),
+            _ => panic!("Cannot parse counts from: {out:?}"),
+        };
+        (nodes, edges)
     }
 }
 
@@ -74,12 +80,13 @@ fn pre_execute_query(kuzu: &mut Kuzu, step: &Step) {
     kuzu.expected_state = kuzu.get_state();
 }
 
-#[when("executing query:")]
+#[when(regex = r"^executing( control)? query:")]
 fn execute_query(kuzu: &mut Kuzu, step: &Step) {
     let res = kuzu.execute_query(step.docstring.as_ref().expect("Query missing").as_str());
     match res {
         Ok(res) => {
             kuzu.columns = res.get_column_names().join(OUTPUT_SEP);
+            kuzu.results.clear();
             for r in res {
                 let out = r
                     .iter()
@@ -175,7 +182,7 @@ fn check_side_effects(kuzu: &mut Kuzu, step: &Step) {
         }
     }
     let found = kuzu.get_state();
-    assert_eq!(kuzu.expected_state, found);
+    assert_eq!(expected_state, found);
 }
 
 #[then(expr = "a SyntaxError should be raised at compile time: {word}")]
