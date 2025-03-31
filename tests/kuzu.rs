@@ -195,8 +195,13 @@ fn check_error(kuzu: &mut Kuzu, error: String) {
         "VariableTypeConflict"
         | "RelationshipUniquenessViolation"
         | "VariableAlreadyBound"
-        | "UndefinedVariable" => {
+        | "UndefinedVariable"
+        | "NoSingleRelationshipType"
+        | "CreatingVarLength" => {
             assert!(found_error.contains("Binder exception"), "{found_error}");
+        }
+        "RequiresDirectedRelationship" => {
+            assert!(found_error.contains("exception"), "{found_error}");
         }
         _ => panic!("Unknown error: {error}, found {found_error}"),
     }

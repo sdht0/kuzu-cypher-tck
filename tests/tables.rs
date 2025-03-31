@@ -288,6 +288,13 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE REL(FROM Start to B, FROM B TO C, num INT64);
             "
         }
+        "be:t" => {
+            "
+              CREATE NODE TABLE Begin(id SERIAL PRIMARY KEY);
+              CREATE NODE TABLE `End`(id SERIAL PRIMARY KEY);
+              CREATE REL TABLE TYPE(FROM Begin TO `End`);
+            "
+        }
         "bgry:t" => {
             "
               CREATE NODE TABLE Blue(id SERIAL PRIMARY KEY);
@@ -370,16 +377,31 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE N(id SERIAL PRIMARY KEY, num INT64);
             "
         }
+        "n:ab" => {
+            "
+              CREATE NODE TABLE N(id SERIAL PRIMARY KEY);
+              CREATE REL TABLE A(FROM N to N);
+              CREATE REL TABLE B(FROM N to N);
+            "
+        }
+        "n_name:ab" => {
+            "
+              CREATE NODE TABLE N(id SERIAL PRIMARY KEY, name STRING);
+              CREATE REL TABLE A(FROM N to N);
+              CREATE REL TABLE B(FROM N to N);
+            "
+        }
         "n_name:c" => {
             "
               CREATE NODE TABLE N(id SERIAL PRIMARY KEY, name STRING);
               CREATE REL TABLE CONTAINS(FROM N to N);
             "
         }
-        "n_name:x" => {
+        "n_name:cf" => {
             "
               CREATE NODE TABLE N(id SERIAL PRIMARY KEY, name STRING);
-              CREATE REL TABLE X(FROM N to N);
+              CREATE REL TABLE CONTAINS(FROM N to N);
+              CREATE REL TABLE FRIEND(FROM N to N);
             "
         }
         "n:e" => {
@@ -388,10 +410,30 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE Edge(FROM Node to Node);
             "
         }
+        "n:f" => {
+            "
+              CREATE NODE TABLE N(id SERIAL PRIMARY KEY);
+              CREATE REL TABLE FOO(FROM N to N);
+            "
+        }
+        "n_name:hkw" => {
+            "
+              CREATE NODE TABLE N(id SERIAL PRIMARY KEY, name STRING);
+              CREATE REL TABLE KNOWS(FROM N to N);
+              CREATE REL TABLE HATES(FROM N to N);
+              CREATE REL TABLE WONDERS(FROM N to N);
+            "
+        }
         "n_name:k" => {
             "
               CREATE NODE TABLE N(id SERIAL PRIMARY KEY, name STRING);
               CREATE REL TABLE KNOWS(FROM N to N);
+            "
+        }
+        "n:l" => {
+            "
+              CREATE NODE TABLE N(id SERIAL PRIMARY KEY, name STRING);
+              CREATE REL TABLE LINK(FROM N to N);
             "
         }
         "n:n" => {
@@ -404,6 +446,18 @@ pub fn get_table(id: &str) -> &str {
             "
               CREATE NODE TABLE N(id SERIAL PRIMARY KEY);
               CREATE REL TABLE R(FROM N to N);
+            "
+        }
+        "n:r_num" => {
+            "
+              CREATE NODE TABLE N(id SERIAL PRIMARY KEY);
+              CREATE REL TABLE R(FROM N to N, num INT64);
+            "
+        }
+        "n:r_2" => {
+            "
+              CREATE NODE TABLE N(id SERIAL PRIMARY KEY);
+              CREATE REL TABLE R(FROM N to N, id INT64, name STRING);
             "
         }
         "n:t" => {
@@ -424,26 +478,16 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE T(FROM N to N);
             "
         }
-        "n_name:ab" => {
+        "n_name:x" => {
             "
               CREATE NODE TABLE N(id SERIAL PRIMARY KEY, name STRING);
-              CREATE REL TABLE A(FROM N to N);
-              CREATE REL TABLE B(FROM N to N);
+              CREATE REL TABLE X(FROM N to N);
             "
         }
-        "n_name:cf" => {
+        "n:x_2" => {
             "
-              CREATE NODE TABLE N(id SERIAL PRIMARY KEY, name STRING);
-              CREATE REL TABLE CONTAINS(FROM N to N);
-              CREATE REL TABLE FRIEND(FROM N to N);
-            "
-        }
-        "n_name:hkw" => {
-            "
-              CREATE NODE TABLE N(id SERIAL PRIMARY KEY, name STRING);
-              CREATE REL TABLE KNOWS(FROM N to N);
-              CREATE REL TABLE HATES(FROM N to N);
-              CREATE REL TABLE WONDERS(FROM N to N);
+              CREATE NODE TABLE N(id SERIAL PRIMARY KEY);
+              CREATE REL TABLE X(FROM N to N, id INT64, name STRING);
             "
         }
         "nf:t" => {
@@ -475,6 +519,12 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE SUPPORTS(FROM Player to Team);
             "
         }
+        "r:l" => {
+            "
+              CREATE NODE TABLE Root(id SERIAL PRIMARY KEY);
+              CREATE REL TABLE LINK(FROM Root to Root);
+            "
+        }
         "t" => {
             "
               CREATE NODE TABLE TheLabel(id SERIAL PRIMARY KEY);
@@ -484,6 +534,13 @@ pub fn get_table(id: &str) -> &str {
             "
               CREATE NODE TABLE X(id SERIAL PRIMARY KEY);
               CREATE REL TABLE T(FROM X to X);
+            "
+        }
+        "xy:r" => {
+            "
+              CREATE NODE TABLE X(id SERIAL PRIMARY KEY);
+              CREATE NODE TABLE Y(id SERIAL PRIMARY KEY);
+              CREATE REL TABLE R(FROM X to Y, FROM Y to X);
             "
         }
         "xyy:r" => {
