@@ -47,6 +47,13 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE LOOP(FROM A to B);
             "
         }
+        "ab:r" => {
+            "
+              CREATE NODE TABLE A(id SERIAL PRIMARY KEY);
+              CREATE NODE TABLE B(id SERIAL PRIMARY KEY);
+              CREATE REL TABLE R(FROM B to A);
+            "
+        }
         "ab_num:r" => {
             "
               CREATE NODE TABLE A(id SERIAL PRIMARY KEY, num INT64);
@@ -391,6 +398,12 @@ pub fn get_table(id: &str) -> &str {
             "
               CREATE NODE TABLE N(id SERIAL PRIMARY KEY);
               CREATE REL TABLE NOT_EXIST(FROM N to N);
+            "
+        }
+        "n:r" => {
+            "
+              CREATE NODE TABLE N(id SERIAL PRIMARY KEY);
+              CREATE REL TABLE R(FROM N to N);
             "
         }
         "n:t" => {
