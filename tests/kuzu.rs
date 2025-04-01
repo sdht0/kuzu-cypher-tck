@@ -23,7 +23,7 @@ impl Kuzu {
             db: Database::in_memory(
                 SystemConfig::default()
                     .max_num_threads(1)
-                    .buffer_pool_size(128 * 1024 * 1024)
+                    .buffer_pool_size(256 * 1024 * 1024)
                     .max_db_size(512 * 1024 * 1024),
             )
             .expect("Could not create database"),
