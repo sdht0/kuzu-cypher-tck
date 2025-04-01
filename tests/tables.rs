@@ -357,6 +357,18 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE T(FROM N to Movie);
             "
         }
+        "mp:ad" => {
+            "
+              CREATE NODE TABLE Movie(id SERIAL PRIMARY KEY, title STRING, released UINT64, tagline STRING);
+              CREATE NODE TABLE Person(id SERIAL PRIMARY KEY, name STRING, born UINT64);
+              CREATE REL TABLE ACTED_IN(FROM Person to Movie, roles STRING[]);
+              CREATE REL TABLE DIRECTED(FROM Person to Movie);
+              CREATE REL TABLE PRODUCED(FROM Person to Movie);
+              CREATE REL TABLE WROTE(FROM Person to Movie);
+              CREATE REL TABLE FOLLOWS(FROM Person to Person);
+              CREATE REL TABLE REVIEWED(FROM Person to Movie, summary STRING, rating UINT64);
+            "
+        }
         "n" => {
             "
               CREATE NODE TABLE N(id SERIAL PRIMARY KEY);
@@ -536,6 +548,22 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE R(id SERIAL PRIMARY KEY);
               CREATE NODE TABLE T(id SERIAL PRIMARY KEY);
               CREATE REL TABLE REL(FROM T to R);
+            "
+        }
+        "dssst:bcdsst" => {
+            "
+              CREATE NODE TABLE Department(id SERIAL PRIMARY KEY, name STRING);
+              CREATE NODE TABLE School(id SERIAL PRIMARY KEY, name STRING);
+              CREATE NODE TABLE Student(id SERIAL PRIMARY KEY, name STRING);
+              CREATE NODE TABLE Subject(id SERIAL PRIMARY KEY, name STRING);
+              CREATE NODE TABLE StudyBuddy(id SERIAL PRIMARY KEY);
+              CREATE NODE TABLE Teacher(id SERIAL PRIMARY KEY, name STRING);
+              CREATE REL TABLE BUDDY(FROM Student to StudyBuddy);
+              CREATE REL TABLE CURRICULUM(FROM Department to Subject);
+              CREATE REL TABLE DEPARTMENTR(FROM School to Department);
+              CREATE REL TABLE STAFF(FROM School to Teacher);
+              CREATE REL TABLE STUDENTR(FROM School to Student);
+              CREATE REL TABLE TAUGHT_BY(FROM Subject to Teacher);
             "
         }
         "t" => {
