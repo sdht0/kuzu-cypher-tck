@@ -177,7 +177,7 @@ fn check_side_effects(kuzu: &mut Kuzu, step: &Step) {
             "-nodes" => expected_state.0 -= change,
             "+relationships" => expected_state.1 += change,
             "-relationships" => expected_state.1 -= change,
-            "+properties" | "-properties" | "+labels" | "-labels" => {}
+            "+properties" | "-properties" | "+labels" | "-labels" => {} // Hard to count in Kuzu
             _ => panic!("Unexpected entry type: {entry:?}"),
         }
     }

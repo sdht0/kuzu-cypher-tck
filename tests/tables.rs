@@ -377,6 +377,12 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE N(id SERIAL PRIMARY KEY, num INT64);
             "
         }
+        "n_num:t" => {
+            "
+              CREATE NODE TABLE N(id SERIAL PRIMARY KEY, num INT64);
+              CREATE REL TABLE T(FROM N to N);
+            "
+        }
         "n:ab" => {
             "
               CREATE NODE TABLE N(id SERIAL PRIMARY KEY);
@@ -523,6 +529,13 @@ pub fn get_table(id: &str) -> &str {
             "
               CREATE NODE TABLE Root(id SERIAL PRIMARY KEY);
               CREATE REL TABLE LINK(FROM Root to Root);
+            "
+        }
+        "rt:r" => {
+            "
+              CREATE NODE TABLE R(id SERIAL PRIMARY KEY);
+              CREATE NODE TABLE T(id SERIAL PRIMARY KEY);
+              CREATE REL TABLE REL(FROM T to R);
             "
         }
         "t" => {
