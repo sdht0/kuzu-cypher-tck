@@ -32,6 +32,7 @@ Feature: Create5 - Multiple hops create patterns
 
   Scenario: [1] Create a pattern with multiple hops
     Given an empty graph
+    And having defined kuzu types: abc:r
     When executing query:
       """
       CREATE (:A)-[:R]->(:B)-[:R]->(:C)
@@ -44,14 +45,15 @@ Feature: Create5 - Multiple hops create patterns
     When executing control query:
       """
       MATCH (a:A)-[:R]->(b:B)-[:R]->(c:C)
-      RETURN a, b, c
+      RETURN LABEL(a) as a, LABEL(b) as b, LABEL(c) as c
       """
     Then the result should be, in any order:
-      | a    | b    | c    |
-      | (:A) | (:B) | (:C) |
+      | a | b | c |
+      | A | B | C |
 
   Scenario: [2] Create a pattern with multiple hops in the reverse direction
     Given an empty graph
+    And having defined kuzu types: abc:r
     When executing query:
       """
       CREATE (:A)<-[:R]-(:B)<-[:R]-(:C)
@@ -64,14 +66,15 @@ Feature: Create5 - Multiple hops create patterns
     When executing control query:
       """
       MATCH (a)<-[:R]-(b)<-[:R]-(c)
-      RETURN a, b, c
+      RETURN LABEL(a) as a, LABEL(b) as b, LABEL(c) as c
       """
     Then the result should be, in any order:
-      | a    | b    | c    |
-      | (:A) | (:B) | (:C) |
+      | a | b | c |
+      | A | B | C |
 
   Scenario: [3] Create a pattern with multiple hops in varying directions
     Given an empty graph
+    And having defined kuzu types: abc:r
     When executing query:
       """
       CREATE (:A)-[:R]->(:B)<-[:R]-(:C)
@@ -84,14 +87,15 @@ Feature: Create5 - Multiple hops create patterns
     When executing control query:
       """
       MATCH (a:A)-[r1:R]->(b:B)<-[r2:R]-(c:C)
-      RETURN a, b, c
+      RETURN LABEL(a) as a, LABEL(b) as b, LABEL(c) as c
       """
     Then the result should be, in any order:
-      | a    | b    | c    |
-      | (:A) | (:B) | (:C) |
+      | a | b | c |
+      | A | B | C |
 
   Scenario: [4] Create a pattern with multiple hops with multiple types and varying directions
     Given an empty graph
+    And having defined kuzu types: n:r13
     When executing query:
       """
       CREATE ()-[:R1]->()<-[:R2]-()-[:R3]->()
@@ -103,14 +107,15 @@ Feature: Create5 - Multiple hops create patterns
     When executing control query:
       """
       MATCH ()-[r1:R1]->()<-[r2:R2]-()-[r3:R3]->()
-      RETURN r1, r2, r3
+      RETURN LABEL(r1) as r1, LABEL(r2) as r2, LABEL(r3) as r3
       """
     Then the result should be, in any order:
-      | r1    | r2    | r3    |
-      | [:R1] | [:R2] | [:R3] |
+      | r1 | r2 | r3 |
+      | R1 | R2 | R3 |
 
   Scenario: [5] Create a pattern with multiple hops and varying directions
     Given an empty graph
+    And having defined kuzu types: abc:r12
     When executing query:
       """
       CREATE (:A)<-[:R1]-(:B)-[:R2]->(:C)
@@ -123,8 +128,8 @@ Feature: Create5 - Multiple hops create patterns
     When executing control query:
       """
       MATCH (a:A)<-[r1:R1]-(b:B)-[r2:R2]->(c:C)
-      RETURN *
+      RETURN LABEL(a) as a, LABEL(b) as b, LABEL(c) as c, LABEL(r1) as r1, LABEL(r2) as r2
       """
     Then the result should be, in any order:
-      | a    | b    | c    | r1    | r2    |
-      | (:A) | (:B) | (:C) | [:R1] | [:R2] |
+      | a | b | c | r1 | r2 |
+      | A | B | C | R1 | R2 |

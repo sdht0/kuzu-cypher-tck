@@ -133,6 +133,23 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE FRIEND(FROM B to C);
             "
         }
+        "abc:r" => {
+            "
+              CREATE NODE TABLE A(id SERIAL PRIMARY KEY);
+              CREATE NODE TABLE B(id SERIAL PRIMARY KEY);
+              CREATE NODE TABLE C(id SERIAL PRIMARY KEY);
+              CREATE REL TABLE R(FROM A to B, FROM B to C, FROM C TO B, FROM B TO A);
+            "
+        }
+        "abc:r12" => {
+            "
+              CREATE NODE TABLE A(id SERIAL PRIMARY KEY);
+              CREATE NODE TABLE B(id SERIAL PRIMARY KEY);
+              CREATE NODE TABLE C(id SERIAL PRIMARY KEY);
+              CREATE REL TABLE R1(FROM B to A);
+              CREATE REL TABLE R2(FROM B to C);
+            "
+        }
         "abc:t" => {
             "
               CREATE NODE TABLE A(id SERIAL PRIMARY KEY);
@@ -476,6 +493,14 @@ pub fn get_table(id: &str) -> &str {
             "
               CREATE NODE TABLE N(id SERIAL PRIMARY KEY);
               CREATE REL TABLE R(FROM N to N, id INT64, name STRING);
+            "
+        }
+        "n:r13" => {
+            "
+              CREATE NODE TABLE N(id SERIAL PRIMARY KEY);
+              CREATE REL TABLE R1(FROM N to N);
+              CREATE REL TABLE R2(FROM N to N);
+              CREATE REL TABLE R3(FROM N to N);
             "
         }
         "n:t" => {
