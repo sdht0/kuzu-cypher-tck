@@ -33,6 +33,6 @@ fn main() {
 
 fn execute_query(db: &Database, query: &str) {
     let conn = Connection::new(db).expect("Failed to connect to DB");
-    let mut res = conn.query(query).expect("Failed to execute query");
-    println!("{:?}", res.display());
+    let res = conn.query(query).expect("Failed to execute query");
+    println!("{res:?}");
 }
