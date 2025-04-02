@@ -1,5 +1,10 @@
 pub fn get_table(id: &str) -> &str {
     match id {
+        "a" => {
+            "
+              CREATE NODE TABLE A(id SERIAL PRIMARY KEY);
+            "
+        }
         "a:l" => {
             "
               CREATE NODE TABLE A(id SERIAL PRIMARY KEY);
@@ -98,6 +103,14 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE A(id SERIAL PRIMARY KEY, name STRING);
               CREATE NODE TABLE B(id SERIAL PRIMARY KEY, name STRING);
               CREATE NODE TABLE C(id SERIAL PRIMARY KEY, name STRING);
+            "
+        }
+        "abc_a:a" => {
+            "
+              CREATE NODE TABLE A(id SERIAL PRIMARY KEY);
+              CREATE NODE TABLE B(id SERIAL PRIMARY KEY);
+              CREATE NODE TABLE C(id SERIAL PRIMARY KEY, a STRING);
+              CREATE REL TABLE ADMIN(FROM B to A, FROM B to C);
             "
         }
         "abc_num:k" => {

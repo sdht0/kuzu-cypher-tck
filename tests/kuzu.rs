@@ -34,22 +34,15 @@ impl Kuzu {
         }
     }
 
-    fn execute_query(&self, query: &str) -> Result<QueryResult, Error> {
-        let conn = Connection::new(&self.db).expect("Failed to connect to DB");
-        conn.query(query)
-    }
-
     fn get_state(&self) -> (usize, usize) {
-        let mut res = self
-            .execute_query("MATCH (n) RETURN count(n)")
-            .expect("Failed to execute query");
+        let mut res =
+            kuzu_query(&self.db, "MATCH (n) RETURN count(n)").expect("Failed to execute query");
         let out = res.next().expect("Node count missing");
         let nodes = match &out[0] {
             Value::Int64(c) => usize::try_from(*c).unwrap(),
             _ => panic!("Cannot parse counts from: {out:?}"),
         };
-        let mut res = self
-            .execute_query("MATCH ()-[r]->() RETURN count(r)")
+        let mut res = kuzu_query(&self.db, "MATCH ()-[r]->() RETURN count(r)")
             .expect("Failed to execute query");
         let out = res.next().expect("Edge count missing");
         let edges = match &out[0] {
@@ -60,6 +53,11 @@ impl Kuzu {
     }
 }
 
+fn kuzu_query<'a>(db: &'a Database, query: &str) -> Result<QueryResult<'a>, Error> {
+    let conn = Connection::new(db).expect("Failed to connect to DB");
+    conn.query(query)
+}
+
 #[given(regex = r"^an empty graph|any graph$")]
 fn empty_graph(kuzu: &mut Kuzu) {
     kuzu.expected_state = kuzu.get_state();
@@ -68,21 +66,26 @@ fn empty_graph(kuzu: &mut Kuzu) {
 #[given(expr = "having defined kuzu types: {word}")]
 fn pre_create_types(kuzu: &mut Kuzu, id: String) {
     let query = crate::tables::get_table(id.as_str());
-    let _ = kuzu.execute_query(query).expect("Failed to execute query");
+    let _ = kuzu_query(&kuzu.db, query).expect("Failed to execute query");
     kuzu.expected_state = kuzu.get_state();
 }
 
 #[given("having executed:")]
 fn pre_execute_query(kuzu: &mut Kuzu, step: &Step) {
-    let _ = kuzu
-        .execute_query(step.docstring.as_ref().expect("Query missing").as_str())
-        .expect("Failed to execute query");
+    let _ = kuzu_query(
+        &kuzu.db,
+        step.docstring.as_ref().expect("Query missing").as_str(),
+    )
+    .expect("Failed to execute query");
     kuzu.expected_state = kuzu.get_state();
 }
 
 #[when(regex = r"^executing( control)? query:")]
 fn execute_query(kuzu: &mut Kuzu, step: &Step) {
-    let res = kuzu.execute_query(step.docstring.as_ref().expect("Query missing").as_str());
+    let res = kuzu_query(
+        &kuzu.db,
+        step.docstring.as_ref().expect("Query missing").as_str(),
+    );
     match res {
         Ok(res) => {
             kuzu.columns = res.get_column_names().join(OUTPUT_SEP);
