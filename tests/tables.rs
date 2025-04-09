@@ -289,6 +289,15 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE T(FROM B to A, FROM C TO B, FROM D TO C);
             "
         }
+        "abcd_animal:k" => {
+            "
+              CREATE NODE TABLE A(id SERIAL PRIMARY KEY, animal STRING);
+              CREATE NODE TABLE B(id SERIAL PRIMARY KEY, animal STRING);
+              CREATE NODE TABLE C(id SERIAL PRIMARY KEY, animal STRING);
+              CREATE NODE TABLE D(id SERIAL PRIMARY KEY, animal STRING);
+              CREATE REL TABLE KNOWS(FROM A to B, FROM A TO C, FROM D TO B, FROM D TO C);
+            "
+        }
         "abce_name:l" => {
             "
               CREATE NODE TABLE A(id SERIAL PRIMARY KEY, name STRING);
