@@ -65,14 +65,12 @@ fn parameterized_kuzu_query<'a>(
     params: &HashMap<String, String>,
     query: &str,
 ) -> Result<QueryResult<'a>, Error> {
-    println!("pq: {query}");
     let conn = Connection::new(db).expect("Failed to connect to DB");
     let mut prep = conn.prepare(query).expect("Failed to prepare query");
     let mut prep_params = Vec::new();
     for (key, val) in params {
         prep_params.push((key.as_str(), Value::String(val.to_string())));
     }
-    println!("pq: {prep_params:?}");
     conn.execute(&mut prep, prep_params)
 }
 
@@ -124,8 +122,6 @@ fn execute_query(kuzu: &mut Kuzu, step: &Step) {
             step.docstring.as_ref().expect("Query missing").as_str(),
         )
     };
-
-    println!("res: {res:?}");
 
     match res {
         Ok(res) => {
