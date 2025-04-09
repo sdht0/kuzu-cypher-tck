@@ -30,8 +30,10 @@
 
 Feature: MatchWhere1 - Filter single variable
 
+  @fails @parserErrorLabelInWhere
   Scenario: [1] Filter node with node label predicate on multi variables with multiple bindings
     Given an empty graph
+    And having defined kuzu types: abc_a:a
     And having executed:
       """
       CREATE (:A {id: 0})<-[:ADMIN]-(:B {id: 1})-[:ADMIN]->(:C {id: 2, a: 'A'})
@@ -47,8 +49,10 @@ Feature: MatchWhere1 - Filter single variable
       | 0    | 1    |
     And no side effects
 
+  @fails @parserErrorLabelInWhere
   Scenario: [2] Filter node with node label predicate on multi variables without any bindings
     Given an empty graph
+    And having defined kuzu types: a
     And having executed:
       """
       CREATE (:A)
@@ -65,9 +69,10 @@ Feature: MatchWhere1 - Filter single variable
 
   Scenario: [3] Filter node with property predicate on a single variable with multiple bindings
     Given an empty graph
+    And having defined kuzu types: bn_name
     And having executed:
       """
-      CREATE (), ({name: 'Bar'}), (:Bar)
+      CREATE (:N), (:N {name: 'Bar'}), (:Bar)
       """
     When executing query:
       """
@@ -76,16 +81,17 @@ Feature: MatchWhere1 - Filter single variable
       RETURN n
       """
     Then the result should be, in any order:
-      | n               |
-      | ({name: 'Bar'}) |
+      | n                  |
+      | (:N {name: 'Bar'}) |
     And no side effects
 
   Scenario: [4] Filter start node of relationship with property predicate on multi variables with multiple bindings
     Given an empty graph
+    And having defined kuzu types: np:t
     And having executed:
       """
       CREATE (a:Person {name: 'Alice'}), (b:Person {name: 'Bob'}),
-             (c), (d)
+             (c:N), (d:N)
       CREATE (a)-[:T]->(c),
              (b)-[:T]->(d)
       """
@@ -102,9 +108,10 @@ Feature: MatchWhere1 - Filter single variable
 
   Scenario: [5] Filter end node of relationship with property predicate on multi variables with multiple bindings
     Given an empty graph
+    And having defined kuzu types: n_name:x
     And having executed:
       """
-      CREATE ({name: 'Someone'})<-[:X]-()-[:X]->({name: 'Andres'})
+      CREATE (:N {name: 'Someone'})<-[:X]-(:N)-[:X]->(:N {name: 'Andres'})
       """
     When executing query:
       """
@@ -113,12 +120,14 @@ Feature: MatchWhere1 - Filter single variable
       RETURN a
       """
     Then the result should be, in any order:
-      | a                  |
-      | ({name: 'Andres'}) |
+      | a                     |
+      | (:N {name: 'Andres'}) |
     And no side effects
 
+  @fails @bugRustParams
   Scenario: [6] Filter node with a parameter in a property predicate on multi variables with one binding
     Given an empty graph
+    And having defined kuzu types: ab_name:t_name
     And having executed:
       """
       CREATE (:A)-[:T {name: 'bar'}]->(:B {name: 'me'})
@@ -138,6 +147,7 @@ Feature: MatchWhere1 - Filter single variable
 
   Scenario: [7] Filter relationship with relationship type predicate on multi variables with multiple bindings
     Given an empty graph
+    And having defined kuzu types: abc_name:hk
     And having executed:
       """
       CREATE (a:A {name: 'A'}),
@@ -149,7 +159,7 @@ Feature: MatchWhere1 - Filter single variable
     When executing query:
       """
       MATCH (n {name: 'A'})-[r]->(x)
-      WHERE type(r) = 'KNOWS'
+      WHERE label(r) = 'KNOWS'
       RETURN x
       """
     Then the result should be, in any order:
@@ -159,9 +169,10 @@ Feature: MatchWhere1 - Filter single variable
 
   Scenario: [8] Filter relationship with property predicate on multi variables with multiple bindings
     Given an empty graph
+    And having defined kuzu types: abx:k_name
     And having executed:
       """
-      CREATE (:A)<-[:KNOWS {name: 'monkey'}]-()-[:KNOWS {name: 'woot'}]->(:B)
+      CREATE (:A)<-[:KNOWS {name: 'monkey'}]-(:X)-[:KNOWS {name: 'woot'}]->(:B)
       """
     When executing query:
       """
@@ -174,8 +185,10 @@ Feature: MatchWhere1 - Filter single variable
       | (:A) |
     And no side effects
 
+  @fails @bugRustParams
   Scenario: [9] Filter relationship with a parameter in a property predicate on multi variables with one binding
     Given an empty graph
+    And having defined kuzu types: ab:t_name
     And having executed:
       """
       CREATE (:A)-[:T {name: 'bar'}]->(:B {name: 'me'})
@@ -195,6 +208,7 @@ Feature: MatchWhere1 - Filter single variable
 
   Scenario: [10] Filter node with disjunctive property predicate on single variables with multiple bindings
     Given an empty graph
+    And having defined kuzu types: abc_p12
     And having executed:
       """
       CREATE (a:A {p1: 12}),
@@ -215,6 +229,7 @@ Feature: MatchWhere1 - Filter single variable
 
   Scenario: [11] Filter relationship with disjunctive relationship type predicate on multi variables with multiple bindings
     Given an empty graph
+    And having defined kuzu types: abc_name:hkw
     And having executed:
       """
       CREATE (a {name: 'A'}),
@@ -227,7 +242,7 @@ Feature: MatchWhere1 - Filter single variable
     When executing query:
       """
       MATCH (n)-[r]->(x)
-      WHERE type(r) = 'KNOWS' OR type(r) = 'HATES'
+      WHERE label(r) = 'KNOWS' OR label(r) = 'HATES'
       RETURN r
       """
     Then the result should be, in any order:
@@ -238,6 +253,7 @@ Feature: MatchWhere1 - Filter single variable
 
   Scenario: [12] Filter path with path length predicate on multi variables with one binding
     Given an empty graph
+    And having defined kuzu types: ab_name:k
     And having executed:
       """
       CREATE (a:A {name: 'A'})-[:KNOWS]->(b:B {name: 'B'})
@@ -255,6 +271,7 @@ Feature: MatchWhere1 - Filter single variable
 
   Scenario: [13] Filter path with false path length predicate on multi variables with one binding
     Given an empty graph
+    And having defined kuzu types: ab_name:k
     And having executed:
       """
       CREATE (a:A {name: 'A'})-[:KNOWS]->(b:B {name: 'B'})
@@ -271,6 +288,7 @@ Feature: MatchWhere1 - Filter single variable
 
   Scenario: [14] Fail when filtering path with property predicate
     Given any graph
+    And having defined kuzu types: n:r_name
     When executing query:
       """
       MATCH (n)
@@ -280,6 +298,7 @@ Feature: MatchWhere1 - Filter single variable
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
+  @fails @expectedErrorAggregation
   Scenario: [15] Fail on aggregation in WHERE
     Given any graph
     When executing query:
