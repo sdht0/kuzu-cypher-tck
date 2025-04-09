@@ -286,7 +286,7 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE B(id SERIAL PRIMARY KEY, name STRING);
               CREATE NODE TABLE C(id SERIAL PRIMARY KEY, name STRING);
               CREATE NODE TABLE D(id SERIAL PRIMARY KEY, name STRING);
-              CREATE REL TABLE T(FROM B to A, FROM C TO B, FROM D TO C);
+              CREATE REL TABLE T(FROM A to B, FROM A to C, FROM A to D, FROM B to A, FROM C TO B, FROM D TO C);
             "
         }
         "abcd_animal:k" => {
@@ -731,6 +731,15 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE Y(id SERIAL PRIMARY KEY);
               CREATE NODE TABLE YZ(id SERIAL PRIMARY KEY);
               CREATE REL TABLE REL(FROM X to Y, FROM X TO YZ);
+            "
+        }
+        "xyz_val:e12" => {
+            "
+              CREATE NODE TABLE X(id SERIAL PRIMARY KEY, val INT64);
+              CREATE NODE TABLE Y(id SERIAL PRIMARY KEY, val INT64);
+              CREATE NODE TABLE Z(id SERIAL PRIMARY KEY, val INT64);
+              CREATE REL TABLE E1(FROM X to Y);
+              CREATE REL TABLE E2(FROM Y to Z);
             "
         }
         _ => panic!("Table not found: {id}"),
