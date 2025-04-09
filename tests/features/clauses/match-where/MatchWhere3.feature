@@ -32,6 +32,7 @@ Feature: MatchWhere3 - Equi-Joins on variables
 
   Scenario: [1] Join between node identities
     Given an empty graph
+    And having defined kuzu types: ab
     And having executed:
       """
       CREATE (:A), (:B)
@@ -40,16 +41,17 @@ Feature: MatchWhere3 - Equi-Joins on variables
       """
       MATCH (a), (b)
       WHERE a = b
-      RETURN a, b
+      RETURN label(a) as a, label(b) as b
       """
     Then the result should be, in any order:
-      | a    | b    |
-      | (:A) | (:A) |
-      | (:B) | (:B) |
+      | a | b |
+      | A | A |
+      | B | B |
     And no side effects
 
   Scenario: [2] Join between node properties of disconnected nodes
     Given an empty graph
+    And having defined kuzu types: ab
     And having executed:
       """
       CREATE (:A {id: 1}),
@@ -61,15 +63,16 @@ Feature: MatchWhere3 - Equi-Joins on variables
       """
       MATCH (a:A), (b:B)
       WHERE a.id = b.id
-      RETURN a, b
+      RETURN a.id as a, b.id as b
       """
     Then the result should be, in any order:
-      | a            | b            |
-      | (:A {id: 2}) | (:B {id: 2}) |
+      | a | b |
+      | 2 | 2 |
     And no side effects
 
   Scenario: [3] Join between node properties of adjacent nodes
     Given an empty graph
+    And having defined kuzu types: abcd_animal:k
     And having executed:
       """
       CREATE (a:A {animal: 'monkey'}),
@@ -85,10 +88,10 @@ Feature: MatchWhere3 - Equi-Joins on variables
       """
       MATCH (n)-[rel]->(x)
       WHERE n.animal = x.animal
-      RETURN n, x
+      RETURN n.animal as n, x.animal as x
       """
     Then the result should be, in any order:
-      | n                       | x                       |
-      | (:A {animal: 'monkey'}) | (:C {animal: 'monkey'}) |
-      | (:D {animal: 'cow'})    | (:B {animal: 'cow'})    |
+      | n      | x      |
+      | monkey | monkey |
+      | cow    | cow    |
     And no side effects
