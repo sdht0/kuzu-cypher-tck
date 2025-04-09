@@ -31,3 +31,7 @@ Filter by file:
 ```bash
 cargo test --test kuzu -- -t 'not @fails' -i 'tests/**/Match1*'
 ```
+
+## TCK compatibility
+
+![Evolution over time](/scripts/results.png?raw=true)
