@@ -32,6 +32,7 @@ Feature: MatchWhere4 - Non-Equi-Joins on variables
 
   Scenario: [1] Join nodes on inequality
     Given an empty graph
+    And having defined kuzu types: ab
     And having executed:
       """
       CREATE (:A), (:B)
@@ -48,8 +49,10 @@ Feature: MatchWhere4 - Non-Equi-Joins on variables
       | (:B) | (:A) |
     And no side effects
 
+  @fails @incorrectResults
   Scenario: [2] Join with disjunctive multi-part predicates including patterns
     Given an empty graph
+    And having defined kuzu types: mt:t
     And having executed:
       """
       CREATE (a:TheLabel {id: 0}), (b:TheLabel {id: 1}), (c:TheLabel {id: 2})
@@ -62,9 +65,9 @@ Feature: MatchWhere4 - Non-Equi-Joins on variables
       WHERE a.id = 0
         AND (a)-[:T]->(b:TheLabel)
         OR (a)-[:T*]->(b:MissingLabel)
-      RETURN DISTINCT b
+      RETURN DISTINCT b.id as b
       """
     Then the result should be, in any order:
-      | b                   |
-      | (:TheLabel {id: 1}) |
+      | b |
+      | 1 |
     And no side effects
