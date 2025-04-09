@@ -536,6 +536,12 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE T(FROM N to N);
             "
         }
+        "n:t_id" => {
+            "
+              CREATE NODE TABLE N(id SERIAL PRIMARY KEY);
+              CREATE REL TABLE T(FROM N to N, id INT64);
+            "
+        }
         "n:ab" => {
             "
               CREATE NODE TABLE N(id SERIAL PRIMARY KEY);
@@ -561,6 +567,12 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE N(id SERIAL PRIMARY KEY, name STRING);
               CREATE REL TABLE CONTAINS(FROM N to N);
               CREATE REL TABLE FRIEND(FROM N to N);
+            "
+        }
+        "n:d" => {
+            "
+              CREATE NODE TABLE N(id SERIAL PRIMARY KEY);
+              CREATE REL TABLE DoesNotExist(FROM N to N);
             "
         }
         "n:e" => {
