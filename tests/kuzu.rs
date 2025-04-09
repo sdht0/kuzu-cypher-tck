@@ -12,6 +12,7 @@ const OUTPUT_SEP: &str = " | ";
 pub struct Kuzu {
     db: Database,
     error: Option<String>,
+    params: Option<HashMap<String, String>>,
     columns: String,
     results: HashMap<String, u32>,
     expected_state: (usize, usize),
@@ -28,6 +29,7 @@ impl Kuzu {
             )
             .expect("Could not create database"),
             error: None,
+            params: None,
             columns: String::new(),
             results: HashMap::new(),
             expected_state: (0, 0),
@@ -58,6 +60,22 @@ fn kuzu_query<'a>(db: &'a Database, query: &str) -> Result<QueryResult<'a>, Erro
     conn.query(query)
 }
 
+fn parameterized_kuzu_query<'a>(
+    db: &'a Database,
+    params: &HashMap<String, String>,
+    query: &str,
+) -> Result<QueryResult<'a>, Error> {
+    println!("pq: {query}");
+    let conn = Connection::new(db).expect("Failed to connect to DB");
+    let mut prep = conn.prepare(query).expect("Failed to prepare query");
+    let mut prep_params = Vec::new();
+    for (key, val) in params {
+        prep_params.push((key.as_str(), Value::String(val.to_string())));
+    }
+    println!("pq: {prep_params:?}");
+    conn.execute(&mut prep, prep_params)
+}
+
 #[given(regex = r"^an empty graph|any graph$")]
 fn empty_graph(kuzu: &mut Kuzu) {
     kuzu.expected_state = kuzu.get_state();
@@ -80,12 +98,35 @@ fn pre_execute_query(kuzu: &mut Kuzu, step: &Step) {
     kuzu.expected_state = kuzu.get_state();
 }
 
+#[given("parameters are:")]
+fn setup_parameters(kuzu: &mut Kuzu, step: &Step) {
+    let table = step.table.as_ref().expect("Table missing");
+    kuzu.params = Some(
+        table
+            .rows
+            .iter()
+            .map(|row| (row[0].clone(), row[1].clone()))
+            .collect(),
+    );
+}
+
 #[when(regex = r"^executing( control)? query:")]
 fn execute_query(kuzu: &mut Kuzu, step: &Step) {
-    let res = kuzu_query(
-        &kuzu.db,
-        step.docstring.as_ref().expect("Query missing").as_str(),
-    );
+    let res = if let Some(params) = &kuzu.params {
+        parameterized_kuzu_query(
+            &kuzu.db,
+            params,
+            step.docstring.as_ref().expect("Query missing").as_str(),
+        )
+    } else {
+        kuzu_query(
+            &kuzu.db,
+            step.docstring.as_ref().expect("Query missing").as_str(),
+        )
+    };
+
+    println!("res: {res:?}");
+
     match res {
         Ok(res) => {
             kuzu.columns = res.get_column_names().join(OUTPUT_SEP);

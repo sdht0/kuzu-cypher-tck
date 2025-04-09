@@ -2,3 +2,6 @@
 KUZU_SHARED = "true"
 KUZU_INCLUDE_DIR = { value = "kuzu-lib", relative = true }
 KUZU_LIBRARY_DIR = { value = "kuzu-lib", relative = true }
+
+#[build]
+#rustflags = "-C link-args=-Wl,-rpath,./kuzu-lib"
