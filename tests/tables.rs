@@ -434,6 +434,11 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE OWNS(FROM Bar TO Dog);
             "
         }
+        "d" => {
+            "
+              CREATE NODE TABLE DoesNotExist(id SERIAL PRIMARY KEY);
+            "
+        }
         "dssst:bcdsst" => {
             "
               CREATE NODE TABLE Department(id SERIAL PRIMARY KEY, name STRING);
@@ -677,6 +682,13 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE N(id SERIAL PRIMARY KEY);
               CREATE NODE TABLE TheLabel(id SERIAL PRIMARY KEY);
               CREATE REL TABLE T(FROM N to N);
+            "
+        }
+        "nx:r" => {
+            "
+              CREATE NODE TABLE N(id SERIAL PRIMARY KEY);
+              CREATE NODE TABLE X(id SERIAL PRIMARY KEY);
+              CREATE REL TABLE R(FROM X to N);
             "
         }
         "pf:a" => {

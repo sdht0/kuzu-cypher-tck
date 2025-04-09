@@ -226,10 +226,10 @@ fn check_side_effects(kuzu: &mut Kuzu, step: &Step) {
 }
 
 #[then(expr = "a SyntaxError should be raised at compile time: {word}")]
-fn check_error(kuzu: &mut Kuzu, error: String) {
+fn check_comptime_error(kuzu: &mut Kuzu, error: String) {
     let found_error = kuzu.error.as_ref().expect("SyntaxError expected");
     match error.as_str() {
-        "InvalidParameterUse" | "InvalidRelationshipPattern" => {
+        "InvalidParameterUse" | "InvalidRelationshipPattern" | "InvalidDelete" => {
             assert!(found_error.contains("Parser exception"), "{found_error}");
         }
         "VariableTypeConflict"
@@ -242,6 +242,17 @@ fn check_error(kuzu: &mut Kuzu, error: String) {
         }
         "RequiresDirectedRelationship" => {
             assert!(found_error.contains("exception"), "{found_error}");
+        }
+        _ => panic!("Unknown error: {error}, found {found_error}"),
+    }
+}
+
+#[then(expr = "a {word} should be raised at runtime: {word}")]
+fn check_runtime_error(kuzu: &mut Kuzu, _etype: String, error: String) {
+    let found_error = kuzu.error.as_ref().expect("SyntaxError expected");
+    match error.as_str() {
+        "DeleteConnectedNode" => {
+            assert!(found_error.contains("Runtime exception"), "{found_error}");
         }
         _ => panic!("Unknown error: {error}, found {found_error}"),
     }
