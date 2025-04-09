@@ -30,11 +30,13 @@
 
 Feature: MatchWhere6 - Filter optional matches
 
+  @fails @labelInMatch
   Scenario: [1] Filter node with node label predicate on multi variables with multiple bindings after MATCH and OPTIONAL MATCH
     Given an empty graph
+    And having defined kuzu types: abcd_name:t
     And having executed:
       """
-      CREATE (a {name: 'A'}), (b:B {name: 'B'}), (c:C {name: 'C'}), (d:D {name: 'C'})
+      CREATE (a:A {name: 'A'}), (b:B {name: 'B'}), (c:C {name: 'C'}), (d:D {name: 'C'})
       CREATE (a)-[:T]->(b),
              (a)-[:T]->(c),
              (a)-[:T]->(d)
@@ -49,14 +51,16 @@ Feature: MatchWhere6 - Filter optional matches
       """
     Then the result should be, in any order:
       | a.name |
-      | 'A'    |
+      | A      |
     And no side effects
 
+  @fails @labelInMatch
   Scenario: [2] Filter node with false node label predicate after OPTIONAL MATCH
     Given an empty graph
+    And having defined kuzu types: abcs:lr
     And having executed:
       """
-      CREATE (s:Single), (a:A {num: 42}),
+      CREATE (s:Singlee), (a:A {num: 42}),
              (b:B {num: 46}), (c:C)
       CREATE (s)-[:REL]->(a),
              (s)-[:REL]->(b),
@@ -65,7 +69,7 @@ Feature: MatchWhere6 - Filter optional matches
       """
     When executing query:
       """
-      MATCH (n:Single)
+      MATCH (n:Singlee)
       OPTIONAL MATCH (n)-[r]-(m)
       WHERE m:NonExistent
       RETURN r
@@ -77,9 +81,10 @@ Feature: MatchWhere6 - Filter optional matches
 
   Scenario: [3] Filter node with property predicate on multi variables with multiple bindings after OPTIONAL MATCH
     Given an empty graph
+    And having defined kuzu types: abcs:lr
     And having executed:
       """
-      CREATE (s:Single), (a:A {num: 42}),
+      CREATE (s:Singlee), (a:A {num: 42}),
              (b:B {num: 46}), (c:C)
       CREATE (s)-[:REL]->(a),
              (s)-[:REL]->(b),
@@ -88,21 +93,22 @@ Feature: MatchWhere6 - Filter optional matches
       """
     When executing query:
       """
-      MATCH (n:Single)
+      MATCH (n:Singlee)
       OPTIONAL MATCH (n)-[r]-(m)
       WHERE m.num = 42
-      RETURN m
+      RETURN m.num as m
       """
     Then the result should be, in any order:
-      | m              |
-      | (:A {num: 42}) |
+      | m  |
+      | 42 |
     And no side effects
 
   Scenario: [4] Do not fail when predicates on optionally matched and missed nodes are invalid
     Given an empty graph
+    And having defined kuzu types: ab_name:t
     And having executed:
       """
-      CREATE (a), (b {name: 'Mark'})
+      CREATE (a:A), (b:B {name: 'Mark'})
       CREATE (a)-[:T]->(b)
       """
     When executing query:
@@ -117,8 +123,10 @@ Feature: MatchWhere6 - Filter optional matches
       | 'Mark'  |
     And no side effects
 
+  @fails @multipleVarBindings
   Scenario: [5] Matching and optionally matching with unbound nodes and equality predicate in reverse direction
     Given an empty graph
+    And having defined kuzu types: ab:t
     And having executed:
       """
       CREATE (:A)-[:T]->(:B)
@@ -130,15 +138,16 @@ Feature: MatchWhere6 - Filter optional matches
         LIMIT 1
       OPTIONAL MATCH (a2)<-[r]-(b2)
       WHERE a1 = a2
-      RETURN a1, r, b2, a2
+      RETURN label(a1) as a1, label(r) as r, label(b2) as b2, label(a2) as a2
       """
     Then the result should be, in any order:
-      | a1   | r    | b2   | a2   |
-      | (:A) | [:T] | null | null |
+      | a1 | r | b2 | a2 |
+      | A  | T |    |    |
     And no side effects
 
   Scenario: [6] Join nodes on non-equality of properties – OPTIONAL MATCH and WHERE
     Given an empty graph
+    And having defined kuzu types: xyz_val:e12
     And having executed:
       """
       CREATE
@@ -151,17 +160,18 @@ Feature: MatchWhere6 - Filter optional matches
       MATCH (x:X)
       OPTIONAL MATCH (x)-[:E1]->(y:Y)
       WHERE x.val < y.val
-      RETURN x, y
+      RETURN x.val as x, y.val as y
       """
     Then the result should be, in any order:
-      | x             | y             |
-      | (:X {val: 1}) | (:Y {val: 2}) |
-      | (:X {val: 4}) | (:Y {val: 5}) |
-      | (:X {val: 6}) | null          |
+      | x | y    |
+      | 1 | 2    |
+      | 4 | 5    |
+      | 6 | null |
     And no side effects
 
   Scenario: [7] Join nodes on non-equality of properties – OPTIONAL MATCH on two relationships and WHERE
     Given an empty graph
+    And having defined kuzu types: xyz_val:e12
     And having executed:
       """
       CREATE
@@ -174,17 +184,18 @@ Feature: MatchWhere6 - Filter optional matches
       MATCH (x:X)
       OPTIONAL MATCH (x)-[:E1]->(y:Y)-[:E2]->(z:Z)
       WHERE x.val < z.val
-      RETURN x, y, z
+      RETURN x.val as x, y.val as y, z.val as z
       """
     Then the result should be, in any order:
-      | x             | y             | z             |
-      | (:X {val: 1}) | (:Y {val: 2}) | (:Z {val: 3}) |
-      | (:X {val: 4}) | null          | null          |
-      | (:X {val: 6}) | null          | null          |
+      | x | y    | z    |
+      | 1 | 2    | 3    |
+      | 4 | null | null |
+      | 6 | null | null |
     And no side effects
 
   Scenario: [8] Join nodes on non-equality of properties – Two OPTIONAL MATCH clauses and WHERE
     Given an empty graph
+    And having defined kuzu types: xyz_val:e12
     And having executed:
       """
       CREATE
@@ -198,11 +209,11 @@ Feature: MatchWhere6 - Filter optional matches
       OPTIONAL MATCH (x)-[:E1]->(y:Y)
       OPTIONAL MATCH (y)-[:E2]->(z:Z)
       WHERE x.val < z.val
-      RETURN x, y, z
+      RETURN x.val as x, y.val as y, z.val as z
       """
     Then the result should be, in any order:
-      | x             | y             | z             |
-      | (:X {val: 1}) | (:Y {val: 2}) | (:Z {val: 3}) |
-      | (:X {val: 4}) | (:Y {val: 5}) | null          |
-      | (:X {val: 6}) | null          | null          |
+      | x | y    | z    |
+      | 1 | 2    | 3    |
+      | 4 | 5    | null |
+      | 6 | null | null |
     And no side effects
