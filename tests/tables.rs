@@ -262,6 +262,15 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE KNOWS(FROM X to A, FROM X to B, name STRING);
             "
         }
+        "abcd:t" => {
+            "
+              CREATE NODE TABLE A(id SERIAL PRIMARY KEY);
+              CREATE NODE TABLE B(id SERIAL PRIMARY KEY);
+              CREATE NODE TABLE C(id SERIAL PRIMARY KEY);
+              CREATE NODE TABLE D(id SERIAL PRIMARY KEY);
+              CREATE REL TABLE T(FROM A to B, FROM A to C, FROM A to D, FROM B TO C, FROM B TO D, FROM C TO D);
+            "
+        }
         "abcd_name:l" => {
             "
               CREATE NODE TABLE A(id SERIAL PRIMARY KEY, name STRING);
@@ -348,6 +357,17 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE N(id SERIAL PRIMARY KEY);
               CREATE REL TABLE X(FROM A to N);
               CREATE REL TABLE Y(FROM N to N);
+            "
+        }
+        "aptv_name:3" => {
+            "
+              CREATE NODE TABLE A(id SERIAL PRIMARY KEY, name STRING);
+              CREATE NODE TABLE P(id SERIAL PRIMARY KEY, name STRING);
+              CREATE NODE TABLE T(id SERIAL PRIMARY KEY, name STRING);
+              CREATE NODE TABLE V(id SERIAL PRIMARY KEY, name STRING);
+              CREATE REL TABLE ADV_HAS_PRODUCT(FROM A to P);
+              CREATE REL TABLE AA_HAS_VALUE(FROM T to V);
+              CREATE REL TABLE AP_HAS_VALUE(FROM P to V);
             "
         }
         "bce:r_num" => {
@@ -689,6 +709,6 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE REL(FROM X to Y, FROM X TO YZ);
             "
         }
-        _ => panic!("Query not found: {id}"),
+        _ => panic!("Table not found: {id}"),
     }
 }
