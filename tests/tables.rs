@@ -434,6 +434,22 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE OWNS(FROM Bar TO Dog);
             "
         }
+        "dssst:bcdsst" => {
+            "
+              CREATE NODE TABLE Department(id SERIAL PRIMARY KEY, name STRING);
+              CREATE NODE TABLE School(id SERIAL PRIMARY KEY, name STRING);
+              CREATE NODE TABLE Student(id SERIAL PRIMARY KEY, name STRING);
+              CREATE NODE TABLE Subject(id SERIAL PRIMARY KEY, name STRING);
+              CREATE NODE TABLE StudyBuddy(id SERIAL PRIMARY KEY);
+              CREATE NODE TABLE Teacher(id SERIAL PRIMARY KEY, name STRING);
+              CREATE REL TABLE BUDDY(FROM Student to StudyBuddy);
+              CREATE REL TABLE CURRICULUM(FROM Department to Subject);
+              CREATE REL TABLE DEPARTMENTR(FROM School to Department);
+              CREATE REL TABLE STAFF(FROM School to Teacher);
+              CREATE REL TABLE STUDENTR(FROM School to Student);
+              CREATE REL TABLE TAUGHT_BY(FROM Subject to Teacher);
+            "
+        }
         "l" => {
             "
               CREATE NODE TABLE Label(id SERIAL PRIMARY KEY);
@@ -472,6 +488,13 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE WROTE(FROM Person to Movie);
               CREATE REL TABLE FOLLOWS(FROM Person to Person);
               CREATE REL TABLE REVIEWED(FROM Person to Movie, summary STRING, rating UINT64);
+            "
+        }
+        "mt:t" => {
+            "
+              CREATE NODE TABLE MissingLabel(id SERIAL PRIMARY KEY);
+              CREATE NODE TABLE TheLabel(id SERIAL PRIMARY KEY);
+              CREATE REL TABLE T(FROM TheLabel to TheLabel, FROM TheLabel to MissingLabel);
             "
         }
         "n" => {
@@ -674,22 +697,6 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE R(id SERIAL PRIMARY KEY);
               CREATE NODE TABLE T(id SERIAL PRIMARY KEY);
               CREATE REL TABLE REL(FROM T to R);
-            "
-        }
-        "dssst:bcdsst" => {
-            "
-              CREATE NODE TABLE Department(id SERIAL PRIMARY KEY, name STRING);
-              CREATE NODE TABLE School(id SERIAL PRIMARY KEY, name STRING);
-              CREATE NODE TABLE Student(id SERIAL PRIMARY KEY, name STRING);
-              CREATE NODE TABLE Subject(id SERIAL PRIMARY KEY, name STRING);
-              CREATE NODE TABLE StudyBuddy(id SERIAL PRIMARY KEY);
-              CREATE NODE TABLE Teacher(id SERIAL PRIMARY KEY, name STRING);
-              CREATE REL TABLE BUDDY(FROM Student to StudyBuddy);
-              CREATE REL TABLE CURRICULUM(FROM Department to Subject);
-              CREATE REL TABLE DEPARTMENTR(FROM School to Department);
-              CREATE REL TABLE STAFF(FROM School to Teacher);
-              CREATE REL TABLE STUDENTR(FROM School to Student);
-              CREATE REL TABLE TAUGHT_BY(FROM Subject to Teacher);
             "
         }
         "t" => {
