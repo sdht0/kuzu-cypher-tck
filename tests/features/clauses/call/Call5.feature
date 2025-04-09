@@ -30,7 +30,7 @@
 
 Feature: Call5 - Results projection
 
-  @fails @unsupportedCustomProc
+  @skip @unsupportedCustomProc
   Scenario: [1] Explicit procedure result projection
     Given an empty graph
     And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: STRING?):
@@ -46,7 +46,7 @@ Feature: Call5 - Results projection
       | 'nix' |
     And no side effects
 
-  @fails @unsupportedCustomProc
+  @skip @unsupportedCustomProc
   Scenario: [2] Explicit procedure result projection with RETURN *
     Given an empty graph
     And there exists a procedure test.my.proc(in :: INTEGER?) :: (out :: STRING?):
@@ -62,7 +62,7 @@ Feature: Call5 - Results projection
       | 'nix' |
     And no side effects
 
-  @fails @unsupportedCustomProc
+  @skip @unsupportedCustomProc
   Scenario Outline: [3] The order of yield items is irrelevant
     Given an empty graph
     And there exists a procedure test.my.proc(in :: INTEGER?) :: (a :: INTEGER?, b :: INTEGER?) :
@@ -83,7 +83,7 @@ Feature: Call5 - Results projection
       | a, b  |
       | b, a  |
 
-  @fails @unsupportedCustomProc
+  @skip @unsupportedCustomProc
   Scenario Outline: [4] Rename outputs to unbound variable names
     Given an empty graph
     And there exists a procedure test.my.proc(in :: INTEGER?) :: (a :: INTEGER?, b :: INTEGER?) :
@@ -114,7 +114,7 @@ Feature: Call5 - Results projection
       | a, b AS b      | a | b |
 
 
-  @fails @unsupportedCustomProc
+  @skip @unsupportedCustomProc
   Scenario: [5] Fail on renaming to an already bound variable name
     Given an empty graph
     And there exists a procedure test.my.proc(in :: INTEGER?) :: (a :: INTEGER?, b :: INTEGER?) :
@@ -127,7 +127,7 @@ Feature: Call5 - Results projection
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
-  @fails @unsupportedCustomProc
+  @skip @unsupportedCustomProc
   Scenario: [6] Fail on renaming all outputs to the same variable name
     Given an empty graph
     And there exists a procedure test.my.proc(in :: INTEGER?) :: (a :: INTEGER?, b :: INTEGER?) :
@@ -140,7 +140,7 @@ Feature: Call5 - Results projection
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
-  @fails @unsupportedCustomProc
+  @skip @unsupportedCustomProc
   @skipGrammarCheck
   Scenario: [7] Fail on in-query call to procedure with YIELD *
     Given an empty graph
@@ -159,7 +159,7 @@ Feature: Call5 - Results projection
       """
     Then a SyntaxError should be raised at compile time: UnexpectedSyntax
 
-  @fails @unsupportedCustomProc
+  @skip @unsupportedCustomProc
   Scenario: [8] Allow standalone call to procedure with YIELD *
     Given an empty graph
     And there exists a procedure test.my.proc(name :: STRING?, id :: INTEGER?) :: (city :: STRING?, country_code :: INTEGER?):
