@@ -450,6 +450,14 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE TAUGHT_BY(FROM Subject to Teacher);
             "
         }
+        "irt_2:t" => {
+            "
+              CREATE NODE TABLE Root(id SERIAL PRIMARY KEY, name STRING);
+              CREATE NODE TABLE TextNode(id SERIAL PRIMARY KEY, var STRING);
+              CREATE NODE TABLE IntNode(id SERIAL PRIMARY KEY, var INT64);
+              CREATE REL TABLE T(FROM Root to TextNode, FROM Root to IntNode);
+            "
+        }
         "l" => {
             "
               CREATE NODE TABLE Label(id SERIAL PRIMARY KEY);
