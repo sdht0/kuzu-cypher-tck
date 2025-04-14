@@ -237,7 +237,8 @@ fn check_comptime_error(kuzu: &mut Kuzu, error: String) {
         | "VariableAlreadyBound"
         | "UndefinedVariable"
         | "NoSingleRelationshipType"
-        | "CreatingVarLength" => {
+        | "CreatingVarLength"
+        | "InvalidArgumentType" => {
             assert!(found_error.contains("Binder exception"), "{found_error}");
         }
         "RequiresDirectedRelationship" => {

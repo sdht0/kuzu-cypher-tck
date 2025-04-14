@@ -696,6 +696,13 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE T(FROM N to N);
             "
         }
+        "nu:f" => {
+            "
+              CREATE NODE TABLE N(id SERIAL PRIMARY KEY);
+              CREATE NODE TABLE User(id SERIAL PRIMARY KEY);
+              CREATE REL TABLE FRIEND(FROM User to N);
+            "
+        }
         "nx:r" => {
             "
               CREATE NODE TABLE N(id SERIAL PRIMARY KEY);
@@ -734,6 +741,17 @@ pub fn get_table(id: &str) -> &str {
         "t" => {
             "
               CREATE NODE TABLE TheLabel(id SERIAL PRIMARY KEY);
+            "
+        }
+        "u" => {
+            "
+              CREATE NODE TABLE User(id SERIAL PRIMARY KEY);
+            "
+        }
+        "u:r" => {
+            "
+              CREATE NODE TABLE User(id SERIAL PRIMARY KEY);
+              CREATE REL TABLE R(FROM User to User);
             "
         }
         "x:t" => {
