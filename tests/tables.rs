@@ -700,7 +700,7 @@ pub fn get_table(id: &str) -> &str {
             "
               CREATE NODE TABLE N(id SERIAL PRIMARY KEY);
               CREATE NODE TABLE X(id SERIAL PRIMARY KEY);
-              CREATE REL TABLE R(FROM X to N);
+              CREATE REL TABLE R(FROM X to N, FROM N to N);
             "
         }
         "pf:a" => {
