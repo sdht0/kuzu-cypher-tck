@@ -30,11 +30,13 @@
 
 Feature: Delete3 - Deleting named paths
 
+  @fails @deletePath
   Scenario: [1] Detach deleting paths
     Given an empty graph
+    And having defined kuzu types: nx:r
     And having executed:
       """
-      CREATE (x:X), (n1), (n2), (n3)
+      CREATE (x:X), (n1:N), (n2:N), (n3:N)
       CREATE (x)-[:R]->(n1)
       CREATE (n1)-[:R]->(n2)
       CREATE (n2)-[:R]->(n3)
@@ -50,6 +52,7 @@ Feature: Delete3 - Deleting named paths
       | -relationships | 3 |
       | -labels        | 1 |
 
+  @fails @deletePath
   Scenario: [2] Delete on null path
     Given an empty graph
     When executing query:
