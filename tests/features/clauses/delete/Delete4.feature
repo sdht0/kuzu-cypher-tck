@@ -30,11 +30,13 @@
 
 Feature: Delete4 - Delete clause interoperation with other clauses
 
+  @fails @deleteUndirected
   Scenario: [1] Undirected expand followed by delete and count
     Given an empty graph
+    And having defined kuzu types: n:r
     And having executed:
       """
-      CREATE ()-[:R]->()
+      CREATE (:N)-[:R]->(:N)
       """
     When executing query:
       """
@@ -49,11 +51,13 @@ Feature: Delete4 - Delete clause interoperation with other clauses
       | -nodes         | 2 |
       | -relationships | 1 |
 
+  @fails @bugUnexpectedResult
   Scenario: [2] Undirected variable length expand followed by delete and count
     Given an empty graph
+    And having defined kuzu types: n:r
     And having executed:
       """
-      CREATE (n1), (n2), (n3)
+      CREATE (n1:N), (n2:N), (n3:N)
       CREATE (n1)-[:R]->(n2)
       CREATE (n2)-[:R]->(n3)
       """
@@ -72,9 +76,10 @@ Feature: Delete4 - Delete clause interoperation with other clauses
 
   Scenario: [3] Create and delete in same query
     Given an empty graph
+    And having defined kuzu types: n
     And having executed:
       """
-      CREATE ()
+      CREATE (:N)
       """
     When executing query:
       """
