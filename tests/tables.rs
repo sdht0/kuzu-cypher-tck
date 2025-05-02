@@ -530,6 +530,11 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE N(id SERIAL PRIMARY KEY, num INT64);
             "
         }
+        "n_numbers" => {
+            "
+              CREATE NODE TABLE N(id SERIAL PRIMARY KEY, numbers INT64[]);
+            "
+        }
         "n_num:t" => {
             "
               CREATE NODE TABLE N(id SERIAL PRIMARY KEY, num INT64);
