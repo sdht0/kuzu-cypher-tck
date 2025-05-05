@@ -242,6 +242,9 @@ fn check_comptime_error(kuzu: &mut Kuzu, error: String) {
             assert!(found_error.contains("Binder exception"), "{found_error}");
         }
         "RequiresDirectedRelationship" => {
+            assert!(found_error.contains("Catalog exception"), "{found_error}");
+        }
+        "UnknownFunction" => {
             assert!(found_error.contains("exception"), "{found_error}");
         }
         _ => panic!("Unknown error: {error}, found {found_error}"),
