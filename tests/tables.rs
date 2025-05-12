@@ -550,14 +550,24 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY);
             "
         }
-        "n_id" => {
+        "n_color" => {
             "
-              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, id INT64);
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, color STRING[]);
             "
         }
         "n_created" => {
             "
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, created BOOL);
+            "
+        }
+        "n_id" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, id INT64);
+            "
+        }
+        "n_l" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, list STRING[]);
             "
         }
         "n_l2" => {
