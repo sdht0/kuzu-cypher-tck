@@ -15,6 +15,7 @@ pub struct Kuzu {
     params: Option<HashMap<String, String>>,
     columns: String,
     results: HashMap<String, u32>,
+    results_ordered: Vec<String>,
     expected_state: (usize, usize),
 }
 
@@ -32,6 +33,7 @@ impl Kuzu {
             params: None,
             columns: String::new(),
             results: HashMap::new(),
+            results_ordered: Vec::new(),
             expected_state: (0, 0),
         }
     }
@@ -127,12 +129,14 @@ fn execute_query(kuzu: &mut Kuzu, step: &Step) {
         Ok(res) => {
             kuzu.columns = res.get_column_names().join(OUTPUT_SEP);
             kuzu.results.clear();
+            kuzu.results_ordered.clear();
             for r in res {
                 let out = r
                     .iter()
                     .map(std::string::ToString::to_string)
                     .collect::<Vec<_>>()
                     .join(OUTPUT_SEP);
+                kuzu.results_ordered.push(out.clone());
                 *kuzu.results.entry(out).or_insert(0) += 1;
             }
         }
@@ -182,6 +186,40 @@ fn check_results(kuzu: &mut Kuzu, step: &Step) {
             .keys()
             .collect::<HashSet<&String>>()
             .sub(&kuzu.results.keys().collect::<HashSet<&String>>())
+    );
+}
+
+#[then(regex = r"^the result should be, in order:$")]
+fn check_results_ordered(kuzu: &mut Kuzu, step: &Step) {
+    if let Some(error) = &kuzu.error {
+        panic!("Expected success but ran into error: {error}");
+    }
+    let table = step.table.as_ref().expect("Table missing");
+    let mut iter = table.rows.iter();
+    let header = iter.next().expect("Header missing");
+    let expected_columns = header.join(OUTPUT_SEP);
+    let mut expected_results = Vec::new();
+    for row in iter {
+        expected_results.push(row.join(OUTPUT_SEP));
+    }
+    assert_eq!(expected_columns, kuzu.columns, "Columns don't match");
+    for (i, result) in kuzu.results_ordered.iter().enumerate() {
+        assert_eq!(
+            expected_results.get(i),
+            Some(result),
+            "Found result not expected: {result} || {expected_results:?} || {:?} || {:?}",
+            kuzu.results,
+            kuzu.get_state()
+        );
+    }
+    assert_eq!(
+        expected_results.len(),
+        kuzu.results_ordered.len(),
+        "Expected results missing: {:?}",
+        expected_results
+            .iter()
+            .collect::<HashSet<&String>>()
+            .sub(&kuzu.results_ordered.iter().collect::<HashSet<&String>>())
     );
 }
 
@@ -238,7 +276,8 @@ fn check_comptime_error(kuzu: &mut Kuzu, error: String) {
         | "UndefinedVariable"
         | "NoSingleRelationshipType"
         | "CreatingVarLength"
-        | "InvalidArgumentType" => {
+        | "InvalidArgumentType"
+        | "ColumnNameConflict" => {
             assert!(found_error.contains("Binder exception"), "{found_error}");
         }
         "RequiresDirectedRelationship" => {

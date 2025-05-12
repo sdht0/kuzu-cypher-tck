@@ -29,6 +29,12 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE B(_k SERIAL PRIMARY KEY, id INT64);
             "
         }
+        "ab_num" => {
+            "
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, num INT64);
+              CREATE NODE TABLE B(_k SERIAL PRIMARY KEY, num INT64);
+            "
+        }
         "ab:bf" => {
             "
               CREATE NODE TABLE A(_k SERIAL PRIMARY KEY);
@@ -524,6 +530,14 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE REVIEWED(FROM Person to Movie, summary STRING, rating UINT64);
             "
         }
+        "mp:lp" => {
+            "
+              CREATE NODE TABLE Message(_k SERIAL PRIMARY KEY, id INT64);
+              CREATE NODE TABLE Person(_k SERIAL PRIMARY KEY);
+              CREATE REL TABLE LIKE(FROM Person to Message, creationDate INT64);
+              CREATE REL TABLE POSTED_BY(FROM Message to Person);
+            "
+        }
         "mt:t" => {
             "
               CREATE NODE TABLE MissingLabel(_k SERIAL PRIMARY KEY);
@@ -794,6 +808,11 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE R(_k SERIAL PRIMARY KEY);
               CREATE NODE TABLE T(_k SERIAL PRIMARY KEY, id INT64);
               CREATE REL TABLE REL(FROM T to R);
+            "
+        }
+        "s" => {
+            "
+              CREATE NODE TABLE Singleton(_k SERIAL PRIMARY KEY);
             "
         }
         "t" => {
