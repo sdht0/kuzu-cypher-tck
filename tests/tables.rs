@@ -511,6 +511,13 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE T2(FROM Label2 to Label3);
             "
         }
+        "ln:a" => {
+            "
+              CREATE NODE TABLE L(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY);
+              CREATE REL TABLE A(FROM L to N);
+            "
+        }
         "mn_name:t" => {
             "
               CREATE NODE TABLE Movie(_k SERIAL PRIMARY KEY, name STRING);
@@ -550,6 +557,16 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY);
             "
         }
+        "n_an" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, a INT64[], num INT64);
+            "
+        }
+        "n_age" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, age INT64);
+            "
+        }
         "n_color" => {
             "
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, color STRING[]);
@@ -583,6 +600,12 @@ pub fn get_table(id: &str) -> &str {
         "n_name" => {
             "
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, name STRING);
+            "
+        }
+        "n_name:f" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, name STRING);
+              CREATE REL TABLE FATHER(FROM N to N);
             "
         }
         "n_num" => {
@@ -792,6 +815,11 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE R(FROM X to N, FROM N to N);
             "
         }
+        "p_age" => {
+            "
+              CREATE NODE TABLE Person(_k SERIAL PRIMARY KEY, age INT64);
+            "
+        }
         "pf:a" => {
             "
               CREATE NODE TABLE P(_k SERIAL PRIMARY KEY, name STRING);
@@ -833,6 +861,12 @@ pub fn get_table(id: &str) -> &str {
         "t_id" => {
             "
               CREATE NODE TABLE TheLabel(_k SERIAL PRIMARY KEY, id INT64);
+            "
+        }
+        "t_name:r" => {
+            "
+              CREATE NODE TABLE T(_k SERIAL PRIMARY KEY, name STRING);
+              CREATE REL TABLE R(FROM T to T);
             "
         }
         "u" => {
