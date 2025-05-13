@@ -32,18 +32,19 @@ Feature: Return8 - Return clause interoperation with other clauses
 
   Scenario: [1] Return aggregation after With filtering
     Given an empty graph
+    And having defined kuzu types: n_num
     And having executed:
       """
-      CREATE ({num: 43}), ({num: 42})
+      CREATE (:N {num: 43}), (:N {num: 42})
       """
     When executing query:
       """
       MATCH (n)
       WITH n
       WHERE n.num = 42
-      RETURN count(*)
+      RETURN count(*) as count
       """
     Then the result should be, in any order:
-      | count(*) |
-      | 1        |
+      | count |
+      | 1     |
     And no side effects
