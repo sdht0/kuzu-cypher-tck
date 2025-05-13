@@ -279,7 +279,8 @@ fn check_comptime_error(kuzu: &mut Kuzu, error: String) {
         | "InvalidArgumentType"
         | "ColumnNameConflict"
         | "NestedAggregation"
-        | "AmbiguousAggregationExpression" => {
+        | "AmbiguousAggregationExpression"
+        | "NoVariablesInScope" => {
             assert!(found_error.contains("Binder exception"), "{found_error}");
         }
         "RequiresDirectedRelationship" | "NonConstantExpression" => {

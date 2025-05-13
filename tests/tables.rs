@@ -794,6 +794,13 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE T(FROM Person to N);
             "
         }
+        "ns:t" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE Start(_k SERIAL PRIMARY KEY);
+              CREATE REL TABLE T(FROM Start to N);
+            "
+        }
         "nt:t" => {
             "
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY);
