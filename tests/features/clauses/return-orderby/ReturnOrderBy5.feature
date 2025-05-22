@@ -30,13 +30,15 @@
 
 Feature: ReturnOrderBy5 - Order by in combination with column renaming
 
+  @fails @bugVarBindingInOrderBy
   Scenario: [1] Renaming columns before ORDER BY should return results in ascending order
     Given an empty graph
+    And having defined kuzu types: n_num
     And having executed:
       """
-      CREATE (n1 {num: 1}),
-        (n2 {num: 3}),
-        (n3 {num: -5})
+      CREATE (n1:N {num: 1}),
+        (n2:N {num: 3}),
+        (n3:N {num: -5})
       """
     When executing query:
       """
