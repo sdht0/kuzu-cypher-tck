@@ -32,38 +32,43 @@ Feature: ReturnOrderBy6 - Aggregation expressions in order by
 
   Scenario: [1] Handle constants and parameters inside an order by item which contains an aggregation expression
     Given an empty graph
+    And having defined kuzu types: n_age
     And parameters are:
-      | age | 38 |
+      | age:int | 38 |
     When executing query:
       """
       MATCH (person)
       RETURN avg(person.age) AS avgAge
-      ORDER BY $age + avg(person.age) - 1000
+      ORDER BY $age + avgAge - 1000
       """
     Then the result should be, in any order:
       | avgAge |
       | null   |
     And no side effects
 
+  @varsInOrderBy
   Scenario: [2] Handle returned aliases inside an order by item which contains an aggregation expression
     Given an empty graph
+    And having defined kuzu types: p_age
     When executing query:
       """
       MATCH (me: Person)--(you: Person)
       RETURN me.age AS age, count(you.age) AS cnt
-      ORDER BY age, age + count(you.age)
+      ORDER BY age, age + cnt
       """
     Then the result should be, in any order:
       | age | cnt |
     And no side effects
 
+  @varsInOrderBy
   Scenario: [3] Handle returned property accesses inside an order by item which contains an aggregation expression
     Given an empty graph
+    And having defined kuzu types: p_age
     When executing query:
       """
       MATCH (me: Person)--(you: Person)
       RETURN me.age AS age, count(you.age) AS cnt
-      ORDER BY me.age + count(you.age)
+      ORDER BY age + cnt
       """
     Then the result should be, in any order:
       | age | cnt |
