@@ -822,6 +822,13 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE R(FROM X to N, FROM N to N);
             "
         }
+        "nz:r" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE Z(_k SERIAL PRIMARY KEY);
+              CREATE REL TABLE REL(FROM N to Z);
+            "
+        }
         "p_age" => {
             "
               CREATE NODE TABLE Person(_k SERIAL PRIMARY KEY, age INT64);
