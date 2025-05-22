@@ -447,14 +447,6 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE T(FROM Blue TO Red, FROM Red TO Green, FROM Red TO Yellow);
             "
         }
-        "ens_name:c" => {
-            "
-              CREATE NODE TABLE Eend(_k SERIAL PRIMARY KEY, name STRING);
-              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, name STRING);
-              CREATE NODE TABLE Start(_k SERIAL PRIMARY KEY, name STRING);
-              CREATE REL TABLE CONNECTED_TO(FROM N to Start, FROM N to Eend, FROM N to N);
-            "
-        }
         "bfn:t12" => {
             "
               CREATE NODE TABLE Bar(_k SERIAL PRIMARY KEY);
@@ -470,6 +462,11 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE Dog(_k SERIAL PRIMARY KEY);
               CREATE NODE TABLE Foo(_k SERIAL PRIMARY KEY);
               CREATE REL TABLE OWNS(FROM Bar TO Dog);
+            "
+        }
+        "c_nr" => {
+            "
+              CREATE NODE TABLE Crew(_k SERIAL PRIMARY KEY, name STRING, rank INT64);
             "
         }
         "d" => {
@@ -491,6 +488,14 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE STAFF(FROM School to Teacher);
               CREATE REL TABLE STUDENTR(FROM School to Student);
               CREATE REL TABLE TAUGHT_BY(FROM Subject to Teacher);
+            "
+        }
+        "ens_name:c" => {
+            "
+              CREATE NODE TABLE Eend(_k SERIAL PRIMARY KEY, name STRING);
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, name STRING);
+              CREATE NODE TABLE Start(_k SERIAL PRIMARY KEY, name STRING);
+              CREATE REL TABLE CONNECTED_TO(FROM N to Start, FROM N to Eend, FROM N to N);
             "
         }
         "fn" => {
