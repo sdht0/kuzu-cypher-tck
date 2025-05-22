@@ -189,7 +189,9 @@ fn check_results(kuzu: &mut Kuzu, step: &Step) {
     );
 }
 
-#[then(regex = r"^the result should be, in order:$")]
+#[then(
+    regex = r"^the result should be, in order:|the result should be, in order \(ignoring element order for lists\):$"
+)]
 fn check_results_ordered(kuzu: &mut Kuzu, step: &Step) {
     if let Some(error) = &kuzu.error {
         panic!("Expected success but ran into error: {error}");
@@ -208,7 +210,7 @@ fn check_results_ordered(kuzu: &mut Kuzu, step: &Step) {
             expected_results.get(i),
             Some(result),
             "Found result not expected: {result} || {expected_results:?} || {:?} || {:?}",
-            kuzu.results,
+            kuzu.results_ordered,
             kuzu.get_state()
         );
     }
@@ -288,6 +290,12 @@ fn check_comptime_error(kuzu: &mut Kuzu, error: String) {
         }
         "UnknownFunction" | "RequiresDirectedRelationship" => {
             assert!(found_error.contains("exception"), "{found_error}");
+        }
+        "InvalidAggregation" => {
+            assert!(
+                found_error.contains("Query execution failed"),
+                "{found_error}"
+            );
         }
         _ => panic!("Unknown error: {error}, found {found_error}"),
     }

@@ -124,6 +124,12 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE T4(FROM A to A);
             "
         }
+        "ax" => {
+            "
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE X(_k SERIAL PRIMARY KEY);
+            "
+        }
         "abc_p12" => {
             "
               CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, p1 INT64);
@@ -373,6 +379,17 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE REL(FROM Singlee to A, FROM Singlee to B, FROM A TO C);
             "
         }
+        "abcdef:r" => {
+            "
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE B(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE C(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE D(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE E(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE F(_k SERIAL PRIMARY KEY);
+              CREATE REL TABLE R(FROM A to B, FROM C to D, FROM D to E, FROM E to F);
+            "
+        }
         "abe:r_num" => {
             "
               CREATE NODE TABLE A(_k SERIAL PRIMARY KEY);
@@ -495,6 +512,13 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE Label(_k SERIAL PRIMARY KEY);
             "
         }
+        "l13" => {
+            "
+              CREATE NODE TABLE L1(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE L2(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE L3(_k SERIAL PRIMARY KEY);
+            "
+        }
         "l12_name:t" => {
             "
               CREATE NODE TABLE Label1(_k SERIAL PRIMARY KEY, name STRING);
@@ -557,9 +581,19 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY);
             "
         }
+        "n_ad" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, age INT64, division STRING);
+            "
+        }
         "n_an" => {
             "
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, a INT64[], num INT64);
+            "
+        }
+        "n_agename" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, age INT64, name STRING);
             "
         }
         "n_age" => {
@@ -602,15 +636,14 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, name STRING);
             "
         }
-        "n_name:f" => {
-            "
-              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, name STRING);
-              CREATE REL TABLE FATHER(FROM N to N);
-            "
-        }
         "n_num" => {
             "
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, num INT64);
+            "
+        }
+        "n_num12" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, num1 INT64, num2 INT64);
             "
         }
         "n_numbers" => {
@@ -621,6 +654,12 @@ pub fn get_table(id: &str) -> &str {
         "n_3" => {
             "
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, name STRING, age INT64, seasons INT64[]);
+            "
+        }
+        "n_name:f" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, name STRING);
+              CREATE REL TABLE FATHER(FROM N to N);
             "
         }
         "n_num:t" => {
