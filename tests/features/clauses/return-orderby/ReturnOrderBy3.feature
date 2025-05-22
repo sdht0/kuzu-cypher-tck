@@ -32,22 +32,23 @@ Feature: ReturnOrderBy3 - Order by multiple expressions (order obey priority of 
 
   Scenario: [1] Sort on aggregate function and normal property
     Given an empty graph
+    And having defined kuzu types: n_division
     And having executed:
       """
-      CREATE ({division: 'Sweden'})
-      CREATE ({division: 'Germany'})
-      CREATE ({division: 'England'})
-      CREATE ({division: 'Sweden'})
+      CREATE (:N {division: 'Sweden'})
+      CREATE (:N {division: 'Germany'})
+      CREATE (:N {division: 'England'})
+      CREATE (:N {division: 'Sweden'})
       """
     When executing query:
       """
       MATCH (n)
-      RETURN n.division, count(*)
-      ORDER BY count(*) DESC, n.division ASC
+      RETURN n.division, count(*) as count
+      ORDER BY count DESC, n.division ASC
       """
     Then the result should be, in order:
-      | n.division | count(*) |
-      | 'Sweden'   | 2        |
-      | 'England'  | 1        |
-      | 'Germany'  | 1        |
+      | n.division | count |
+      | 'Sweden'   | 2     |
+      | 'England'  | 1     |
+      | 'Germany'  | 1     |
     And no side effects
