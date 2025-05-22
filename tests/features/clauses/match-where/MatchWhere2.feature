@@ -73,8 +73,8 @@ Feature: MatchWhere2 - Filter multiple variables
              (p2)-[:AP_HAS_VALUE]->(red)
       """
     And parameters are:
-      | 1 | 0 |
-      | 2 | 1 |
+      | 1:int | 0 |
+      | 2:int | 1 |
     When executing query:
       """
       MATCH (advertiser)-[:ADV_HAS_PRODUCT]->(out)-[:AP_HAS_VALUE]->(red)<-[:AA_HAS_VALUE]-(a)
