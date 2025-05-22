@@ -12,7 +12,7 @@ const OUTPUT_SEP: &str = " | ";
 pub struct Kuzu {
     db: Database,
     error: Option<String>,
-    params: Option<HashMap<String, String>>,
+    params: Option<HashMap<String, Value>>,
     columns: String,
     results: HashMap<String, u32>,
     results_ordered: Vec<String>,
@@ -64,14 +64,14 @@ fn kuzu_query<'a>(db: &'a Database, query: &str) -> Result<QueryResult<'a>, Erro
 
 fn parameterized_kuzu_query<'a>(
     db: &'a Database,
-    params: &HashMap<String, String>,
+    params: &HashMap<String, Value>,
     query: &str,
 ) -> Result<QueryResult<'a>, Error> {
     let conn = Connection::new(db).expect("Failed to connect to DB");
     let mut prep = conn.prepare(query).expect("Failed to prepare query");
     let mut prep_params = Vec::new();
     for (key, val) in params {
-        prep_params.push((key.as_str(), Value::String(val.to_string())));
+        prep_params.push((key.as_str(), val.clone()));
     }
     conn.execute(&mut prep, prep_params)
 }
@@ -105,7 +105,15 @@ fn setup_parameters(kuzu: &mut Kuzu, step: &Step) {
         table
             .rows
             .iter()
-            .map(|row| (row[0].clone(), row[1].clone()))
+            .map(|row| {
+                let parts = row[0].split(':').collect::<Vec<&str>>();
+                let key = parts[0].to_string();
+                let value = match parts.get(1) {
+                    Some(&"int") => Value::Int64(row[1].parse().unwrap()),
+                    _ => unreachable!(),
+                };
+                (key, value)
+            })
             .collect(),
     );
 }
