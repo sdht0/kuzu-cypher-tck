@@ -30,6 +30,7 @@
 
 Feature: ReturnOrderBy4 - Order by in combination with projection
 
+  @fails @list1basedPos
   Scenario: [1] ORDER BY of a column introduced in RETURN should return salient results in ascending order
     Given an empty graph
     When executing query:
@@ -49,6 +50,7 @@ Feature: ReturnOrderBy4 - Order by in combination with projection
 
   Scenario: [2] Handle projections with ORDER BY
     Given an empty graph
+    And having defined kuzu types: c_nr
     And having executed:
       """
       CREATE (c1:Crew {name: 'Neo', rank: 1}),
