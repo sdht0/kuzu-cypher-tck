@@ -611,6 +611,11 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, created BOOL);
             "
         }
+        "n_division" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, division STRING);
+            "
+        }
         "n_id" => {
             "
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, id INT64);
