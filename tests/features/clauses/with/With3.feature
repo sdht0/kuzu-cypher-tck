@@ -30,13 +30,15 @@
 
 Feature: With3 - Forward multiple expressions
 
+  @fails @varBinding
   Scenario: [1] Forwarding multiple node and relationship variables
     Given an empty graph
+    And having defined kuzu types: nx:t12_id
     And having executed:
       """
-      CREATE ()-[:T1 {id: 0}]->(:X),
-             ()-[:T2 {id: 1}]->(:X),
-             ()-[:T2 {id: 2}]->()
+      CREATE (:N)-[:T1 {id: 0}]->(:X),
+             (:N)-[:T2 {id: 1}]->(:X),
+             (:N)-[:T2 {id: 2}]->(:N)
       """
     When executing query:
       """
