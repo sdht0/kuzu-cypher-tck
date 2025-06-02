@@ -33,10 +33,11 @@ Feature: With4 - Variable aliasing
 
   Scenario: [1] Aliasing relationship variable
     Given an empty graph
+    And having defined kuzu types: n:t12
     And having executed:
       """
-      CREATE ()-[:T1]->(),
-             ()-[:T2]->()
+      CREATE (:N)-[:T1]->(:N),
+             (:N)-[:T2]->(:N)
       """
     When executing query:
       """
@@ -52,17 +53,18 @@ Feature: With4 - Variable aliasing
 
   Scenario: [2] Aliasing expression to new variable name
     Given an empty graph
+    And having defined kuzu types: be_in:t
     And having executed:
       """
       CREATE (:Begin {num: 42}),
-             (:End {num: 42}),
-             (:End {num: 3})
+             (:`End` {num: 42}),
+             (:`End` {num: 3})
       """
     When executing query:
       """
       MATCH (a:Begin)
       WITH a.num AS property
-      MATCH (b:End)
+      MATCH (b:`End`)
       WHERE property = b.num
       RETURN b
       """
@@ -73,10 +75,11 @@ Feature: With4 - Variable aliasing
 
   Scenario: [3] Aliasing expression to existing variable name
     Given an empty graph
+    And having defined kuzu types: n_nn
     And having executed:
       """
-      CREATE ({num: 1, name: 'King Kong'}),
-        ({num: 2, name: 'Ann Darrow'})
+      CREATE (:N {num: 1, name: 'King Kong'}),
+        (:N {num: 2, name: 'Ann Darrow'})
       """
     When executing query:
       """
@@ -109,8 +112,10 @@ Feature: With4 - Variable aliasing
       """
     Then a SyntaxError should be raised at compile time: NoExpressionAlias
 
+  @fails @orderByInWith
   Scenario: [6] Reusing variable names in WITH
     Given an empty graph
+    And having defined kuzu types: mp:lp
     And having executed:
       """
       CREATE (a:Person), (b:Person), (m:Message {id: 10})
@@ -133,16 +138,17 @@ Feature: With4 - Variable aliasing
 
   Scenario: [7] Multiple aliasing and backreferencing
     Given any graph
+    And having defined kuzu types: n_id
     When executing query:
       """
-      CREATE (m {id: 0})
+      CREATE (m:N {id: 0})
       WITH {first: m.id} AS m
       WITH {second: m.first} AS m
-      RETURN m.second
+      RETURN m.second as second
       """
     Then the result should be, in any order:
-      | m.second |
-      | 0        |
+      | second |
+      | 0      |
     And the side effects should be:
       | +nodes      | 1 |
       | +properties | 1 |
