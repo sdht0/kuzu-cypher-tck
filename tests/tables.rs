@@ -902,6 +902,14 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE T3(FROM N to N);
             "
         }
+        "nx:t12_id" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE X(_k SERIAL PRIMARY KEY);
+              CREATE REL TABLE T1(FROM N to X, id INT64);
+              CREATE REL TABLE T2(FROM N to X, FROM N to N, id INT64);
+            "
+        }
         "nz:r" => {
             "
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY);
