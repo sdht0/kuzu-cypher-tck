@@ -683,6 +683,11 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, numbers INT64[]);
             "
         }
+        "n_nn" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, num INT64, name STRING);
+            "
+        }
         "n_3" => {
             "
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, name STRING, age INT64, seasons INT64[]);
@@ -837,6 +842,13 @@ pub fn get_table(id: &str) -> &str {
             "
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, var STRING);
               CREATE REL TABLE T(FROM N to N);
+            "
+        }
+        "n:t12" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY);
+              CREATE REL TABLE T1(FROM N to N);
+              CREATE REL TABLE T2(FROM N to N);
             "
         }
         "n_name:x" => {
