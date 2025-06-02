@@ -71,6 +71,13 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE R(FROM B to A);
             "
         }
+        "ab:rel" => {
+            "
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE B(_k SERIAL PRIMARY KEY);
+              CREATE REL TABLE REL(FROM A to B);
+            "
+        }
         "ab_num:r" => {
             "
               CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, num INT64);
@@ -278,6 +285,14 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE B(_k SERIAL PRIMARY KEY);
               CREATE NODE TABLE X(_k SERIAL PRIMARY KEY);
               CREATE REL TABLE KNOWS(FROM X to A, FROM X to B, name STRING);
+            "
+        }
+        "abx:r" => {
+            "
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE B(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE X(_k SERIAL PRIMARY KEY);
+              CREATE REL TABLE REL(FROM A to B);
             "
         }
         "abcd:t" => {
@@ -869,6 +884,15 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY);
               CREATE NODE TABLE X(_k SERIAL PRIMARY KEY);
               CREATE REL TABLE R(FROM X to N, FROM N to N);
+            "
+        }
+        "nx:t13" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE X(_k SERIAL PRIMARY KEY);
+              CREATE REL TABLE T1(FROM N to X);
+              CREATE REL TABLE T2(FROM N to X);
+              CREATE REL TABLE T3(FROM N to N);
             "
         }
         "nz:r" => {
