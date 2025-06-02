@@ -447,6 +447,13 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE TYPE(FROM Begin TO `End`);
             "
         }
+        "be_in:t" => {
+            "
+              CREATE NODE TABLE Begin(_k SERIAL PRIMARY KEY, id INT64, num INT64);
+              CREATE NODE TABLE `End`(_k SERIAL PRIMARY KEY, id INT64, num INT64);
+              CREATE REL TABLE TYPE(FROM Begin TO `End`);
+            "
+        }
         "bn_name" => {
             "
               CREATE NODE TABLE Bar(_k SERIAL PRIMARY KEY);
