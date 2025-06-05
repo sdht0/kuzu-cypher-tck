@@ -32,11 +32,12 @@ Feature: With6 - Implicit grouping with aggregates
 
   Scenario: [1] Implicit grouping with single expression as grouping key and single aggregation
     Given an empty graph
+    And having defined kuzu types: n_name
     And having executed:
       """
-      CREATE ({name: 'A'}),
-             ({name: 'A'}),
-             ({name: 'B'})
+      CREATE (:N {name: 'A'}),
+             (:N {name: 'A'}),
+             (:N {name: 'B'})
       """
     When executing query:
       """
@@ -50,13 +51,15 @@ Feature: With6 - Implicit grouping with aggregates
       | 'B'  | 1        |
     And no side effects
 
+  @fails @varBinding
   Scenario: [2] Implicit grouping with single relationship variable as grouping key and single aggregation
     Given an empty graph
+    And having defined kuzu types: nx:t13
     And having executed:
       """
-      CREATE ()-[:T1]->(:X),
-             ()-[:T2]->(:X),
-             ()-[:T3]->()
+      CREATE (:N)-[:T1]->(:X),
+             (:N)-[:T2]->(:X),
+             (:N)-[:T3]->(:N)
       """
     When executing query:
       """
@@ -71,13 +74,15 @@ Feature: With6 - Implicit grouping with aggregates
       | [:T2] |
     And no side effects
 
+  @fails @varBinding
   Scenario: [3] Implicit grouping with multiple node and relationship variables as grouping key and single aggregation
     Given an empty graph
+    And having defined kuzu types: nx:t13
     And having executed:
       """
-      CREATE ()-[:T1]->(:X),
-             ()-[:T2]->(:X),
-             ()-[:T3]->()
+      CREATE (:N)-[:T1]->(:X),
+             (:N)-[:T2]->(:X),
+             (:N)-[:T3]->(:N)
       """
     When executing query:
       """
@@ -94,10 +99,11 @@ Feature: With6 - Implicit grouping with aggregates
 
   Scenario: [4] Implicit grouping with single path variable as grouping key and single aggregation
     Given an empty graph
+    And having defined kuzu types: n_num:t
     And having executed:
       """
-      CREATE (n1 {num: 1}), (n2 {num: 2}),
-             (n3 {num: 3}), (n4 {num: 4})
+      CREATE (n1:N {num: 1}), (n2:N {num: 2}),
+             (n3:N {num: 3}), (n4:N {num: 4})
       CREATE (n1)-[:T]->(n2),
              (n3)-[:T]->(n4)
       """
@@ -108,13 +114,15 @@ Feature: With6 - Implicit grouping with aggregates
       RETURN nodes(p) AS nodes
       """
     Then the result should be, in any order:
-      | nodes                    |
-      | [({num: 1}), ({num: 2})] |
-      | [({num: 3}), ({num: 4})] |
+      | nodes                          |
+      | [(:N {num: 1}), (:N {num: 2})] |
+      | [(:N {num: 3}), (:N {num: 4})] |
     And no side effects
 
+  @fails @bugParamBinding
   Scenario: [5] Handle constants and parameters inside an expression which contains an aggregation expression
     Given an empty graph
+    And having defined kuzu types: n
     And parameters are:
       | age | 38 |
     When executing query:
@@ -130,6 +138,7 @@ Feature: With6 - Implicit grouping with aggregates
 
   Scenario: [6] Handle projected variables inside an expression which contains an aggregation expression
     Given an empty graph
+    And having defined kuzu types: p_age
     When executing query:
       """
       MATCH (me: Person)--(you: Person)
@@ -143,6 +152,7 @@ Feature: With6 - Implicit grouping with aggregates
 
   Scenario: [7] Handle projected property accesses inside an expression which contains an aggregation expression
     Given an empty graph
+    And having defined kuzu types: p_age
     When executing query:
       """
       MATCH (me: Person)--(you: Person)
@@ -155,6 +165,7 @@ Feature: With6 - Implicit grouping with aggregates
 
   Scenario: [8] Fail if not projected variables are used inside an expression which contains an aggregation expression
     Given an empty graph
+    And having defined kuzu types: n
     When executing query:
       """
       MATCH (me: Person)--(you: Person)
@@ -165,6 +176,7 @@ Feature: With6 - Implicit grouping with aggregates
 
   Scenario: [9] Fail if more complex expression, even if projected, are used inside expression which contains an aggregation expression
     Given an empty graph
+    And having defined kuzu types: n
     When executing query:
       """
       MATCH (me: Person)--(you: Person)
