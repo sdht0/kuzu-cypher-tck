@@ -1,3 +1,6 @@
+#!/usr/bin/env nix-shell
+#!nix-shell --pure --keep NIX_PATH -i python3 -p "python3.withPackages (ps: with ps; [ matplotlib pandas ])"
+
 # This file is part of the uutils coreutils package.
 #
 # For the full copyright and license information, please view the LICENSE
