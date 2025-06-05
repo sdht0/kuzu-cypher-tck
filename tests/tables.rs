@@ -699,6 +699,12 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE FATHER(FROM N to N);
             "
         }
+        "n_name:r" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, name STRING);
+              CREATE REL TABLE REL(FROM N to N);
+            "
+        }
         "n_num:t" => {
             "
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, num INT64);
