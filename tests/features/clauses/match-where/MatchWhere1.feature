@@ -124,7 +124,6 @@ Feature: MatchWhere1 - Filter single variable
       | (:N {name: 'Andres'}) |
     And no side effects
 
-  @fails @bugRustParams
   Scenario: [6] Filter node with a parameter in a property predicate on multi variables with one binding
     Given an empty graph
     And having defined kuzu types: ab_name:t_name
@@ -185,10 +184,9 @@ Feature: MatchWhere1 - Filter single variable
       | (:A) |
     And no side effects
 
-  @fails @bugRustParams
   Scenario: [9] Filter relationship with a parameter in a property predicate on multi variables with one binding
     Given an empty graph
-    And having defined kuzu types: ab:t_name
+    And having defined kuzu types: ab_name:t_name
     And having executed:
       """
       CREATE (:A)-[:T {name: 'bar'}]->(:B {name: 'me'})

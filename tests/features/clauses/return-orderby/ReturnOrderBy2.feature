@@ -251,7 +251,6 @@ Feature: ReturnOrderBy2 - Order by a single expression (order of projection)
       | 30 |
     And no side effects
 
-  @fails @todo
   Scenario: [12] Aggregation of named paths
     Given an empty graph
     And having defined kuzu types: abcdef:r

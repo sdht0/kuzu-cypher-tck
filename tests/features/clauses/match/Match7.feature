@@ -236,8 +236,6 @@ Feature: Match7 - Optional match
       | null |
     And no side effects
 
-  @fails @bugUnexpectedOutput
-  # Kuzu should not produce B A C
   Scenario: [11] Return two subgraphs with bound undirected relationship and optional relationship
     Given an empty graph
     And having defined kuzu types: abc_num:r_name
@@ -335,8 +333,6 @@ Feature: Match7 - Optional match
       | null |
     And no side effects
 
-  @fails @bugUnexpectedOutput
-  # Produces (:A) | (:B) | (:B)
   Scenario: [15] Variable length patterns and nulls
     Given an empty graph
     And having defined kuzu types: ab:bf
@@ -625,8 +621,6 @@ Feature: Match7 - Optional match
       | (:C) | null |
     And no side effects
 
-  @fails @bugUnexpectedOutput
-  # Produces all nulls.
   Scenario: [27] Handling optional matches between optionally matched entities
     Given an empty graph
     And having defined kuzu types: abcns_num:lnr

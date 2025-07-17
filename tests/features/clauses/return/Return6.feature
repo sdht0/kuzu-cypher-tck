@@ -312,7 +312,6 @@ Feature: Return6 - Implicit grouping with aggregates
       | (:P {name: 'Michael'}) | (:P {name: 'Peter'})  | 0   |
     And no side effects
 
-  @fails @parameterized
   Scenario: [17] Handle constants and parameters inside an expression which contains an aggregation expression
     Given an empty graph
     And having defined kuzu types: n_age
