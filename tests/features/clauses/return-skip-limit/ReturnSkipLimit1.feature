@@ -32,13 +32,14 @@ Feature: ReturnSkipLimit1 - Skip
 
   Scenario: [1] Start the result from the second row
     Given an empty graph
+    And having defined kuzu types: abcde_name
     And having executed:
       """
-      CREATE ({name: 'A'}),
-        ({name: 'B'}),
-        ({name: 'C'}),
-        ({name: 'D'}),
-        ({name: 'E'})
+      CREATE (:A {name: 'A'}),
+        (:B {name: 'B'}),
+        (:C {name: 'C'}),
+        (:D {name: 'D'}),
+        (:E {name: 'E'})
       """
     When executing query:
       """
@@ -49,20 +50,21 @@ Feature: ReturnSkipLimit1 - Skip
       """
     Then the result should be, in order:
       | n             |
-      | ({name: 'C'}) |
-      | ({name: 'D'}) |
-      | ({name: 'E'}) |
+      | (:C {name: 'C'}) |
+      | (:D {name: 'D'}) |
+      | (:E {name: 'E'}) |
     And no side effects
 
   Scenario: [2] Start the result from the second row by param
     Given an empty graph
+    And having defined kuzu types: abcde_name
     And having executed:
       """
-      CREATE ({name: 'A'}),
-        ({name: 'B'}),
-        ({name: 'C'}),
-        ({name: 'D'}),
-        ({name: 'E'})
+      CREATE (:A {name: 'A'}),
+        (:B {name: 'B'}),
+        (:C {name: 'C'}),
+        (:D {name: 'D'}),
+        (:E {name: 'E'})
       """
     And parameters are:
       | skipAmount | 2 |
@@ -75,22 +77,24 @@ Feature: ReturnSkipLimit1 - Skip
       """
     Then the result should be, in order:
       | n             |
-      | ({name: 'C'}) |
-      | ({name: 'D'}) |
-      | ({name: 'E'}) |
+      | (:C {name: 'C'}) |
+      | (:D {name: 'D'}) |
+      | (:E {name: 'E'}) |
     And no side effects
 
+  @fails @functionRand
   Scenario: [3] SKIP with an expression that does not depend on variables
     Given any graph
+    And having defined kuzu types: n_nr
     And having executed:
       """
       UNWIND range(1, 10) AS i
-      CREATE ({nr: i})
+      CREATE (:N {nr: i})
       """
     When executing query:
       """
       MATCH (n)
-      WITH n SKIP toInteger(rand()*9)
+      WITH n SKIP CAST(rand()*9 AS INT64)
       WITH count(*) AS count
       RETURN count > 0 AS nonEmpty
       """
@@ -113,6 +117,7 @@ Feature: ReturnSkipLimit1 - Skip
 
   Scenario: [5] SKIP with an expression that depends on variables should fail
     Given any graph
+    And having defined kuzu types: n_count
     When executing query:
       """
       MATCH (n) RETURN n SKIP n.count
@@ -121,6 +126,7 @@ Feature: ReturnSkipLimit1 - Skip
 
   Scenario: [6] Negative parameter for SKIP should fail
     Given any graph
+    And having defined kuzu types: p_name
     And having executed:
       """
       CREATE (s:Person {name: 'Steven'}),
@@ -138,6 +144,7 @@ Feature: ReturnSkipLimit1 - Skip
 
   Scenario: [7] Negative SKIP should fail
     Given any graph
+    And having defined kuzu types: p_name
     And having executed:
       """
       CREATE (s:Person {name: 'Steven'}),
@@ -153,6 +160,7 @@ Feature: ReturnSkipLimit1 - Skip
 
   Scenario: [8] Floating point parameter for SKIP should fail
     Given any graph
+    And having defined kuzu types: p_name
     And having executed:
       """
       CREATE (s:Person {name: 'Steven'}),
@@ -170,6 +178,7 @@ Feature: ReturnSkipLimit1 - Skip
 
   Scenario: [9] Floating point SKIP should fail
     Given any graph
+    And having defined kuzu types: p_name
     And having executed:
       """
       CREATE (s:Person {name: 'Steven'}),
@@ -185,6 +194,7 @@ Feature: ReturnSkipLimit1 - Skip
 
   Scenario: [10] Fail when using non-constants in SKIP
     Given any graph
+    And having defined kuzu types: n_count
     When executing query:
       """
       MATCH (n)
@@ -195,6 +205,7 @@ Feature: ReturnSkipLimit1 - Skip
 
   Scenario: [11] Fail when using negative value in SKIP
     Given any graph
+    And having defined kuzu types: n
     When executing query:
       """
       MATCH (n)
