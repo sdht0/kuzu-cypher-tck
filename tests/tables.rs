@@ -448,6 +448,13 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE Y(FROM N to N);
             "
         }
+        "an_num:t" => {
+            "
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, num INT64);
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, num INT64);
+              CREATE REL TABLE T(FROM A to N, FROM N to N);
+            "
+        }
         "aptv_in:3" => {
             "
               CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, id INT64, name STRING);
@@ -660,6 +667,11 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, color STRING[]);
             "
         }
+        "n_count" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, count INT64);
+            "
+        }
         "n_created" => {
             "
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, created BOOL);
@@ -713,6 +725,11 @@ pub fn get_table(id: &str) -> &str {
         "n_nn" => {
             "
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, num INT64, name STRING);
+            "
+        }
+        "n_nr" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, nr INT64);
             "
         }
         "n_3" => {
@@ -966,6 +983,11 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY);
               CREATE NODE TABLE Z(_k SERIAL PRIMARY KEY);
               CREATE REL TABLE REL(FROM N to Z);
+            "
+        }
+        "p_name" => {
+            "
+              CREATE NODE TABLE Person(_k SERIAL PRIMARY KEY, name STRING);
             "
         }
         "p_age" => {

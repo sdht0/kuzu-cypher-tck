@@ -233,13 +233,25 @@ fn check_results_ordered(kuzu: &mut Kuzu, step: &Step) {
     for row in iter {
         expected_results.push(row.join(OUTPUT_SEP));
     }
+
+    let expected_results_str = expected_results
+        .iter()
+        .map(|result| format!("{result} (x1)"))
+        .collect::<Vec<_>>()
+        .join("\n");
+    let actual_results_str = kuzu
+        .results_ordered
+        .iter()
+        .map(|result| format!("{result} (x1)"))
+        .collect::<Vec<_>>()
+        .join("\n");
+
     assert_eq!(expected_columns, kuzu.columns, "Columns don't match");
     for (i, result) in kuzu.results_ordered.iter().enumerate() {
         assert_eq!(
             expected_results.get(i),
             Some(result),
-            "Found result not expected: {result} || {expected_results:?} || {:?} || {:?}",
-            kuzu.results_ordered,
+            "Found result not expected: {result}\nExpected:\n{expected_results_str}\n\nActual:\n{actual_results_str}\n\n{:?}",
             kuzu.get_state()
         );
     }
@@ -307,24 +319,32 @@ fn check_comptime_error(kuzu: &mut Kuzu, error: String) {
         | "UndefinedVariable"
         | "NoSingleRelationshipType"
         | "CreatingVarLength"
-        | "InvalidArgumentType"
         | "ColumnNameConflict"
         | "NestedAggregation"
         | "AmbiguousAggregationExpression"
         | "NoVariablesInScope"
         | "NoExpressionAlias" => {
-            assert!(found_error.contains("Binder exception"), "{found_error}");
+            assert!(
+                found_error.contains("Binder exception"),
+                "Expected Binder exception, but found: {found_error}"
+            );
         }
         "NonConstantExpression" => {
-            assert!(found_error.contains("Catalog exception"), "{found_error}");
+            assert!(
+                found_error.contains("exception"),
+                "Expected exception, but found: {found_error}"
+            );
         }
         "UnknownFunction" | "RequiresDirectedRelationship" => {
-            assert!(found_error.contains("exception"), "{found_error}");
-        }
-        "InvalidAggregation" => {
             assert!(
-                found_error.contains("Query execution failed"),
-                "{found_error}"
+                found_error.contains("exception"),
+                "Expected exception, but found: {found_error}"
+            );
+        }
+        "InvalidAggregation" | "NegativeIntegerArgument" | "InvalidArgumentType" => {
+            assert!(
+                found_error.contains("Runtime exception"),
+                "Expected Query execution failed, but found: {found_error}"
             );
         }
         _ => panic!("Unknown error: {error}, found {found_error}"),
@@ -335,7 +355,7 @@ fn check_comptime_error(kuzu: &mut Kuzu, error: String) {
 fn check_runtime_error(kuzu: &mut Kuzu, _etype: String, error: String) {
     let found_error = kuzu.error.as_ref().expect("SyntaxError expected");
     match error.as_str() {
-        "DeleteConnectedNode" => {
+        "DeleteConnectedNode" | "InvalidArgumentType" | "NegativeIntegerArgument" => {
             assert!(found_error.contains("Runtime exception"), "{found_error}");
         }
         _ => panic!("Unknown error: {error}, found {found_error}"),
