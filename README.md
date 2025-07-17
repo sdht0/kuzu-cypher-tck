@@ -13,7 +13,6 @@ curl -L -O https://github.com/kuzudb/kuzu/releases/download/v0.11.0/libkuzu-linu
 tar xzf libkuzu-linux-aarch64.tar.gz
 rm libkuzu-linux-aarch64.tar.gz
 cd ..
-export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$PWD/kuzu-lib"
 ```
 
 Disable by removing `[env]` from `.cargo/config.toml`.
