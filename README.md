@@ -9,7 +9,7 @@ Use pre-built shared lib for faster compilation.
 ```bash
 mkdir kuzu-lib
 cd kuzu-lib
-curl -L -O https://github.com/kuzudb/kuzu/releases/download/v0.9.0/libkuzu-linux-aarch64.tar.gz
+curl -L -O https://github.com/kuzudb/kuzu/releases/download/v0.11.0/libkuzu-linux-aarch64.tar.gz
 tar xzf libkuzu-linux-aarch64.tar.gz
 rm libkuzu-linux-aarch64.tar.gz
 cd ..

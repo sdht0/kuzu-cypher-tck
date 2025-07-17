@@ -179,6 +179,8 @@ struct OPPrintInfo {
     virtual std::string toString() const { return std::string(); }
 
     virtual std::unique_ptr<OPPrintInfo> copy() const { return std::make_unique<OPPrintInfo>(); }
+
+    static std::unique_ptr<OPPrintInfo> EmptyInfo() { return std::make_unique<OPPrintInfo>(); }
 };
 
 } // namespace kuzu
@@ -242,8 +244,6 @@ class BaseGraphTest;
 class PrivateGraphTest;
 class TestHelper;
 class TestRunner;
-class TinySnbDDLTest;
-class TinySnbCopyCSVTransactionTest;
 } // namespace testing
 
 namespace benchmark {
@@ -383,6 +383,15 @@ struct ArrowArrayWrapper : public ArrowArray {
         }
     }
 };
+
+namespace kuzu {
+namespace common {
+struct DatabaseLifeCycleManager {
+    bool isDatabaseClosed = false;
+    void checkDatabaseClosedOrThrow() const;
+};
+} // namespace common
+} // namespace kuzu
 
 #include <cstdint>
 #include <string>
@@ -1206,13 +1215,13 @@ using storage_version_t = uint64_t;
 
 struct StorageVersionInfo {
     static std::unordered_map<std::string, storage_version_t> getStorageVersionInfo() {
-        return {{"0.10.0", 38}, {"0.9.0", 37}, {"0.8.0", 36}, {"0.7.1.1", 35}, {"0.7.0", 34},
-            {"0.6.0.6", 33}, {"0.6.0.5", 32}, {"0.6.0.2", 31}, {"0.6.0.1", 31}, {"0.6.0", 28},
-            {"0.5.0", 28}, {"0.4.2", 27}, {"0.4.1", 27}, {"0.4.0", 27}, {"0.3.2", 26},
-            {"0.3.1", 26}, {"0.3.0", 26}, {"0.2.1", 25}, {"0.2.0", 25}, {"0.1.0", 24},
-            {"0.0.12.3", 24}, {"0.0.12.2", 24}, {"0.0.12.1", 24}, {"0.0.12", 23}, {"0.0.11", 23},
-            {"0.0.10", 23}, {"0.0.9", 23}, {"0.0.8", 17}, {"0.0.7", 15}, {"0.0.6", 9}, {"0.0.5", 8},
-            {"0.0.4", 7}, {"0.0.3", 1}};
+        return {{"0.11.0", 39}, {"0.10.0", 38}, {"0.9.0", 37}, {"0.8.0", 36}, {"0.7.1.1", 35},
+            {"0.7.0", 34}, {"0.6.0.6", 33}, {"0.6.0.5", 32}, {"0.6.0.2", 31}, {"0.6.0.1", 31},
+            {"0.6.0", 28}, {"0.5.0", 28}, {"0.4.2", 27}, {"0.4.1", 27}, {"0.4.0", 27},
+            {"0.3.2", 26}, {"0.3.1", 26}, {"0.3.0", 26}, {"0.2.1", 25}, {"0.2.0", 25},
+            {"0.1.0", 24}, {"0.0.12.3", 24}, {"0.0.12.2", 24}, {"0.0.12.1", 24}, {"0.0.12", 23},
+            {"0.0.11", 23}, {"0.0.10", 23}, {"0.0.9", 23}, {"0.0.8", 17}, {"0.0.7", 15},
+            {"0.0.6", 9}, {"0.0.5", 8}, {"0.0.4", 7}, {"0.0.3", 1}};
     }
 
     static KUZU_API storage_version_t getStorageVersion();
@@ -1274,6 +1283,9 @@ public:
     // an empty buffer. If there is a large string that used point to any of these overflow buffers
     // they will error.
     void resetBuffer();
+
+    // Manually set the underlying memory buffer to evicted to avoid double free
+    void preventDestruction();
 
     storage::MemoryManager* getMemoryManager() { return memoryManager; }
 
@@ -1718,6 +1730,12 @@ public:
     // Convert a timestamp object to a std::string in the format "YYYY-MM-DD hh:mm:ss".
     KUZU_API static std::string toString(timestamp_t timestamp);
 
+    // Date header is in the format: %Y%m%d.
+    KUZU_API static std::string getDateHeader(const timestamp_t& timestamp);
+
+    // Timestamp header is in the format: %Y%m%dT%H%M%SZ.
+    KUZU_API static std::string getDateTimeHeader(const timestamp_t& timestamp);
+
     KUZU_API static date_t getDate(timestamp_t timestamp);
 
     KUZU_API static dtime_t getTime(timestamp_t timestamp);
@@ -1769,11 +1787,22 @@ public:
 
 #include <string>
 #include <string_view>
-#include <type_traits>
-
+#if USE_STD_FORMAT
+#include <format>
+#else
+#endif
 
 namespace kuzu {
 namespace common {
+
+#if USE_STD_FORMAT
+
+template<typename... Args>
+inline std::string stringFormat(std::format_string<Args...> format, Args&&... args) {
+    return std::format(format, std::forward<Args>(args)...);
+}
+
+#else
 
 namespace string_format_detail {
 #define MAP_STD_TO_STRING(typ)                                                                     \
@@ -1801,9 +1830,9 @@ MAP_SELF(const char*);
 // Also covers std::string
 MAP_SELF(std::string_view)
 
-// chars are mapped to themselves, but signed char and unsigned char (which are used for int8_t and
+// Chars are mapped to themselves, but signed char and unsigned char (which are used for int8_t and
 // uint8_t respectively), need to be cast to be properly output as integers. This is consistent with
-// fmt's behaviour.
+// fmt's behavior.
 MAP_SELF(char)
 inline std::string map(signed char v) {
     return std::to_string(int(v));
@@ -1859,15 +1888,17 @@ inline void stringFormatHelper(std::string& ret, std::string_view format, Arg&& 
 }
 } // namespace string_format_detail
 
-//! Formats `args` according to `format`. Accepts {} for formatting the argument and {{}} for
-//! a literal {}. Formatting is done with std::ostream::operator<<.
+// Formats `args` according to `format`. Accepts {} for formatting the argument and {{}} for
+// a literal {}. Formatting is done with std::ostream::operator<<.
 template<typename... Args>
-inline std::string stringFormat(std::string_view format, Args... args) {
+inline std::string stringFormat(std::string_view format, Args&&... args) {
     std::string ret;
     ret.reserve(32); // Optimistic pre-allocation.
     string_format_detail::stringFormatHelper(ret, format, std::forward<Args>(args)...);
     return ret;
 }
+
+#endif
 
 } // namespace common
 } // namespace kuzu
@@ -2054,7 +2085,7 @@ const uint64_t NULL_HIGH_MASKS[65] = {0x0, 0x8000000000000000, 0xc00000000000000
     0xffffffffffffffe0, 0xfffffffffffffff0, 0xfffffffffffffff8, 0xfffffffffffffffc,
     0xfffffffffffffffe, 0xffffffffffffffff};
 
-class NullMask {
+class KUZU_API NullMask {
 public:
     static constexpr uint64_t NO_NULL_ENTRY = 0;
     static constexpr uint64_t ALL_NULL_ENTRY = ~uint64_t(NO_NULL_ENTRY);
@@ -2511,11 +2542,11 @@ public:
     static LogicalType POINTER() { return LogicalType(LogicalTypeID::POINTER); }
     static KUZU_API LogicalType STRUCT(std::vector<StructField>&& fields);
 
-    static KUZU_API LogicalType RECURSIVE_REL(std::unique_ptr<StructTypeInfo> typeInfo);
+    static KUZU_API LogicalType RECURSIVE_REL(std::vector<StructField>&& fields);
 
-    static KUZU_API LogicalType NODE(std::unique_ptr<StructTypeInfo> typeInfo);
+    static KUZU_API LogicalType NODE(std::vector<StructField>&& fields);
 
-    static KUZU_API LogicalType REL(std::unique_ptr<StructTypeInfo> typeInfo);
+    static KUZU_API LogicalType REL(std::vector<StructField>&& fields);
 
     static KUZU_API LogicalType UNION(std::vector<StructField>&& fields);
 
@@ -2757,8 +2788,6 @@ struct KUZU_API StructType {
     static const StructField& getField(const LogicalType& type, const std::string& key);
 
     static struct_field_idx_t getFieldIdx(const LogicalType& type, const std::string& key);
-
-    static LogicalType getNodeType(const catalog::NodeTableCatalogEntry& entry);
 };
 
 struct KUZU_API MapType {
@@ -2821,6 +2850,7 @@ struct KUZU_API LogicalTypeUtils {
     // Also combines structs by the union of their fields. As such, currently, it is not guaranteed
     // for casting to work from input types to resulting types. Ideally this changes
     static LogicalType combineTypes(const LogicalType& left, const LogicalType& right);
+    static LogicalType combineTypes(const std::vector<LogicalType>& types);
 
     // makes a copy of the type with any occurences of ANY replaced with replacement
     static LogicalType purgeAny(const LogicalType& type, const LogicalType& replacement);
@@ -2957,7 +2987,7 @@ public:
         : Expression{expressionType, std::move(dataType), expression_vector{},
               std::move(uniqueName)} {}
     DELETE_COPY_DEFAULT_MOVE(Expression);
-    virtual ~Expression() = default;
+    virtual ~Expression();
 
     void setUniqueName(const std::string& name) { uniqueName = name; }
     std::string getUniqueName() const {
@@ -3068,9 +3098,7 @@ protected:
 
 public:
     // STATIC selectionView over 0..selectedSize
-    explicit SelectionView(sel_t selectedSize) : SelectionView{0, selectedSize} {}
-    // STATIC selectionView over startPos..selectedSize
-    explicit SelectionView(sel_t startPos, sel_t selectedSize);
+    explicit SelectionView(sel_t selectedSize);
 
     template<class Func>
     void forEach(Func&& func) const {
@@ -3215,10 +3243,6 @@ private:
 } // namespace kuzu
 
 
-namespace arrow {
-class ChunkedArray;
-} // namespace arrow
-
 namespace kuzu {
 namespace common {
 
@@ -3271,13 +3295,6 @@ public:
 
 private:
     std::vector<std::shared_ptr<ValueVector>> childrenVectors;
-};
-
-class ArrowColumnAuxiliaryBuffer : public AuxiliaryBuffer {
-    friend class ArrowColumnVector;
-
-private:
-    std::shared_ptr<arrow::ChunkedArray> column;
 };
 
 // ListVector layout:
@@ -3482,6 +3499,10 @@ struct KUZU_API ResultSetDescriptor {
     DELETE_BOTH_COPY(ResultSetDescriptor);
 
     std::unique_ptr<ResultSetDescriptor> copy() const;
+
+    static std::unique_ptr<ResultSetDescriptor> EmptyDescriptor() {
+        return std::make_unique<ResultSetDescriptor>();
+    }
 };
 
 } // namespace processor
@@ -3549,16 +3570,11 @@ struct BufferPoolConstants {
 };
 
 struct StorageConstants {
-    static constexpr char OVERFLOW_FILE_SUFFIX[] = ".ovf";
-    static constexpr char WAL_FILE_SUFFIX[] = ".wal";
-    static constexpr char SHADOWING_SUFFIX[] = ".shadow";
-    static constexpr char INDEX_FILE_SUFFIX[] = ".hindex";
-    static constexpr char CATALOG_FILE_NAME[] = "catalog.kz";
-    static constexpr char CATALOG_FILE_NAME_FOR_WAL[] = "catalog.shadow";
-    static constexpr char DATA_FILE_NAME[] = "data.kz";
-    static constexpr char METADATA_FILE_NAME[] = "metadata.kz";
-    static constexpr char METADATA_FILE_NAME_FOR_WAL[] = "metadata.shadow";
-    static constexpr char LOCK_FILE_NAME[] = ".lock";
+    static constexpr page_idx_t DB_HEADER_PAGE_IDX = 0;
+    static constexpr char WAL_FILE_SUFFIX[] = "wal";
+    static constexpr char SHADOWING_SUFFIX[] = "shadow";
+    static constexpr char LOCK_FILE_SUFFIX[] = "lock";
+    static constexpr char TEMP_FILE_SUFFIX[] = "tmp";
 
     // The number of pages that we add at one time when we need to grow a file.
     static constexpr uint64_t PAGE_GROUP_SIZE_LOG2 = 10;
@@ -3570,8 +3586,6 @@ struct StorageConstants {
     static constexpr double LEAF_HIGH_CSR_DENSITY = 1.0;
 
     static constexpr uint64_t MAX_NUM_ROWS_IN_TABLE = static_cast<uint64_t>(1) << 62;
-
-    static constexpr char TEMP_SPILLING_FILE_NAME[] = ".tmp";
 };
 
 struct TableOptionConstants {
@@ -3618,10 +3632,13 @@ struct CopyConstants {
     static constexpr std::array DEFAULT_CSV_DELIMITER_SEARCH_SPACE = {',', ';', '\t', '|'};
     static constexpr std::array DEFAULT_CSV_QUOTE_SEARCH_SPACE = {'"', '\''};
     static constexpr std::array DEFAULT_CSV_ESCAPE_SEARCH_SPACE = {'"', '\\', '\''};
+    static constexpr std::array DEFAULT_CSV_NULL_STRINGS = {""};
 
     static constexpr const char* INT_CSV_PARSING_OPTIONS[] = {"SKIP", "SAMPLE_SIZE"};
     static constexpr uint64_t DEFAULT_CSV_SKIP_NUM = 0;
     static constexpr uint64_t DEFAULT_CSV_TYPE_DEDUCTION_SAMPLE_SIZE = 256;
+
+    static constexpr const char* LIST_CSV_PARSING_OPTIONS[] = {"NULL_STRINGS"};
 
     // metadata columns used to populate CSV warnings
     static constexpr std::array SHARED_WARNING_DATA_COLUMN_NAMES = {"blockIdx", "offsetInBlock",
@@ -3688,6 +3705,9 @@ struct PortDBConstants {
     static constexpr char INDEX_FILE_NAME[] = "index.cypher";
     static constexpr char SCHEMA_FILE_NAME[] = "schema.cypher";
     static constexpr char COPY_FILE_NAME[] = "copy.cypher";
+    static constexpr const char* SCHEMA_ONLY_OPTION = "SCHEMA_ONLY";
+    static constexpr const char* EXPORT_FORMAT_OPTION = "FORMAT";
+    static constexpr const char* DEFAULT_EXPORT_FORMAT_OPTION = "PARQUET";
 };
 
 struct WarningConstants {
@@ -4022,6 +4042,7 @@ std::string TypeUtils::toString(const union_entry_t& val, void* valueVector);
 } // namespace common
 } // namespace kuzu
 
+#include <atomic>
 #include <mutex>
 
 
@@ -4039,6 +4060,7 @@ namespace main {
 class ClientContext;
 } // namespace main
 namespace storage {
+class LocalWAL;
 class LocalStorage;
 class UndoBuffer;
 class WAL;
@@ -4093,7 +4115,7 @@ private:
     std::mutex mtx;
 };
 
-class Transaction {
+class KUZU_API Transaction {
     friend class TransactionManager;
 
 public:
@@ -4122,31 +4144,28 @@ public:
     int64_t getCurrentTS() const { return currentTS; }
     main::ClientContext* getClientContext() const { return clientContext; }
 
-    void checkForceCheckpoint(common::StatementType statementType) {
-        // Note: We always force checkpoint for COPY_FROM statement.
-        if (statementType == common::StatementType::COPY_FROM) {
-            forceCheckpoint = true;
-        }
-    }
+    void setForceCheckpoint() { forceCheckpoint = true; }
     bool shouldAppendToUndoBuffer() const {
-        return getID() > DUMMY_TRANSACTION_ID && !isReadOnly();
+        // Only write transactions and recovery transactions should append to the undo buffer.
+        return isWriteTransaction() || isRecovery();
     }
     bool shouldLogToWAL() const;
+    storage::LocalWAL& getLocalWAL() const {
+        KU_ASSERT(localWAL);
+        return *localWAL;
+    }
 
     bool shouldForceCheckpoint() const;
 
-    KUZU_API void commit(storage::WAL* wal);
+    void commit(storage::WAL* wal);
     void rollback(storage::WAL* wal);
 
     uint64_t getEstimatedMemUsage() const;
     storage::LocalStorage* getLocalStorage() const { return localStorage.get(); }
     LocalCacheManager& getLocalCacheManager() { return localCacheManager; }
-    bool isUnCommitted(common::table_id_t tableID, common::offset_t nodeOffset) const {
-        return nodeOffset >= getMinUncommittedNodeOffset(tableID);
-    }
+    bool isUnCommitted(common::table_id_t tableID, common::offset_t nodeOffset) const;
     common::row_idx_t getLocalRowIdx(common::table_id_t tableID,
         common::offset_t nodeOffset) const {
-        KU_ASSERT(isUnCommitted(tableID, nodeOffset));
         return nodeOffset - getMinUncommittedNodeOffset(tableID);
     }
     common::offset_t getUncommittedOffset(common::table_id_t tableID,
@@ -4189,9 +4208,10 @@ private:
     main::ClientContext* clientContext;
     std::unique_ptr<storage::LocalStorage> localStorage;
     std::unique_ptr<storage::UndoBuffer> undoBuffer;
+    std::unique_ptr<storage::LocalWAL> localWAL;
     LocalCacheManager localCacheManager;
     bool forceCheckpoint;
-    bool hasCatalogChanges;
+    std::atomic<bool> hasCatalogChanges;
 
     // For each node table, we keep track of the minimum uncommitted node offset when the
     // transaction starts. This is mainly used to assign offsets to local nodes and determine if a
@@ -4244,6 +4264,8 @@ public:
     }
 
     common::StatementType getStatementType() const;
+
+    void validateExecuteParam(const std::string& paramName, common::Value* param) const;
 
     KUZU_API ~PreparedStatement();
 
@@ -5257,8 +5279,6 @@ public:
         this->selVector = std::move(selVector_);
     }
 
-    void slice(offset_t offset);
-
 private:
     std::shared_ptr<SelectionVector> selVector;
     // TODO: We should get rid of `fStateType` and merge DataChunkState with SelectionVector.
@@ -5316,6 +5336,12 @@ public:
     TransactionMode getTransactionMode() const { return mode; }
     bool hasActiveTransaction() const { return activeTransaction != nullptr; }
     Transaction* getActiveTransaction() const { return activeTransaction.get(); }
+    // TODO(Guodong): This interface should be removed once we have a design to not manually create
+    // a transaction during HNSWIndex checkpoint.
+    void setActiveTransaction(std::unique_ptr<Transaction> transaction) {
+        activeTransaction = std::move(transaction);
+        mode = TransactionMode::MANUAL;
+    }
 
     void clearTransaction();
 
@@ -5613,6 +5639,9 @@ struct DBConfig {
     uint64_t checkpointThreshold;
     bool forceCheckpointOnClose;
     bool enableSpillingToDisk;
+#if defined(__APPLE__)
+    uint32_t threadQos;
+#endif
 
     explicit DBConfig(const SystemConfig& systemConfig);
 
@@ -5644,6 +5673,7 @@ struct CSVOption {
     bool setDelim;
     bool setQuote;
     bool setHeader;
+    std::vector<std::string> nullStrings;
 
     CSVOption()
         : escapeChar{CopyConstants::DEFAULT_CSV_ESCAPE_CHAR},
@@ -5658,40 +5688,43 @@ struct CSVOption {
           setEscape{CopyConstants::DEFAULT_CSV_SET_DIALECT},
           setDelim{CopyConstants::DEFAULT_CSV_SET_DIALECT},
           setQuote{CopyConstants::DEFAULT_CSV_SET_DIALECT},
-          setHeader{CopyConstants::DEFAULT_CSV_SET_DIALECT} {}
+          setHeader{CopyConstants::DEFAULT_CSV_SET_DIALECT},
+          nullStrings{CopyConstants::DEFAULT_CSV_NULL_STRINGS[0]} {}
 
     EXPLICIT_COPY_DEFAULT_MOVE(CSVOption);
 
     // TODO: COPY FROM and COPY TO should support transform special options, like '\'.
-    std::string toCypher() const {
-        std::string result;
-
-        // Add the option IFF option is set by user.
+    std::unordered_map<std::string, std::string> toOptionsMap() const {
+        std::unordered_map<std::string, std::string> result;
         if (setHeader) {
-            std::string header = hasHeader ? "true" : "false";
-            result += "header=" + header;
+            result["header"] = hasHeader ? "true" : "false";
         }
         if (setEscape) {
-            if (!result.empty())
-                result += ", "; // Add separator if not the first option
-            result += stringFormat("escape='\\{}'", escapeChar);
+            result["escape"] = stringFormat("escape='\\{}'", escapeChar);
         }
         if (setDelim) {
-            if (!result.empty())
-                result += ", ";
-            result += stringFormat("delim='{}'", delimiter);
+            result["delim"] = stringFormat("delim='{}'", delimiter);
         }
         if (setQuote) {
-            if (!result.empty())
-                result += ", ";
-            result += stringFormat("quote='\\{}'", quoteChar);
+            result["quote"] = stringFormat("quote='\\{}'", quoteChar);
         }
+        if (autoDetection != CopyConstants::DEFAULT_CSV_AUTO_DETECT) {
+            result["auto_detect"] = autoDetection ? "true" : "false";
+        }
+        return result;
+    }
 
-        // If no options, return empty string.
-        if (result.empty()) {
+    static std::string toCypher(const std::unordered_map<std::string, std::string>& options) {
+        if (options.empty()) {
             return "";
         }
-
+        std::string result = "";
+        for (const auto& [key, value] : options) {
+            if (!result.empty()) {
+                result += ", ";
+            }
+            result += key + "=" + value;
+        }
         return "(" + result + ")";
     }
 
@@ -5705,7 +5738,7 @@ struct CSVOption {
                                             // sampleSize is 0
           allowUnbracedList{other.allowUnbracedList}, ignoreErrors{other.ignoreErrors},
           autoDetection{other.autoDetection}, setEscape{other.setEscape}, setDelim{other.setDelim},
-          setQuote{other.setQuote}, setHeader{other.setHeader} {}
+          setQuote{other.setQuote}, setHeader{other.setHeader}, nullStrings{other.nullStrings} {}
 };
 
 struct CSVReaderConfig {
@@ -5715,7 +5748,7 @@ struct CSVReaderConfig {
     CSVReaderConfig() : option{}, parallel{CopyConstants::DEFAULT_CSV_PARALLEL} {}
     EXPLICIT_COPY_DEFAULT_MOVE(CSVReaderConfig);
 
-    static CSVReaderConfig construct(const case_insensitive_map_t<common::Value>& options);
+    static CSVReaderConfig construct(const case_insensitive_map_t<Value>& options);
 
 private:
     CSVReaderConfig(const CSVReaderConfig& other)
@@ -6184,7 +6217,6 @@ private:
 
 #include <string>
 
-
 namespace kuzu {
 namespace main {
 
@@ -6318,6 +6350,7 @@ private:
     void validateQuerySucceed() const;
     std::pair<std::unique_ptr<processor::FlatTuple>, std::unique_ptr<processor::FlatTupleIterator>>
     getIterator() const;
+    void checkDatabaseClosedOrThrow() const;
 
 private:
     // execution status
@@ -6337,6 +6370,9 @@ private:
 
     // query iterator
     QueryResultIterator queryResultIterator;
+
+    // database life cycle manager
+    std::shared_ptr<common::DatabaseLifeCycleManager> dbLifeCycleManager;
 };
 
 } // namespace main
@@ -6346,6 +6382,9 @@ private:
 #include <mutex>
 #include <vector>
 
+#if defined(__APPLE__)
+#include <pthread/qos.h>
+#endif
 
 namespace kuzu {
 namespace common {
@@ -6373,7 +6412,6 @@ class StorageExtension;
 namespace main {
 struct ExtensionOption;
 class DatabaseManager;
-class ClientContext;
 
 /**
  * @brief Stores runtime configuration for creating or opening a Database
@@ -6399,10 +6437,17 @@ struct KUZU_API SystemConfig {
      * the WAL file exceeds the checkpoint threshold.
      * @param checkpointThreshold The threshold of the WAL file size in bytes. When the size of the
      * WAL file exceeds this threshold, the database will checkpoint if autoCheckpoint is true.
+     * @param forceCheckpointOnClose If true, the database will force checkpoint when closing.
      */
     explicit SystemConfig(uint64_t bufferPoolSize = -1u, uint64_t maxNumThreads = 0,
         bool enableCompression = true, bool readOnly = false, uint64_t maxDBSize = -1u,
-        bool autoCheckpoint = true, uint64_t checkpointThreshold = 16777216 /* 16MB */);
+        bool autoCheckpoint = true, uint64_t checkpointThreshold = 16777216 /* 16MB */,
+        bool forceCheckpointOnClose = true
+#if defined(__APPLE__)
+        ,
+        uint32_t threadQos = QOS_CLASS_DEFAULT
+#endif
+    );
 
     uint64_t bufferPoolSize;
     uint64_t maxNumThreads;
@@ -6411,6 +6456,10 @@ struct KUZU_API SystemConfig {
     uint64_t maxDBSize;
     bool autoCheckpoint;
     uint64_t checkpointThreshold;
+    bool forceCheckpointOnClose;
+#if defined(__APPLE__)
+    uint32_t threadQos;
+#endif
 };
 
 /**
@@ -6489,6 +6538,7 @@ private:
     std::unique_ptr<DatabaseManager> databaseManager;
     std::unique_ptr<extension::ExtensionManager> extensionManager;
     QueryIDGenerator queryIDGenerator;
+    std::shared_ptr<common::DatabaseLifeCycleManager> dbLifeCycleManager;
 };
 
 } // namespace main
@@ -6547,12 +6597,12 @@ public:
 
     void resetAuxiliaryBuffer();
 
-    inline uint32_t getNumValueVectors() const { return valueVectors.size(); }
+    uint32_t getNumValueVectors() const { return valueVectors.size(); }
 
-    inline const ValueVector& getValueVector(uint64_t valueVectorPos) const {
+    const ValueVector& getValueVector(uint64_t valueVectorPos) const {
         return *valueVectors[valueVectorPos];
     }
-    inline ValueVector& getValueVectorMutable(uint64_t valueVectorPos) const {
+    ValueVector& getValueVectorMutable(uint64_t valueVectorPos) const {
         return *valueVectors[valueVectorPos];
     }
 
@@ -7478,6 +7528,17 @@ struct UnaryCastFunctionWrapper {
     }
 };
 
+struct UnaryCastUnionFunctionWrapper {
+    template<typename OPERAND_TYPE, typename RESULT_TYPE, typename FUNC>
+    static void operation(void* inputVector, uint64_t inputPos, void* resultVector,
+        uint64_t resultPos, void* dataPtr) {
+        auto& inputVector_ = *(common::ValueVector*)inputVector;
+        auto& resultVector_ = *(common::ValueVector*)resultVector;
+        FUNC::operation(inputVector_.getValue<OPERAND_TYPE>(inputPos),
+            resultVector_.getValue<RESULT_TYPE>(resultPos), inputVector_, resultVector_, dataPtr);
+    }
+};
+
 struct UnaryUDFFunctionWrapper {
     template<typename OPERAND_TYPE, typename RESULT_TYPE, typename FUNC>
     static inline void operation(void* inputVector, uint64_t inputPos, void* resultVector,
@@ -7808,15 +7869,28 @@ struct KUZU_API ScalarFunction : public ScalarOrAggregateFunction {
             *params[0], paramSelVectors[0], result, resultSelVector, dataPtr);
     }
 
-    template<typename OPERAND_TYPE, typename RESULT_TYPE, typename FUNC>
+    template<typename OPERAND_TYPE, typename RESULT_TYPE, typename FUNC,
+        typename EXECUTOR = UnaryFunctionExecutor>
+    static void UnaryCastUnionExecFunction(
+        const std::vector<std::shared_ptr<common::ValueVector>>& params,
+        const std::vector<common::SelectionVector*>& paramSelVectors, common::ValueVector& result,
+        common::SelectionVector* resultSelVector, void* dataPtr) {
+        KU_ASSERT(params.size() == 1);
+        EXECUTOR::template executeSwitch<OPERAND_TYPE, RESULT_TYPE, FUNC,
+            UnaryCastUnionFunctionWrapper>(*params[0], paramSelVectors[0], result, resultSelVector,
+            dataPtr);
+    }
+
+    template<typename OPERAND_TYPE, typename RESULT_TYPE, typename FUNC,
+        typename EXECUTOR = UnaryFunctionExecutor>
     static void UnaryExecNestedTypeFunction(
         const std::vector<std::shared_ptr<common::ValueVector>>& params,
         const std::vector<common::SelectionVector*>& paramSelVectors, common::ValueVector& result,
-        common::SelectionVector* resultSelVector, void* /*dataPtr*/ = nullptr) {
+        common::SelectionVector* resultSelVector, void* dataPtr) {
         KU_ASSERT(params.size() == 1);
-        UnaryFunctionExecutor::executeSwitch<OPERAND_TYPE, RESULT_TYPE, FUNC,
+        EXECUTOR::template executeSwitch<OPERAND_TYPE, RESULT_TYPE, FUNC,
             UnaryNestedTypeFunctionWrapper>(*params[0], paramSelVectors[0], result, resultSelVector,
-            nullptr /* dataPtr */);
+            dataPtr);
     }
 
     template<typename OPERAND_TYPE, typename RESULT_TYPE, typename FUNC>
@@ -7886,6 +7960,7 @@ enum class PhysicalOperatorType : uint8_t {
     DELETE_,
     DROP,
     DUMMY_SINK,
+    DUMMY_SIMPLE_SINK,
     EMPTY_RESULT,
     EXPORT_DATABASE,
     FILTER,
@@ -7925,15 +8000,13 @@ enum class PhysicalOperatorType : uint8_t {
     UNION_ALL_SCAN,
     UNWIND,
     USE_DATABASE,
+    UNINSTALL_EXTENSION,
 };
 
 class PhysicalOperator;
-class PhysicalOperatorUtils {
-public:
+struct PhysicalOperatorUtils {
     static std::string operatorToString(const PhysicalOperator* physicalOp);
-
-private:
-    static std::string operatorTypeToString(PhysicalOperatorType operatorType);
+    KUZU_API static std::string operatorTypeToString(PhysicalOperatorType operatorType);
 };
 
 struct OperatorMetrics {
@@ -8019,7 +8092,7 @@ protected:
     double getExecutionTime(common::Profiler& profiler) const;
     uint64_t getNumOutputTuples(common::Profiler& profiler) const;
 
-    virtual void finalizeInternal(ExecutionContext* /*context*/) {};
+    virtual void finalizeInternal(ExecutionContext* /*context*/) {}
 
 protected:
     physical_op_id id;
@@ -8029,8 +8102,6 @@ protected:
     physical_op_vector_t children;
     ResultSet* resultSet;
     std::unique_ptr<OPPrintInfo> printInfo;
-
-    bool hasBeenFinalized = false;
 };
 
 } // namespace processor
@@ -8447,9 +8518,9 @@ using table_func_finalize_t =
     std::function<void(const processor::ExecutionContext*, TableFuncSharedState*)>;
 using table_func_rewrite_t =
     std::function<std::string(main::ClientContext&, const TableFuncBindData& bindData)>;
-using table_func_get_logical_plan_t = std::function<void(planner::Planner*,
-    const binder::BoundReadingClause&, std::vector<std::shared_ptr<binder::Expression>>,
-    std::vector<std::unique_ptr<planner::LogicalPlan>>&)>;
+using table_func_get_logical_plan_t =
+    std::function<void(planner::Planner*, const binder::BoundReadingClause&,
+        std::vector<std::shared_ptr<binder::Expression>>, planner::LogicalPlan&)>;
 using table_func_get_physical_plan_t = std::function<std::unique_ptr<processor::PhysicalOperator>(
     processor::PlanMapper*, const planner::LogicalOperator*)>;
 using table_func_infer_input_types =
@@ -8498,7 +8569,7 @@ struct KUZU_API TableFunction final : Function {
     // Get logical plan func
     static void getLogicalPlan(planner::Planner* planner,
         const binder::BoundReadingClause& boundReadingClause, binder::expression_vector predicates,
-        std::vector<std::unique_ptr<planner::LogicalPlan>>& plans);
+        planner::LogicalPlan& plan);
     // Get physical plan func
     static std::unique_ptr<processor::PhysicalOperator> getPhysicalPlan(
         processor::PlanMapper* planMapper, const planner::LogicalOperator* logicalOp);
@@ -8518,12 +8589,16 @@ struct ScanReplacementData {
     TableFuncBindInput bindInput;
 };
 
-using scan_replace_func_t = std::function<std::unique_ptr<ScanReplacementData>(const std::string&)>;
+using scan_replace_handle_t = uint8_t*;
+using handle_lookup_func_t = std::function<std::vector<scan_replace_handle_t>(const std::string&)>;
+using scan_replace_func_t =
+    std::function<std::unique_ptr<ScanReplacementData>(std::span<scan_replace_handle_t>)>;
 
 struct ScanReplacement {
-    explicit ScanReplacement(scan_replace_func_t replaceFunc)
-        : replaceFunc{std::move(replaceFunc)} {}
+    explicit ScanReplacement(handle_lookup_func_t lookupFunc, scan_replace_func_t replaceFunc)
+        : lookupFunc(std::move(lookupFunc)), replaceFunc{std::move(replaceFunc)} {}
 
+    handle_lookup_func_t lookupFunc;
     scan_replace_func_t replaceFunc;
 };
 
@@ -8583,8 +8658,8 @@ struct ActiveQuery {
 };
 
 /**
- * @brief Contain client side configuration. We make profiler associated per query, so profiler is
- * not maintained in client context.
+ * @brief Contain client side configuration. We make profiler associated per query, so the profiler
+ * is not maintained in the client context.
  */
 class KUZU_API ClientContext {
     friend class Connection;
@@ -8594,7 +8669,7 @@ class KUZU_API ClientContext {
     friend class processor::TableFunctionCall;
     friend class parser::StandaloneCallRewriter;
     friend struct SpillToDiskSetting;
-    friend class main::EmbeddedShell;
+    friend class EmbeddedShell;
     friend class extension::ExtensionManager;
 
 public:
@@ -8630,10 +8705,13 @@ public:
 
     // Replace function.
     void addScanReplace(function::ScanReplacement scanReplacement);
-    std::unique_ptr<function::ScanReplacementData> tryReplace(const std::string& objectName) const;
+    std::unique_ptr<function::ScanReplacementData> tryReplaceByName(
+        const std::string& objectName) const;
+    std::unique_ptr<function::ScanReplacementData> tryReplaceByHandle(
+        function::scan_replace_handle_t handle) const;
     // Extension
     void setExtensionOption(std::string name, common::Value value);
-    const main::ExtensionOption* getExtensionOption(std::string optionName) const;
+    const ExtensionOption* getExtensionOption(std::string optionName) const;
     std::string getExtensionDir() const;
 
     // Database component getters.
@@ -8649,6 +8727,7 @@ public:
     transaction::TransactionManager* getTransactionManagerUnsafe() const;
     common::VirtualFileSystem* getVFSUnsafe() const;
     common::RandomEngine* getRandomEngine() const;
+    bool isInMemory() const;
 
     static std::string getEnvVariable(const std::string& name);
 
@@ -8674,7 +8753,8 @@ public:
     void cleanUp();
 
     // Query.
-    std::unique_ptr<PreparedStatement> prepare(std::string_view query);
+    std::unique_ptr<PreparedStatement> prepareWithParams(std::string_view query,
+        std::unordered_map<std::string, std::unique_ptr<common::Value>> inputParams = {});
     std::unique_ptr<QueryResult> executeWithParams(PreparedStatement* preparedStatement,
         std::unordered_map<std::string, std::unique_ptr<common::Value>> inputParams,
         std::optional<uint64_t> queryID = std::nullopt);
@@ -8764,6 +8844,9 @@ private:
     std::mutex mtx;
     // Whether the query can access internal tables/sequences or not.
     bool useInternalCatalogEntry_ = false;
+    // Whether the transaction should be rolled back on destruction. If the parent database is
+    // closed, the rollback should be prevented or it will SEGFAULT.
+    bool preventTransactionRollbackOnDestruction = false;
 };
 
 } // namespace main
@@ -8782,7 +8865,6 @@ class Connection {
     friend class testing::PrivateGraphTest;
     friend class testing::TestHelper;
     friend class benchmark::Benchmark;
-    friend class testing::TinySnbDDLTest;
     friend class ConnectionExecuteAsyncWorker;
     friend class ConnectionQueryAsyncWorker;
 
@@ -8820,6 +8902,19 @@ public:
      * @return the prepared statement.
      */
     KUZU_API std::unique_ptr<PreparedStatement> prepare(std::string_view query);
+
+    /**
+     * @brief Prepares the given query and returns the prepared statement.
+     * @param query The query to prepare.
+     * @param inputParams The parameter pack where each arg is a pair with the first element
+     * being parameter name and second element being parameter value. The only parameters that are
+     * relevant during prepare are ones that will be substituted with a scan source. Any other
+     * parameters will either be ignored or will cause an error to be thrown.
+     * @return the prepared statement.
+     */
+    KUZU_API std::unique_ptr<PreparedStatement> prepareWithParams(std::string_view query,
+        std::unordered_map<std::string, std::unique_ptr<common::Value>> inputParams);
+
     /**
      * @brief Executes the given prepared statement with args and returns the result.
      * @param preparedStatement The prepared statement to execute.
@@ -8918,6 +9013,7 @@ private:
 private:
     Database* database;
     std::unique_ptr<ClientContext> clientContext;
+    std::shared_ptr<common::DatabaseLifeCycleManager> dbLifeCycleManager;
 };
 
 } // namespace main
