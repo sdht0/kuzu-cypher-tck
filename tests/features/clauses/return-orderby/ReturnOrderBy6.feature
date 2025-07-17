@@ -34,7 +34,7 @@ Feature: ReturnOrderBy6 - Aggregation expressions in order by
     Given an empty graph
     And having defined kuzu types: n_age
     And parameters are:
-      | age:int | 38 |
+      | age | 38 |
     When executing query:
       """
       MATCH (person)

@@ -106,13 +106,22 @@ fn setup_parameters(kuzu: &mut Kuzu, step: &Step) {
             .rows
             .iter()
             .map(|row| {
-                let parts = row[0].split(':').collect::<Vec<&str>>();
-                let key = parts[0].to_string();
-                let value = match parts.get(1) {
-                    Some(&"int") => Value::Int64(row[1].parse().unwrap()),
-                    _ => unreachable!(),
+                let key = row[0].clone();
+                let value = if let Ok(v) = row[1].parse::<i64>() {
+                    Some(Value::Int64(v))
+                } else if let Ok(v) = row[1].parse::<f64>() {
+                    Some(Value::Double(v))
+                } else if let Ok(v) = row[1].parse::<bool>() {
+                    Some(Value::Bool(v))
+                } else if row[1].starts_with('\'') && row[1].ends_with('\'') {
+                    Some(Value::String(row[1][1..row[1].len() - 1].to_string()))
+                } else {
+                    None
                 };
-                (key, value)
+                if value.is_none() {
+                    panic!("Cannot parse value from: {row:?}");
+                }
+                (key, value.unwrap())
             })
             .collect(),
     );
@@ -172,18 +181,30 @@ fn check_results(kuzu: &mut Kuzu, step: &Step) {
             .or_insert(0_u32) += 1;
     }
     assert_eq!(expected_columns, kuzu.columns, "Columns don't match");
+
+    let expected_results_str = expected_results
+        .iter()
+        .map(|(result, count)| format!("{result} (x{count})"))
+        .collect::<Vec<_>>()
+        .join("\n");
+
+    let actual_results_str = kuzu
+        .results
+        .iter()
+        .map(|(result, count)| format!("{result} (x{count})"))
+        .collect::<Vec<_>>()
+        .join("\n");
+
     for (result, count) in &kuzu.results {
         assert!(
             expected_results.contains_key(result),
-            "Found result not expected: {result} || {expected_results:?} || {:?} || {:?}",
-            kuzu.results,
+            "Found result not expected: {result}\nExpected:\n{expected_results_str}\n\nActual:\n{actual_results_str}\n\n{:?}",
             kuzu.get_state()
         );
         let expected_count = expected_results.get(result).expect("Result missing");
         assert_eq!(
             expected_count, count,
-            "Expected counts didn't match: {result} || {expected_results:?} || {:?}",
-            kuzu.results
+            "Expected counts didn't match: {result}\nExpected:\n{expected_results_str}\n\nActual:\n{actual_results_str}"
         );
     }
     assert_eq!(

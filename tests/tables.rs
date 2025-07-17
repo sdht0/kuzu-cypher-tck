@@ -394,6 +394,33 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE REL(FROM Singlee to A, FROM Singlee to B, FROM A TO C);
             "
         }
+        "abcde_bool" => {
+            "
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, bool BOOL);
+              CREATE NODE TABLE B(_k SERIAL PRIMARY KEY, bool BOOL);
+              CREATE NODE TABLE C(_k SERIAL PRIMARY KEY, bool BOOL);
+              CREATE NODE TABLE D(_k SERIAL PRIMARY KEY, bool BOOL);
+              CREATE NODE TABLE E(_k SERIAL PRIMARY KEY, bool BOOL);
+            "
+        }
+        "abcde_name" => {
+            "
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, name STRING);
+              CREATE NODE TABLE B(_k SERIAL PRIMARY KEY, name STRING);
+              CREATE NODE TABLE C(_k SERIAL PRIMARY KEY, name STRING);
+              CREATE NODE TABLE D(_k SERIAL PRIMARY KEY, name STRING);
+              CREATE NODE TABLE E(_k SERIAL PRIMARY KEY, name STRING);
+            "
+        }
+        "abcde_num" => {
+            "
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, num FLOAT);
+              CREATE NODE TABLE B(_k SERIAL PRIMARY KEY, num FLOAT);
+              CREATE NODE TABLE C(_k SERIAL PRIMARY KEY, num FLOAT);
+              CREATE NODE TABLE D(_k SERIAL PRIMARY KEY, num FLOAT);
+              CREATE NODE TABLE E(_k SERIAL PRIMARY KEY, num FLOAT);
+            "
+        }
         "abcdef:r" => {
             "
               CREATE NODE TABLE A(_k SERIAL PRIMARY KEY);
@@ -806,6 +833,12 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE R(FROM N to N);
             "
         }
+        "n:rel" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY);
+              CREATE REL TABLE REL(FROM N to N);
+            "
+        }
         "n:r_name" => {
             "
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY);
@@ -1028,6 +1061,123 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE Z(_k SERIAL PRIMARY KEY, val INT64);
               CREATE REL TABLE E1(FROM X to Y);
               CREATE REL TABLE E2(FROM Y to Z);
+            "
+        }
+        "abcde_bool2" => {
+            "
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, bool BOOL, bool2 BOOL);
+              CREATE NODE TABLE B(_k SERIAL PRIMARY KEY, bool BOOL, bool2 BOOL);
+              CREATE NODE TABLE C(_k SERIAL PRIMARY KEY, bool BOOL, bool2 BOOL);
+              CREATE NODE TABLE D(_k SERIAL PRIMARY KEY, bool BOOL, bool2 BOOL);
+              CREATE NODE TABLE E(_k SERIAL PRIMARY KEY, bool BOOL, bool2 BOOL);
+            "
+        }
+        "abcde_num2" => {
+            "
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, num INT64, num2 INT64);
+              CREATE NODE TABLE B(_k SERIAL PRIMARY KEY, num INT64, num2 INT64);
+              CREATE NODE TABLE C(_k SERIAL PRIMARY KEY, num INT64, num2 INT64);
+              CREATE NODE TABLE D(_k SERIAL PRIMARY KEY, num INT64, num2 INT64);
+              CREATE NODE TABLE E(_k SERIAL PRIMARY KEY, num INT64, num2 INT64);
+            "
+        }
+        "abcde_num2_float" => {
+            "
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, num FLOAT, num2 FLOAT);
+              CREATE NODE TABLE B(_k SERIAL PRIMARY KEY, num FLOAT, num2 FLOAT);
+              CREATE NODE TABLE C(_k SERIAL PRIMARY KEY, num FLOAT, num2 FLOAT);
+              CREATE NODE TABLE D(_k SERIAL PRIMARY KEY, num FLOAT, num2 FLOAT);
+              CREATE NODE TABLE E(_k SERIAL PRIMARY KEY, num FLOAT, num2 FLOAT);
+            "
+        }
+        "abcde_num_bool" => {
+            "
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, num INT64, bool BOOL);
+              CREATE NODE TABLE B(_k SERIAL PRIMARY KEY, num INT64, bool BOOL);
+              CREATE NODE TABLE C(_k SERIAL PRIMARY KEY, num INT64, bool BOOL);
+              CREATE NODE TABLE D(_k SERIAL PRIMARY KEY, num INT64, bool BOOL);
+              CREATE NODE TABLE E(_k SERIAL PRIMARY KEY, num INT64, bool BOOL);
+            "
+        }
+        "abcde_list" => {
+            "
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, list INT64[]);
+              CREATE NODE TABLE B(_k SERIAL PRIMARY KEY, list INT64[]);
+              CREATE NODE TABLE C(_k SERIAL PRIMARY KEY, list INT64[]);
+              CREATE NODE TABLE D(_k SERIAL PRIMARY KEY, list INT64[]);
+              CREATE NODE TABLE E(_k SERIAL PRIMARY KEY, list INT64[]);
+            "
+        }
+        "abcde_list2" => {
+            "
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, list INT64[], list2 INT64[]);
+              CREATE NODE TABLE B(_k SERIAL PRIMARY KEY, list INT64[], list2 INT64[]);
+              CREATE NODE TABLE C(_k SERIAL PRIMARY KEY, list INT64[], list2 INT64[]);
+              CREATE NODE TABLE D(_k SERIAL PRIMARY KEY, list INT64[], list2 INT64[]);
+              CREATE NODE TABLE E(_k SERIAL PRIMARY KEY, list INT64[], list2 INT64[]);
+            "
+        }
+        "a_num_text" => {
+            "
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, num INT64, text STRING);
+            "
+        }
+        "a_num2" => {
+            "
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, num INT64, num2 INT64);
+            "
+        }
+        "n_name_title" => {
+            "
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, name STRING, title STRING);
+            "
+        }
+        "ax:t12_id" => {
+            "
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE X(_k SERIAL PRIMARY KEY);
+              CREATE REL TABLE T1(FROM A to X, id INT64);
+              CREATE REL TABLE T2(FROM A to X, FROM A to A, id INT64);
+            "
+        }
+        "person_age" => {
+            "
+              CREATE NODE TABLE Person(_k SERIAL PRIMARY KEY, age INT64);
+            "
+        }
+        "abcdef_date" => {
+            "
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, date DATE);
+              CREATE NODE TABLE B(_k SERIAL PRIMARY KEY, date DATE);
+              CREATE NODE TABLE C(_k SERIAL PRIMARY KEY, date DATE);
+              CREATE NODE TABLE D(_k SERIAL PRIMARY KEY, date DATE);
+              CREATE NODE TABLE E(_k SERIAL PRIMARY KEY, date DATE);
+              CREATE NODE TABLE F(_k SERIAL PRIMARY KEY, date DATE);
+            "
+        }
+        "abcde_time" => {
+            "
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, time TIME);
+              CREATE NODE TABLE B(_k SERIAL PRIMARY KEY, time TIME);
+              CREATE NODE TABLE C(_k SERIAL PRIMARY KEY, time TIME);
+              CREATE NODE TABLE D(_k SERIAL PRIMARY KEY, time TIME);
+              CREATE NODE TABLE E(_k SERIAL PRIMARY KEY, time TIME);
+            "
+        }
+        "abcde_datetime" => {
+            "
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, datetime TIMESTAMP);
+              CREATE NODE TABLE B(_k SERIAL PRIMARY KEY, datetime TIMESTAMP);
+              CREATE NODE TABLE C(_k SERIAL PRIMARY KEY, datetime TIMESTAMP);
+              CREATE NODE TABLE D(_k SERIAL PRIMARY KEY, datetime TIMESTAMP);
+              CREATE NODE TABLE E(_k SERIAL PRIMARY KEY, datetime TIMESTAMP);
+            "
+        }
+        "abc" => {
+            "
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE B(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE C(_k SERIAL PRIMARY KEY);
             "
         }
         _ => panic!("Table not found: {id}"),
