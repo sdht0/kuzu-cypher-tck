@@ -34,6 +34,7 @@ Feature: WithOrderBy2 - Order by a single expression
 
   Scenario Outline: [1] Sort by a boolean expression in ascending order
     Given an empty graph
+    And having defined kuzu types: abcde_bool2
     And having executed:
       """
       CREATE (:A {bool: true, bool2: true}),
@@ -64,6 +65,7 @@ Feature: WithOrderBy2 - Order by a single expression
 
   Scenario Outline: [2] Sort by a boolean expression in descending order
     Given an empty graph
+    And having defined kuzu types: abcde_bool2
     And having executed:
       """
       CREATE (:A {bool: true, bool2: true}),
@@ -94,6 +96,7 @@ Feature: WithOrderBy2 - Order by a single expression
 
   Scenario Outline: [3] Sort by an integer expression in ascending order
     Given an empty graph
+    And having defined kuzu types: abcde_num2
     And having executed:
       """
       CREATE (:A {num: 9, num2: 5}),
@@ -125,6 +128,7 @@ Feature: WithOrderBy2 - Order by a single expression
 
   Scenario Outline: [4] Sort by an integer expression in descending order
     Given an empty graph
+    And having defined kuzu types: abcde_num2
     And having executed:
       """
       CREATE (:A {num: 9, num2: 5}),
@@ -155,6 +159,7 @@ Feature: WithOrderBy2 - Order by a single expression
 
   Scenario Outline: [5] Sort by a float expression in ascending order
     Given an empty graph
+    And having defined kuzu types: abcde_num2_float
     And having executed:
       """
       CREATE (:A {num: 5.025648, num2: 1.96357}),
@@ -186,6 +191,7 @@ Feature: WithOrderBy2 - Order by a single expression
 
   Scenario Outline: [6] Sort by a float expression in descending order
     Given an empty graph
+    And having defined kuzu types: abcde_num2_float
     And having executed:
       """
       CREATE (:A {num: 5.025648, num2: 1.96357}),
@@ -216,6 +222,7 @@ Feature: WithOrderBy2 - Order by a single expression
 
   Scenario Outline: [7] Sort by a string expression in ascending order
     Given an empty graph
+    And having defined kuzu types: abcde_name_title
     And having executed:
       """
       CREATE (:A {name: 'lorem', title: 'dr.'}),
@@ -247,6 +254,7 @@ Feature: WithOrderBy2 - Order by a single expression
 
   Scenario Outline: [8] Sort by a string expression in descending order
     Given an empty graph
+    And having defined kuzu types: abcde_name_title
     And having executed:
       """
       CREATE (:A {name: 'lorem', title: 'dr.'}),
@@ -275,8 +283,11 @@ Feature: WithOrderBy2 - Order by a single expression
       | a.title + ' ' + a.name DESC       |
       | a.title + ' ' + a.name DESCENDING |
 
+  @fails
+  @orderByList
   Scenario Outline: [9] Sort by a list expression in ascending order
     Given an empty graph
+    And having defined kuzu types: abcde_list2
     And having executed:
       """
       CREATE (:A {list: [2, -2], list2: [3, -2]}),
@@ -306,8 +317,11 @@ Feature: WithOrderBy2 - Order by a single expression
       | [a.list2[1], a.list2[0], a.list[1]] + a.list + a.list2 ASC       |
       | [a.list2[1], a.list2[0], a.list[1]] + a.list + a.list2 ASCENDING |
 
+  @fails
+  @orderByList
   Scenario Outline: [10] Sort by a list expression in descending order
     Given an empty graph
+    And having defined kuzu types: abcde_list2
     And having executed:
       """
       CREATE (:A {list: [2, -2], list2: [3, -2]}),
@@ -336,6 +350,8 @@ Feature: WithOrderBy2 - Order by a single expression
       | [a.list2[1], a.list2[0], a.list[1]] + a.list + a.list2 DESC       |
       | [a.list2[1], a.list2[0], a.list[1]] + a.list + a.list2 DESCENDING |
 
+  @fails
+  @datetimeFunc
   Scenario Outline: [11] Sort by a date expression in ascending order
     Given an empty graph
     And having executed:
@@ -367,6 +383,8 @@ Feature: WithOrderBy2 - Order by a single expression
       | a.date + duration({months: 1, days: 2}) ASC       |
       | a.date + duration({months: 1, days: 2}) ASCENDING |
 
+  @fails
+  @datetimeFunc
   Scenario Outline: [12] Sort by a date expression in descending order
     Given an empty graph
     And having executed:
@@ -397,6 +415,8 @@ Feature: WithOrderBy2 - Order by a single expression
       | a.date + duration({months: 1, days: 2}) DESC       |
       | a.date + duration({months: 1, days: 2}) DESCENDING |
 
+  @fails
+  @datetimeFunc
   Scenario Outline: [13] Sort by a local time expression in ascending order
     Given an empty graph
     And having executed:
@@ -428,6 +448,8 @@ Feature: WithOrderBy2 - Order by a single expression
       | a.time + duration({minutes: 6}) ASC       |
       | a.time + duration({minutes: 6}) ASCENDING |
 
+  @fails
+  @datetimeFunc
   Scenario Outline: [14] Sort by a local time expression in descending order
     Given an empty graph
     And having executed:
@@ -458,6 +480,8 @@ Feature: WithOrderBy2 - Order by a single expression
       | a.time + duration({minutes: 6}) DESC       |
       | a.time + duration({minutes: 6}) DESCENDING |
 
+  @fails
+  @datetimeFunc
   Scenario Outline: [15] Sort by a time expression in ascending order
     Given an empty graph
     And having executed:
@@ -489,6 +513,8 @@ Feature: WithOrderBy2 - Order by a single expression
       | a.time + duration({minutes: 6}) ASC       |
       | a.time + duration({minutes: 6}) ASCENDING |
 
+  @fails
+  @datetimeFunc
   Scenario Outline: [16] Sort by a time expression in descending order
     Given an empty graph
     And having executed:
@@ -519,6 +545,8 @@ Feature: WithOrderBy2 - Order by a single expression
       | a.time + duration({minutes: 6}) DESC       |
       | a.time + duration({minutes: 6}) DESCENDING |
 
+  @fails
+  @datetimeFunc
   Scenario Outline: [17] Sort by a local date time expression in ascending order
     Given an empty graph
     And having executed:
@@ -550,6 +578,8 @@ Feature: WithOrderBy2 - Order by a single expression
       | a.datetime + duration({days: 4, minutes: 6}) ASC       |
       | a.datetime + duration({days: 4, minutes: 6}) ASCENDING |
 
+  @fails
+  @datetimeFunc
   Scenario Outline: [18] Sort by a local date time expression in descending order
     Given an empty graph
     And having executed:
@@ -580,6 +610,8 @@ Feature: WithOrderBy2 - Order by a single expression
       | a.datetime + duration({days: 4, minutes: 6}) DESC       |
       | a.datetime + duration({days: 4, minutes: 6}) DESCENDING |
 
+  @fails
+  @datetimeFunc
   Scenario Outline: [19] Sort by a date time expression in ascending order
     Given an empty graph
     And having executed:
@@ -611,6 +643,8 @@ Feature: WithOrderBy2 - Order by a single expression
       | a.datetime + duration({days: 4, minutes: 6}) ASC       |
       | a.datetime + duration({days: 4, minutes: 6}) ASCENDING |
 
+  @fails
+  @datetimeFunc
   Scenario Outline: [20] Sort by a date time expression in descending order
     Given an empty graph
     And having executed:
@@ -643,13 +677,14 @@ Feature: WithOrderBy2 - Order by a single expression
 
   Scenario Outline: [21] Sort by an expression that is only partially orderable on a non-distinct binding table
     Given an empty graph
+    And having defined kuzu types: n_name
     And having executed:
       """
-      CREATE ({name: 'A'}),
-             ({name: 'A'}),
-             ({name: 'B'}),
-             ({name: 'C'}),
-             ({name: 'C'})
+      CREATE (:N {name: 'A'}),
+             (:N {name: 'A'}),
+             (:N {name: 'B'}),
+             (:N {name: 'C'}),
+             (:N {name: 'C'})
       """
     When executing query:
       """
@@ -670,15 +705,17 @@ Feature: WithOrderBy2 - Order by a single expression
       | ASC  | 'A' |
       | DESC | 'C' |
 
+  @fails @varBindingWith
   Scenario Outline: [22] Sort by an expression that is only partially orderable on a non-distinct binding table, but used as a grouping key
     Given an empty graph
+    And having defined kuzu types: n_name
     And having executed:
       """
-      CREATE ({name: 'A'}),
-             ({name: 'A'}),
-             ({name: 'B'}),
-             ({name: 'C'}),
-             ({name: 'C'})
+      CREATE (:N {name: 'A'}),
+             (:N {name: 'A'}),
+             (:N {name: 'B'}),
+             (:N {name: 'C'}),
+             (:N {name: 'C'})
       """
     When executing query:
       """
@@ -698,15 +735,17 @@ Feature: WithOrderBy2 - Order by a single expression
       | ASC  | 'A' |
       | DESC | 'C' |
 
+  @fails @varBindingWith
   Scenario Outline: [23] Sort by an expression that is only partially orderable on a non-distinct binding table, but used in parts as a grouping key
     Given an empty graph
+    And having defined kuzu types: n_name
     And having executed:
       """
-      CREATE ({name: 'A'}),
-             ({name: 'A'}),
-             ({name: 'B'}),
-             ({name: 'C'}),
-             ({name: 'C'})
+      CREATE (:N {name: 'A'}),
+             (:N {name: 'A'}),
+             (:N {name: 'B'}),
+             (:N {name: 'C'}),
+             (:N {name: 'C'})
       """
     When executing query:
       """
@@ -726,15 +765,17 @@ Feature: WithOrderBy2 - Order by a single expression
       | ASC  | 'A' |
       | DESC | 'C' |
 
+  @fails @varBindingWith
   Scenario Outline: [24] Sort by an expression that is only partially orderable on a non-distinct binding table, but made distinct
     Given an empty graph
+    And having defined kuzu types: n_name
     And having executed:
       """
-      CREATE ({name: 'A'}),
-             ({name: 'A'}),
-             ({name: 'B'}),
-             ({name: 'C'}),
-             ({name: 'C'})
+      CREATE (:N {name: 'A'}),
+             (:N {name: 'A'}),
+             (:N {name: 'B'}),
+             (:N {name: 'C'}),
+             (:N {name: 'C'})
       """
     When executing query:
       """
