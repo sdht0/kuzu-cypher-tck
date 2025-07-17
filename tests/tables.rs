@@ -1127,9 +1127,13 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, num INT64, num2 INT64);
             "
         }
-        "n_name_title" => {
+        "abcde_name_title" => {
             "
               CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, name STRING, title STRING);
+              CREATE NODE TABLE B(_k SERIAL PRIMARY KEY, name STRING, title STRING);
+              CREATE NODE TABLE C(_k SERIAL PRIMARY KEY, name STRING, title STRING);
+              CREATE NODE TABLE D(_k SERIAL PRIMARY KEY, name STRING, title STRING);
+              CREATE NODE TABLE E(_k SERIAL PRIMARY KEY, name STRING, title STRING);
             "
         }
         "ax:t12_id" => {
@@ -1153,15 +1157,6 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE D(_k SERIAL PRIMARY KEY, date DATE);
               CREATE NODE TABLE E(_k SERIAL PRIMARY KEY, date DATE);
               CREATE NODE TABLE F(_k SERIAL PRIMARY KEY, date DATE);
-            "
-        }
-        "abcde_time" => {
-            "
-              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, time TIME);
-              CREATE NODE TABLE B(_k SERIAL PRIMARY KEY, time TIME);
-              CREATE NODE TABLE C(_k SERIAL PRIMARY KEY, time TIME);
-              CREATE NODE TABLE D(_k SERIAL PRIMARY KEY, time TIME);
-              CREATE NODE TABLE E(_k SERIAL PRIMARY KEY, time TIME);
             "
         }
         "abcde_datetime" => {
