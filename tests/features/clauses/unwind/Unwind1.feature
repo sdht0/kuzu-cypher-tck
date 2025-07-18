@@ -93,37 +93,39 @@ Feature: Unwind1
 
   Scenario: [5] Unwinding a collected expression
     Given an empty graph
+    And having defined kuzu types: n_id
     And having executed:
       """
-      CREATE ({id: 1}), ({id: 2})
+      CREATE (:N {id: 1}), (:N {id: 2})
       """
     When executing query:
       """
       MATCH (row)
       WITH collect(row) AS rows
       UNWIND rows AS node
-      RETURN node.id
+      RETURN node.id as id
       """
     Then the result should be, in any order:
-      | node.id |
-      | 1       |
-      | 2       |
+      | id |
+      | 1  |
+      | 2  |
     And no side effects
 
   Scenario: [6] Creating nodes from an unwound parameter list
     Given an empty graph
+    And having defined kuzu types: ey_iy:i
     And having executed:
       """
       CREATE (:Year {year: 2016})
       """
     And parameters are:
-      | events | [{year: 2016, id: 1}, {year: 2016, id: 2}] |
+      | events:unwind1 | [{year: 2016, id: 1}, {year: 2016, id: 2}] |
     When executing query:
       """
       UNWIND $events AS event
       MATCH (y:Year {year: event.year})
       MERGE (e:Event {id: event.id})
-      MERGE (y)<-[:IN]-(e)
+      MERGE (y)<-[:`IN`]-(e)
       RETURN e.id AS x
       ORDER BY x
       """
@@ -216,10 +218,11 @@ Feature: Unwind1
 
   Scenario: [12] Unwind does not remove variables from scope
     Given an empty graph
+    And having defined kuzu types: ens:xy
     And having executed:
       """
       CREATE (s:S),
-        (n),
+        (n:N),
         (e:E),
         (s)-[:X]->(e),
         (s)-[:Y]->(e),
@@ -240,13 +243,14 @@ Feature: Unwind1
 
   Scenario: [13] Multiple unwinds after each other
     Given any graph
+    And having defined kuzu types: fn
     When executing query:
       """
       WITH [1, 2] AS xs, [3, 4] AS ys, [5, 6] AS zs
       UNWIND xs AS x
       UNWIND ys AS y
       UNWIND zs AS z
-      RETURN *
+      RETURN x, xs, y, ys, z, zs
       """
     Then the result should be, in any order:
       | x | xs     | y | ys     | z | zs     |
@@ -262,8 +266,9 @@ Feature: Unwind1
 
   Scenario: [14] Unwind with merge
     Given an empty graph
+    And having defined kuzu types: p_nl
     And parameters are:
-      | props | [{login: 'login1', name: 'name1'}, {login: 'login2', name: 'name2'}] |
+      | props:unwind1 | [{login: 'login1', name: 'name1'}, {login: 'login2', name: 'name2'}] |
     When executing query:
       """
       UNWIND $props AS prop
