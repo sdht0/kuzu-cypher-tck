@@ -29,6 +29,13 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE B(_k SERIAL PRIMARY KEY, id INT64);
             "
         }
+        "ab_id:t" => {
+            "
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, id INT64);
+              CREATE NODE TABLE B(_k SERIAL PRIMARY KEY, id INT64);
+              CREATE REL TABLE T(FROM A to B);
+            "
+        }
         "ab_num" => {
             "
               CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, num INT64);
@@ -630,10 +637,10 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE POSTED_BY(FROM Message to Person);
             "
         }
-        "mt:t" => {
+        "mt_id:t" => {
             "
               CREATE NODE TABLE MissingLabel(_k SERIAL PRIMARY KEY);
-              CREATE NODE TABLE TheLabel(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE TheLabel(_k SERIAL PRIMARY KEY, id INT64);
               CREATE REL TABLE T(FROM TheLabel to TheLabel, FROM TheLabel to MissingLabel);
             "
         }
@@ -705,6 +712,11 @@ pub fn get_table(id: &str) -> &str {
         "n_name" => {
             "
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, name STRING);
+            "
+        }
+        "n_name2" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, name2 STRING);
             "
         }
         "n_num" => {
