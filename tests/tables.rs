@@ -771,12 +771,28 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE TAUGHT_BY(FROM Subject to Teacher);
             "
         }
+        "ens:xy" => {
+            "
+              CREATE NODE TABLE E(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE S(_k SERIAL PRIMARY KEY);
+              CREATE REL TABLE X(FROM S to E);
+              CREATE REL TABLE Y(FROM N to E, FROM S to E);
+            "
+        }
         "ens_name:c" => {
             "
               CREATE NODE TABLE Eend(_k SERIAL PRIMARY KEY, name STRING);
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, name STRING);
               CREATE NODE TABLE Start(_k SERIAL PRIMARY KEY, name STRING);
               CREATE REL TABLE CONNECTED_TO(FROM N to Start, FROM N to Eend, FROM N to N);
+            "
+        }
+        "ey_iy:i" => {
+            "
+              CREATE NODE TABLE Year(_k SERIAL PRIMARY KEY, year INT64);
+              CREATE NODE TABLE Event(_k SERIAL PRIMARY KEY, id INT64);
+              CREATE REL TABLE `IN`(FROM Event to Year);
             "
         }
         "fn" => {
@@ -1315,6 +1331,11 @@ pub fn get_table(id: &str) -> &str {
         "p_age" => {
             "
               CREATE NODE TABLE Person(_k SERIAL PRIMARY KEY, age INT64);
+            "
+        }
+        "p_nl" => {
+            "
+              CREATE NODE TABLE Person(_k SERIAL PRIMARY KEY, login STRING, name STRING);
             "
         }
         "pf:a" => {

@@ -1,5 +1,5 @@
 use cucumber::{World, gherkin::Step, given, then, when};
-use kuzu::{Connection, Database, Error, QueryResult, SystemConfig, Value};
+use kuzu::{Connection, Database, Error, LogicalType, QueryResult, SystemConfig, Value};
 use std::collections::{HashMap, HashSet};
 use std::ops::Sub;
 
@@ -106,7 +106,7 @@ fn setup_parameters(kuzu: &mut Kuzu, step: &Step) {
             .rows
             .iter()
             .map(|row| {
-                let key = row[0].clone();
+                let mut key = row[0].clone();
                 let value = if let Ok(v) = row[1].parse::<i64>() {
                     Some(Value::Int64(v))
                 } else if let Ok(v) = row[1].parse::<f64>() {
@@ -115,6 +115,40 @@ fn setup_parameters(kuzu: &mut Kuzu, step: &Step) {
                     Some(Value::Bool(v))
                 } else if row[1].starts_with('\'') && row[1].ends_with('\'') {
                     Some(Value::String(row[1][1..row[1].len() - 1].to_string()))
+                } else if key == "events:unwind1" {
+                    key = "events".to_string();
+                    let mut list = Vec::new();
+                    list.push(Value::Struct(vec![
+                        ("year".to_string(), Value::Int64(2016)),
+                        ("id".to_string(), Value::Int64(1)),
+                    ]));
+                    list.push(Value::Struct(vec![
+                        ("year".to_string(), Value::Int64(2016)),
+                        ("id".to_string(), Value::Int64(2)),
+                    ]));
+                    Some(Value::List(LogicalType::Struct{
+                        fields: vec![
+                            ("year".to_string(), LogicalType::Int64),
+                            ("id".to_string(), LogicalType::Int64),
+                        ]
+                    }, list))
+                } else if key == "props:unwind1" {
+                    key = "props".to_string();
+                    let mut list = Vec::new();
+                    list.push(Value::Struct(vec![
+                        ("login".to_string(), Value::String("login1".to_string())),
+                        ("name".to_string(), Value::String("name1".to_string())),
+                    ]));
+                    list.push(Value::Struct(vec![
+                        ("login".to_string(), Value::String("login2".to_string())),
+                        ("name".to_string(), Value::String("name2".to_string())),
+                    ]));
+                    Some(Value::List(LogicalType::Struct{
+                        fields: vec![
+                            ("login".to_string(), LogicalType::String),
+                            ("name".to_string(), LogicalType::String),
+                        ]
+                    }, list))
                 } else {
                     None
                 };
