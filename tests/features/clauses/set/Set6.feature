@@ -32,6 +32,7 @@ Feature: Set6 - Persistence of set clause side effects
 
   Scenario: [1] Limiting to zero results after setting a property on nodes affects the result set but not the side effects
     Given an empty graph
+    And having defined kuzu types: n_num
     And having executed:
       """
       CREATE (:N {num: 42})
@@ -51,6 +52,7 @@ Feature: Set6 - Persistence of set clause side effects
 
   Scenario: [2] Skipping all results after setting a property on nodes affects the result set but not the side effects
     Given an empty graph
+    And having defined kuzu types: n_num
     And having executed:
       """
       CREATE (:N {num: 42})
@@ -70,6 +72,7 @@ Feature: Set6 - Persistence of set clause side effects
 
   Scenario: [3] Skipping and limiting to a few results after setting a property on nodes affects the result set but not the side effects
     Given an empty graph
+    And having defined kuzu types: n_num
     And having executed:
       """
       CREATE (:N {num: 1})
@@ -95,6 +98,7 @@ Feature: Set6 - Persistence of set clause side effects
 
   Scenario: [4] Skipping zero results and limiting to all results after setting a property on nodes does not affect the result set nor the side effects
     Given an empty graph
+    And having defined kuzu types: n_num
     And having executed:
       """
       CREATE (:N {num: 1})
@@ -123,6 +127,7 @@ Feature: Set6 - Persistence of set clause side effects
 
   Scenario: [5] Filtering after setting a property on nodes affects the result set but not the side effects
     Given an empty graph
+    And having defined kuzu types: n_num
     And having executed:
       """
       CREATE (:N {num: 1})
@@ -150,6 +155,7 @@ Feature: Set6 - Persistence of set clause side effects
 
   Scenario: [6] Aggregating in `RETURN` after setting a property on nodes affects the result set but not the side effects
     Given an empty graph
+    And having defined kuzu types: n_num
     And having executed:
       """
       CREATE (:N {num: 1})
@@ -173,6 +179,7 @@ Feature: Set6 - Persistence of set clause side effects
 
   Scenario: [7] Aggregating in `WITH` after setting a property on nodes affects the result set but not the side effects
     Given an empty graph
+    And having defined kuzu types: n_num
     And having executed:
       """
       CREATE (:N {num: 1})
@@ -195,8 +202,10 @@ Feature: Set6 - Persistence of set clause side effects
       | +properties | 5 |
       | -properties | 5 |
 
+  @fails @setLabel
   Scenario: [8] Limiting to zero results after adding a label on nodes affects the result set but not the side effects
     Given an empty graph
+    And having defined kuzu types: n_num
     And having executed:
       """
       CREATE (:N {num: 42})
@@ -213,6 +222,7 @@ Feature: Set6 - Persistence of set clause side effects
     And the side effects should be:
       | +labels | 1 |
 
+  @fails @setLabel
   Scenario: [9] Skipping all results after adding a label on nodes affects the result set but not the side effects
     Given an empty graph
     And having executed:
@@ -231,8 +241,10 @@ Feature: Set6 - Persistence of set clause side effects
     And the side effects should be:
       | +labels | 1 |
 
+  @fails @setLabel
   Scenario: [10] Skipping and limiting to a few results after adding a label on nodes affects the result set but not the side effects
     Given an empty graph
+    And having defined kuzu types: n_num
     And having executed:
       """
       CREATE (:N {num: 42})
@@ -255,8 +267,10 @@ Feature: Set6 - Persistence of set clause side effects
     And the side effects should be:
       | +labels | 1 |
 
+  @fails @setLabel
   Scenario: [11] Skipping zero result and limiting to all results after adding a label on nodes does not affect the result set nor the side effects
     Given an empty graph
+    And having defined kuzu types: n_num
     And having executed:
       """
       CREATE (:N {num: 42})
@@ -282,6 +296,7 @@ Feature: Set6 - Persistence of set clause side effects
     And the side effects should be:
       | +labels | 1 |
 
+  @fails @setLabel
   Scenario: [12] Filtering after adding a label on nodes affects the result set but not the side effects
     Given an empty graph
     And having executed:
@@ -307,6 +322,7 @@ Feature: Set6 - Persistence of set clause side effects
     And the side effects should be:
       | +labels | 1 |
 
+  @fails @setLabel
   Scenario: [13] Aggregating in `RETURN` after adding a label on nodes affects the result set but not the side effects
     Given an empty graph
     And having executed:
@@ -329,8 +345,10 @@ Feature: Set6 - Persistence of set clause side effects
     And the side effects should be:
       | +labels | 1 |
 
+  @fails @setLabel
   Scenario: [14] Aggregating in `WITH` after adding a label on nodes affects the result set but not the side effects
     Given an empty graph
+    And having defined kuzu types: n_num
     And having executed:
       """
       CREATE (:N {num: 1})
@@ -354,9 +372,10 @@ Feature: Set6 - Persistence of set clause side effects
 
   Scenario: [15] Limiting to zero results after setting a property on relationships affects the result set but not the side effects
     Given an empty graph
+    And having defined kuzu types: n:r_num
     And having executed:
       """
-      CREATE ()-[r:R {num: 42}]->()
+      CREATE (:N)-[r:R {num: 42}]->(:N)
       """
     When executing query:
       """
@@ -373,9 +392,10 @@ Feature: Set6 - Persistence of set clause side effects
 
   Scenario: [16] Skipping all results after setting a property on relationships affects the result set but not the side effects
     Given an empty graph
+    And having defined kuzu types: n:r_num
     And having executed:
       """
-      CREATE ()-[r:R {num: 42}]->()
+      CREATE (:N)-[r:R {num: 42}]->(:N)
       """
     When executing query:
       """
@@ -392,13 +412,14 @@ Feature: Set6 - Persistence of set clause side effects
 
   Scenario: [17] Skipping and limiting to a few results after setting a property on relationships affects the result set but not the side effects
     Given an empty graph
+    And having defined kuzu types: n:r_num
     And having executed:
       """
-      CREATE ()-[:R {num: 1}]->()
-      CREATE ()-[:R {num: 2}]->()
-      CREATE ()-[:R {num: 3}]->()
-      CREATE ()-[:R {num: 4}]->()
-      CREATE ()-[:R {num: 5}]->()
+      CREATE (:N)-[:R {num: 1}]->(:N)
+      CREATE (:N)-[:R {num: 2}]->(:N)
+      CREATE (:N)-[:R {num: 3}]->(:N)
+      CREATE (:N)-[:R {num: 4}]->(:N)
+      CREATE (:N)-[:R {num: 5}]->(:N)
       """
     When executing query:
       """
@@ -417,13 +438,14 @@ Feature: Set6 - Persistence of set clause side effects
 
   Scenario: [18] Skipping zero result and limiting to all results after setting a property on relationships does not affect the result set nor the side effects
     Given an empty graph
+    And having defined kuzu types: n:r_num
     And having executed:
       """
-      CREATE ()-[:R {num: 1}]->()
-      CREATE ()-[:R {num: 2}]->()
-      CREATE ()-[:R {num: 3}]->()
-      CREATE ()-[:R {num: 4}]->()
-      CREATE ()-[:R {num: 5}]->()
+      CREATE (:N)-[:R {num: 1}]->(:N)
+      CREATE (:N)-[:R {num: 2}]->(:N)
+      CREATE (:N)-[:R {num: 3}]->(:N)
+      CREATE (:N)-[:R {num: 4}]->(:N)
+      CREATE (:N)-[:R {num: 5}]->(:N)
       """
     When executing query:
       """
@@ -445,13 +467,14 @@ Feature: Set6 - Persistence of set clause side effects
 
   Scenario: [19] Filtering after setting a property on relationships affects the result set but not the side effects
     Given an empty graph
+    And having defined kuzu types: n:r_num
     And having executed:
       """
-      CREATE ()-[:R {num: 1}]->()
-      CREATE ()-[:R {num: 2}]->()
-      CREATE ()-[:R {num: 3}]->()
-      CREATE ()-[:R {num: 4}]->()
-      CREATE ()-[:R {num: 5}]->()
+      CREATE (:N)-[:R {num: 1}]->(:N)
+      CREATE (:N)-[:R {num: 2}]->(:N)
+      CREATE (:N)-[:R {num: 3}]->(:N)
+      CREATE (:N)-[:R {num: 4}]->(:N)
+      CREATE (:N)-[:R {num: 5}]->(:N)
       """
     When executing query:
       """
@@ -472,13 +495,14 @@ Feature: Set6 - Persistence of set clause side effects
 
   Scenario: [20] Aggregating in `RETURN` after setting a property on relationships affects the result set but not the side effects
     Given an empty graph
+    And having defined kuzu types: n:r_num
     And having executed:
       """
-      CREATE ()-[:R {num: 1}]->()
-      CREATE ()-[:R {num: 2}]->()
-      CREATE ()-[:R {num: 3}]->()
-      CREATE ()-[:R {num: 4}]->()
-      CREATE ()-[:R {num: 5}]->()
+      CREATE (:N)-[:R {num: 1}]->(:N)
+      CREATE (:N)-[:R {num: 2}]->(:N)
+      CREATE (:N)-[:R {num: 3}]->(:N)
+      CREATE (:N)-[:R {num: 4}]->(:N)
+      CREATE (:N)-[:R {num: 5}]->(:N)
       """
     When executing query:
       """
@@ -495,13 +519,14 @@ Feature: Set6 - Persistence of set clause side effects
 
   Scenario: [21] Aggregating in `WITH` after setting a property on relationships affects the result set but not the side effects
     Given an empty graph
+    And having defined kuzu types: n:r_num
     And having executed:
       """
-      CREATE ()-[:R {num: 1}]->()
-      CREATE ()-[:R {num: 2}]->()
-      CREATE ()-[:R {num: 3}]->()
-      CREATE ()-[:R {num: 4}]->()
-      CREATE ()-[:R {num: 5}]->()
+      CREATE (:N)-[:R {num: 1}]->(:N)
+      CREATE (:N)-[:R {num: 2}]->(:N)
+      CREATE (:N)-[:R {num: 3}]->(:N)
+      CREATE (:N)-[:R {num: 4}]->(:N)
+      CREATE (:N)-[:R {num: 5}]->(:N)
       """
     When executing query:
       """
