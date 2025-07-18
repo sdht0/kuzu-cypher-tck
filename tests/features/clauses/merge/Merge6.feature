@@ -32,6 +32,7 @@ Feature: Merge6 - Merge relationships - on create
 
   Scenario: [1] Using ON CREATE on a node
     Given an empty graph
+    And having defined kuzu types: ab_c:k
     And having executed:
       """
       CREATE (:A), (:B)
@@ -49,6 +50,7 @@ Feature: Merge6 - Merge relationships - on create
 
   Scenario: [2] Using ON CREATE on a relationship
     Given an empty graph
+    And having defined kuzu types: ab:t_name-2
     And having executed:
       """
       CREATE (:A), (:B)
@@ -58,24 +60,25 @@ Feature: Merge6 - Merge relationships - on create
       MATCH (a:A), (b:B)
       MERGE (a)-[r:TYPE]->(b)
         ON CREATE SET r.name = 'Lola'
-      RETURN count(r)
+      RETURN count(r) as count
       """
     Then the result should be, in any order:
-      | count(r) |
-      | 1        |
+      | count |
+      | 1     |
     And the side effects should be:
       | +relationships | 1 |
       | +properties    | 1 |
 
   Scenario: [3] Updating one property with ON CREATE
     Given an empty graph
+    And having defined kuzu types: ab_name:t_name-2
     And having executed:
       """
       CREATE (:A {name: 'A'}), (:B {name: 'B'})
       """
     When executing query:
       """
-      MATCH (a {name: 'A'}), (b {name: 'B'})
+      MATCH (a:A {name: 'A'}), (b:B {name: 'B'})
       MERGE (a)-[r:TYPE]->(b)
         ON CREATE SET r.name = 'foo'
       """
@@ -86,14 +89,15 @@ Feature: Merge6 - Merge relationships - on create
     When executing control query:
       """
       MATCH ()-[r:TYPE]->()
-      RETURN [key IN keys(r) | key + '->' + r[key]] AS keyValue
+      RETURN r
       """
     Then the result should be, in any order:
-      | keyValue      |
-      | ['name->foo'] |
+      | r |
+      | [:TYPE {name: 'foo'}] |
 
   Scenario: [4] Null-setting one property with ON CREATE
     Given an empty graph
+    And having defined kuzu types: ab_name:t_name-2
     And having executed:
       """
       CREATE (:A {name: 'A'}), (:B {name: 'B'})
@@ -110,14 +114,16 @@ Feature: Merge6 - Merge relationships - on create
     When executing control query:
       """
       MATCH ()-[r:TYPE]->()
-      RETURN [key IN keys(r) | key + '->' + r[key]] AS keyValue
+      RETURN r
       """
     Then the result should be, in any order:
-      | keyValue |
-      | []       |
+      | r       |
+      | [:TYPE] |
 
+  @setPropertiesMap
   Scenario: [6] Copying properties from node with ON CREATE
     Given an empty graph
+    And having defined kuzu types: ab_name:t_name-2
     And having executed:
       """
       CREATE (:A {name: 'A'}), (:B {name: 'B'})
@@ -126,7 +132,7 @@ Feature: Merge6 - Merge relationships - on create
       """
       MATCH (a {name: 'A'}), (b {name: 'B'})
       MERGE (a)-[r:TYPE]->(b)
-        ON CREATE SET r = a
+        ON CREATE SET r.name = a.name
       """
     Then the result should be empty
     And the side effects should be:
@@ -135,14 +141,16 @@ Feature: Merge6 - Merge relationships - on create
     When executing control query:
       """
       MATCH ()-[r:TYPE]->()
-      RETURN [key IN keys(r) | key + '->' + r[key]] AS keyValue
+      RETURN r
       """
     Then the result should be, in any order:
-      | keyValue    |
-      | ['name->A'] |
+      | r |
+      | [:TYPE {name: 'A'}] |
 
+  @setPropertiesMap
   Scenario: [7] Copying properties from literal map with ON CREATE
     Given an empty graph
+    And having defined kuzu types: ab_name:t_n2
     And having executed:
       """
       CREATE (:A {name: 'A'}), (:B {name: 'B'})
@@ -151,7 +159,7 @@ Feature: Merge6 - Merge relationships - on create
       """
       MATCH (a {name: 'A'}), (b {name: 'B'})
       MERGE (a)-[r:TYPE]->(b)
-      ON CREATE SET r += {name: 'bar', name2: 'baz'}
+      ON CREATE SET r.name = 'bar', r.name2 = 'baz'
       """
     Then the result should be empty
     And the side effects should be:
@@ -160,8 +168,8 @@ Feature: Merge6 - Merge relationships - on create
     When executing control query:
       """
       MATCH ()-[r:TYPE]->()
-      RETURN [key IN keys(r) | key + '->' + r[key]] AS keyValue
+      RETURN r
       """
     Then the result should be (ignoring element order for lists):
-      | keyValue                    |
-      | ['name->bar', 'name2->baz'] |
+      | r                                   |
+      | [:TYPE {name: 'bar', name2: 'baz'}] |

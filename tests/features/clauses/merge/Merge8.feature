@@ -32,6 +32,7 @@ Feature: Merge8 - Merge relationships - on match and on create
 
   Scenario: [1] Using ON CREATE and ON MATCH
     Given an empty graph
+    And having defined kuzu types: ab_id:t_name
     And having executed:
       """
       CREATE (a:A {id: 1}), (b:B {id: 2})
@@ -44,11 +45,11 @@ Feature: Merge8 - Merge relationships - on match and on create
       MERGE (a)-[r:TYPE]->(b)
         ON CREATE SET r.name = 'Lola'
         ON MATCH SET r.name = 'RUN'
-      RETURN count(r)
+      RETURN count(r) as count
       """
     Then the result should be, in any order:
-      | count(r) |
-      | 4        |
+      | count |
+      | 4     |
     And the side effects should be:
       | +relationships | 3 |
       | +properties    | 4 |

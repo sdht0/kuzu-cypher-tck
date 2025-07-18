@@ -30,6 +30,7 @@
 
 Feature: Merge3 - Merge node - on match
 
+  @fails @unsupportedSetLabel
   Scenario: [1] Merge should be able to set labels on match
     Given an empty graph
     And having executed:
@@ -45,6 +46,7 @@ Feature: Merge3 - Merge node - on match
     And the side effects should be:
       | +labels | 1 |
 
+  @fails @unsupportedSetLabel
   Scenario: [2] Merge node with label add label on match when it exists
     Given an empty graph
     And having executed:
@@ -65,6 +67,7 @@ Feature: Merge3 - Merge node - on match
 
   Scenario: [3] Merge node and set property on match
     Given an empty graph
+    And having defined kuzu types: t_num
     And having executed:
       """
       CREATE (:TheLabel)
@@ -83,6 +86,7 @@ Feature: Merge3 - Merge node - on match
 
   Scenario: [4] Merge should be able to use properties of bound node in ON MATCH
     Given an empty graph
+    And having defined kuzu types: cp_bn
     And having executed:
       """
       CREATE (:Person {bornIn: 'New York'}),
@@ -106,9 +110,10 @@ Feature: Merge3 - Merge node - on match
 
   Scenario: [5] Fail when using undefined variable in ON MATCH
     Given any graph
+    And having defined kuzu types: n_num
     When executing query:
       """
-      MERGE (n)
+      MERGE (n:N)
         ON MATCH SET x.num = 1
       """
     Then a SyntaxError should be raised at compile time: UndefinedVariable

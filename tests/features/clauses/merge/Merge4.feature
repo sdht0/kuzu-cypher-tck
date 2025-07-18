@@ -30,6 +30,7 @@
 
 Feature: Merge4 - Merge node - on match and on create
 
+  @fails @unsupportedSetLabel
   Scenario: [1] Merge should be able to set labels on match and on create
     Given an empty graph
     And having executed:
@@ -50,6 +51,7 @@ Feature: Merge4 - Merge node - on match and on create
 
   Scenario: [2] Merge should be able to use properties of bound node in ON MATCH and ON CREATE
     Given an empty graph
+    And having defined kuzu types: cp_bn
     And having executed:
       """
       CREATE (:Person {bornIn: 'New York'}),

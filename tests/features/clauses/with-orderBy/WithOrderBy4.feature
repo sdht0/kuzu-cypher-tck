@@ -421,7 +421,7 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
   @fails @orderBySkipLimit
   Scenario: [16] Handle constants and parameters inside an order by item which contains an aggregation expression
     Given an empty graph
-    And having defined kuzu types: person_age
+    And having defined kuzu types: p_age
     And parameters are:
       | age | 38 |
     When executing query:
@@ -439,7 +439,7 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
   @fails @varBinding
   Scenario: [17] Handle projected variables inside an order by item which contains an aggregation expression
     Given an empty graph
-    And having defined kuzu types: person_age
+    And having defined kuzu types: p_age
     When executing query:
       """
       MATCH (me: Person)--(you: Person)
@@ -454,7 +454,7 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
   @fails @varBinding
   Scenario: [18]  Handle projected property accesses inside an order by item which contains an aggregation expression
     Given an empty graph
-    And having defined kuzu types: person_age
+    And having defined kuzu types: p_age
     When executing query:
       """
       MATCH (me: Person)--(you: Person)
@@ -468,7 +468,7 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
 
   Scenario: [19] Fail if not projected variables are used inside an order by item which contains an aggregation expression
     Given an empty graph
-    And having defined kuzu types: person_age
+    And having defined kuzu types: p_age
     When executing query:
       """
       MATCH (me: Person)--(you: Person)
@@ -480,7 +480,7 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
 
   Scenario: [20] Fail if more complex expressions, even if projected, are used inside an order by item which contains an aggregation expression
     Given an empty graph
-    And having defined kuzu types: person_age
+    And having defined kuzu types: p_age
     When executing query:
       """
       MATCH (me: Person)--(you: Person)
