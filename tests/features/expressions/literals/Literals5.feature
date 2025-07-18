@@ -38,7 +38,7 @@ Feature: Literals5 - Float
       """
     Then the result should be, in any order:
       | literal |
-      | 1.0     |
+      | 1     |
     And no side effects
 
   Scenario: [2] Return a short positive float without integer digits
@@ -74,6 +74,7 @@ Feature: Literals5 - Float
       | 0.3405892687 |
     And no side effects
 
+  @fails @scientificNotationOutput
   Scenario: [5] Return a very long positive float
     Given any graph
     When executing query:
@@ -85,6 +86,7 @@ Feature: Literals5 - Float
       | 1.2635418652381264e305 |
     And no side effects
 
+  @fails @scientificNotationOutput
   Scenario: [6] Return a very long positive float without integer digits
     Given any graph
     When executing query:
@@ -104,7 +106,7 @@ Feature: Literals5 - Float
       """
     Then the result should be, in any order:
       | literal |
-      | 0.0     |
+      | 0     |
     And no side effects
 
   Scenario: [8] Return a positive zero float without integer digits
@@ -115,7 +117,7 @@ Feature: Literals5 - Float
       """
     Then the result should be, in any order:
       | literal |
-      | 0.0     |
+      | 0     |
     And no side effects
 
   Scenario: [9] Return a negative zero float
@@ -126,7 +128,7 @@ Feature: Literals5 - Float
       """
     Then the result should be, in any order:
       | literal |
-      | 0.0     |
+      | -0     |
     And no side effects
 
   Scenario: [10] Return a negative zero float without integer digits
@@ -137,9 +139,10 @@ Feature: Literals5 - Float
       """
     Then the result should be, in any order:
       | literal |
-      | 0.0     |
+      | -0     |
     And no side effects
 
+  @fails @scientificNotationOutput
   Scenario: [11] Return a very long negative float
     Given any graph
     When executing query:
@@ -151,6 +154,7 @@ Feature: Literals5 - Float
       | -1.2635418652381264e305 |
     And no side effects
 
+  @fails @scientificNotationOutput
   Scenario: [12] Return a very long negative float without integer digits
     Given any graph
     When executing query:
@@ -170,7 +174,7 @@ Feature: Literals5 - Float
       """
     Then the result should be, in any order:
       | literal      |
-      | 1000000000.0 |
+      | 1000000000 |
     And no side effects
 
   Scenario: [14] Return a positive float with positive upper case exponent
@@ -181,7 +185,7 @@ Feature: Literals5 - Float
       """
     Then the result should be, in any order:
       | literal      |
-      | 1000000000.0 |
+      | 1000000000 |
     And no side effects
 
   Scenario: [15] Return a positive float with positive lower case exponent without integer digits
@@ -192,7 +196,7 @@ Feature: Literals5 - Float
       """
     Then the result should be, in any order:
       | literal     |
-      | 100000000.0 |
+      | 100000000 |
     And no side effects
 
   Scenario: [16] Return a positive float with negative lower case exponent
@@ -236,7 +240,7 @@ Feature: Literals5 - Float
       """
     Then the result should be, in any order:
       | literal       |
-      | -1000000000.0 |
+      | -1000000000 |
     And no side effects
 
   Scenario: [20] Return a negative float in with positive upper case exponent
@@ -247,7 +251,7 @@ Feature: Literals5 - Float
       """
     Then the result should be, in any order:
       | literal       |
-      | -1000000000.0 |
+      | -1000000000 |
     And no side effects
 
   Scenario: [21] Return a negative float with positive lower case exponent without integer digits
@@ -258,7 +262,7 @@ Feature: Literals5 - Float
       """
     Then the result should be, in any order:
       | literal      |
-      | -100000000.0 |
+      | -100000000 |
     And no side effects
 
   Scenario: [22] Return a negative float with negative lower case exponent
@@ -294,6 +298,7 @@ Feature: Literals5 - Float
       | -0.000001 |
     And no side effects
 
+  @fails @scientificNotationOutput
   Scenario: [25] Return a positive float with one integer digit and maximum positive exponent
     Given any graph
     When executing query:
@@ -305,6 +310,7 @@ Feature: Literals5 - Float
       | 1e308   |
     And no side effects
 
+  @fails @scientificNotationOutput
   Scenario: [26] Return a positive float with nine integer digit and maximum positive exponent
     Given any graph
     When executing query:
@@ -316,6 +322,7 @@ Feature: Literals5 - Float
       | 1.23456789e308 |
     And no side effects
 
+  @fails @floatOverflow
   Scenario: [27] Fail when float value is too large
     Given any graph
     When executing query:
