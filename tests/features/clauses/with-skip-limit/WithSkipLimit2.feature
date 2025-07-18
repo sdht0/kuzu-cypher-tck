@@ -59,12 +59,14 @@
 
 Feature: WithSkipLimit2 - Limit
 
+  @fails @withVarBinding
   Scenario: [1] ORDER BY and LIMIT can be used
     Given an empty graph
+    And having defined kuzu types: an:r
     And having executed:
       """
-      CREATE (a:A), (), (), (),
-             (a)-[:REL]->()
+      CREATE (a:A), (:N), (:N), (:N),
+             (a)-[:REL]->(:N)
       """
     When executing query:
       """
@@ -80,13 +82,15 @@ Feature: WithSkipLimit2 - Limit
       | (:A) |
     And no side effects
 
+  @fails @propertyExpression
   # Does this scenario realy testing LIMIT?
   Scenario: [2] Handle dependencies across WITH with LIMIT
     Given an empty graph
+    And having defined kuzu types: be_in:t
     And having executed:
       """
-      CREATE (a:End {num: 42, id: 0}),
-             (:End {num: 3}),
+      CREATE (a:`End` {num: 42, id: 0}),
+             (:`End` {num: 3}),
              (:Begin {num: a.id})
       """
     When executing query:
@@ -105,6 +109,7 @@ Feature: WithSkipLimit2 - Limit
 
   Scenario: [3] Connected components succeeding WITH with LIMIT
     Given an empty graph
+    And having defined kuzu types: abx:r
     And having executed:
       """
       CREATE (:A)-[:REL]->(:X)
@@ -116,7 +121,7 @@ Feature: WithSkipLimit2 - Limit
       WITH n
       LIMIT 1
       MATCH (m:B), (n)-->(x:X)
-      RETURN *
+      RETURN m,n,x
       """
     Then the result should be, in any order:
       | m    | n    | x    |
@@ -125,11 +130,12 @@ Feature: WithSkipLimit2 - Limit
 
   Scenario: [4] Ordering and limiting on aggregate
     Given an empty graph
+    And having defined kuzu types: nxy:t3_num
     And having executed:
       """
-      CREATE ()-[:T1 {num: 3}]->(x:X),
-             ()-[:T2 {num: 2}]->(x),
-             ()-[:T3 {num: 1}]->(:Y)
+      CREATE (:N)-[:T1 {num: 3}]->(x:X),
+             (:N)-[:T2 {num: 2}]->(x),
+             (:N)-[:T3 {num: 1}]->(:Y)
       """
     When executing query:
       """

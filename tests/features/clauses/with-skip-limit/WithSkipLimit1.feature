@@ -59,13 +59,15 @@
 
 Feature: WithSkipLimit1 - Skip
 
+  @fails @createWithProperty
   Scenario: [1] Handle dependencies across WITH with SKIP
     Given an empty graph
+    And having defined kuzu types: n_3-2
     And having executed:
       """
-      CREATE (a {name: 'A', num: 0, id: 0}),
-             ({name: 'B', num: a.id, id: 1}),
-             ({name: 'C', num: 0, id: 2})
+      CREATE (a:N {name: 'A', num: 0, id: 0}),
+             (:N {name: 'B', num: a.id, id: 1}),
+             (:N {name: 'C', num: 0, id: 2})
       """
     When executing query:
       """
@@ -84,11 +86,12 @@ Feature: WithSkipLimit1 - Skip
 
   Scenario: [2] Ordering and skipping on aggregate
     Given an empty graph
+    And having defined kuzu types: nxy:t3_num
     And having executed:
       """
-      CREATE ()-[:T1 {num: 3}]->(x:X),
-             ()-[:T2 {num: 2}]->(x),
-             ()-[:T3 {num: 1}]->(:Y)
+      CREATE (:N)-[:T1 {num: 3}]->(x:X),
+             (:N)-[:T2 {num: 2}]->(x),
+             (:N)-[:T3 {num: 1}]->(:Y)
       """
     When executing query:
       """
