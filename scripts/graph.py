@@ -42,7 +42,7 @@ df_plot['remaining'] = df_plot['total'] - df_plot['pass'] - df_plot['fail'] - df
 
 # Create stacked bar chart
 bottom = None
-colors = ['green', 'gray', 'violet', 'lightblue']  # pass, fail, skip, remaining
+colors = ['green', 'orange', 'yellow', 'lightblue']  # pass, fail, skip, remaining
 labels = ['pass', 'fail', 'skip', 'remaining']
 
 for i, (col, color, label) in enumerate(zip(['pass', 'fail', 'skip', 'remaining'], colors, labels)):
