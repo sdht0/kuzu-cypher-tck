@@ -299,7 +299,7 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE A(_k SERIAL PRIMARY KEY);
               CREATE NODE TABLE B(_k SERIAL PRIMARY KEY);
               CREATE NODE TABLE X(_k SERIAL PRIMARY KEY);
-              CREATE REL TABLE REL(FROM A to B);
+              CREATE REL TABLE REL(FROM A to B, FROM A to X);
             "
         }
         "abcd:t" => {
@@ -445,6 +445,13 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE B(_k SERIAL PRIMARY KEY);
               CREATE NODE TABLE Endd(_k SERIAL PRIMARY KEY);
               CREATE REL TABLE REL(FROM A to B, FROM B TO Endd, num INT64);
+            "
+        }
+        "an:r" => {
+            "
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY);
+              CREATE REL TABLE REL(FROM A to N);
             "
         }
         "an:xy" => {
@@ -749,6 +756,11 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, name STRING, age INT64, seasons INT64[]);
             "
         }
+        "n_3-2" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, name STRING, num INT64, id INT64);
+            "
+        }
         "n_name:f" => {
             "
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, name STRING);
@@ -980,6 +992,16 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE T1(FROM N to X);
               CREATE REL TABLE T2(FROM N to X);
               CREATE REL TABLE T3(FROM N to N);
+            "
+        }
+        "nxy:t3_num" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE X(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE Y(_k SERIAL PRIMARY KEY);
+              CREATE REL TABLE T1(FROM N to X, num INT64);
+              CREATE REL TABLE T2(FROM N to X, num INT64);
+              CREATE REL TABLE T3(FROM N to Y, num INT64);
             "
         }
         "nx:t12_id" => {
