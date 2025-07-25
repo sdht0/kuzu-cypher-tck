@@ -1428,6 +1428,11 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE TheLabel(_k SERIAL PRIMARY KEY, num INT64);
             "
         }
+        "t2_name" => {
+            "
+              CREATE NODE TABLE TheLabel(_k SERIAL PRIMARY KEY, name STRING);
+            "
+        }
         "t_name:r" => {
             "
               CREATE NODE TABLE T(_k SERIAL PRIMARY KEY, name STRING);
