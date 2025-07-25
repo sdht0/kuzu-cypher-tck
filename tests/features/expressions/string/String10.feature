@@ -32,6 +32,7 @@ Feature: String10 - Exact Substring Search
 
   Scenario: [1] Finding exact matches with non-proper substring
     Given an empty graph
+    And having defined kuzu types: t2_name
     And having executed:
       """
       CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
@@ -51,6 +52,7 @@ Feature: String10 - Exact Substring Search
 
   Scenario: [2] Finding substring of string
     Given an empty graph
+    And having defined kuzu types: t2_name
     And having executed:
       """
       CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
@@ -68,8 +70,10 @@ Feature: String10 - Exact Substring Search
       | (:TheLabel {name: 'ABCDEF'}) |
     And no side effects
 
+  @fails @emptyStringSearch
   Scenario: [3] Finding the empty substring
     Given an empty graph
+    And having defined kuzu types: t2_name
     And having executed:
       """
       CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
@@ -93,6 +97,7 @@ Feature: String10 - Exact Substring Search
 
   Scenario: [4] Finding strings containing whitespace
     Given an empty graph
+    And having defined kuzu types: t2_name
     And having executed:
       """
       CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
@@ -113,8 +118,10 @@ Feature: String10 - Exact Substring Search
       | 'Foo Foo' |
     And no side effects
 
+  @fails @incorrectEscaping
   Scenario: [5] Finding strings containing newline
     Given an empty graph
+    And having defined kuzu types: t2_name
     And having executed:
       """
       CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
@@ -137,6 +144,7 @@ Feature: String10 - Exact Substring Search
 
   Scenario: [6] No string contains null
     Given an empty graph
+    And having defined kuzu types: t2_name
     And having executed:
       """
       CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
@@ -155,6 +163,7 @@ Feature: String10 - Exact Substring Search
 
   Scenario: [7] No string does not contain null
     Given an empty graph
+    And having defined kuzu types: t2_name
     And having executed:
       """
       CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
@@ -171,8 +180,10 @@ Feature: String10 - Exact Substring Search
       | a |
     And no side effects
 
+  @fails @listMultipleTypes
   Scenario: [8] Handling non-string operands for CONTAINS
     Given an empty graph
+    And having defined kuzu types: t2_name
     And having executed:
       """
       CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
@@ -194,6 +205,7 @@ Feature: String10 - Exact Substring Search
 
   Scenario: [9] NOT with CONTAINS
     Given an empty graph
+    And having defined kuzu types: t2_name
     And having executed:
       """
       CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),

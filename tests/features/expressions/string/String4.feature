@@ -34,7 +34,7 @@ Feature: String4 - String Splitting
     Given any graph
     When executing query:
       """
-      UNWIND split('one1two', '1') AS item
+      UNWIND string_split('one1two', '1') AS item
       RETURN count(item) AS item
       """
     Then the result should be, in any order:

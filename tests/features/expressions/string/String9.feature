@@ -32,6 +32,7 @@ Feature: String9 - Exact String Suffix Search
 
   Scenario: [1] Finding exact matches with non-proper suffix
     Given an empty graph
+    And having defined kuzu types: t2_name
     And having executed:
       """
       CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
@@ -51,6 +52,7 @@ Feature: String9 - Exact String Suffix Search
 
   Scenario: [2] Finding end of string
     Given an empty graph
+    And having defined kuzu types: t2_name
     And having executed:
       """
       CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
@@ -70,6 +72,7 @@ Feature: String9 - Exact String Suffix Search
 
   Scenario: [3] Finding the empty suffix
     Given an empty graph
+    And having defined kuzu types: t2_name
     And having executed:
       """
       CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
@@ -93,6 +96,7 @@ Feature: String9 - Exact String Suffix Search
 
   Scenario: [4] Finding strings ending with whitespace
     Given an empty graph
+    And having defined kuzu types: t2_name
     And having executed:
       """
       CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
@@ -113,8 +117,10 @@ Feature: String9 - Exact String Suffix Search
       | ' Foo ' |
     And no side effects
 
+  @fails @incorrectEscaping
   Scenario: [5] Finding strings ending with newline
     Given an empty graph
+    And having defined kuzu types: t2_name
     And having executed:
       """
       CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
@@ -137,6 +143,7 @@ Feature: String9 - Exact String Suffix Search
 
   Scenario: [6] No string ends with null
     Given an empty graph
+    And having defined kuzu types: t2_name
     And having executed:
       """
       CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
@@ -155,6 +162,7 @@ Feature: String9 - Exact String Suffix Search
 
   Scenario: [7] No string does not end with null
     Given an empty graph
+    And having defined kuzu types: t2_name
     And having executed:
       """
       CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
@@ -171,8 +179,10 @@ Feature: String9 - Exact String Suffix Search
       | a |
     And no side effects
 
+  @fails @listMultipleTypes
   Scenario: [8] Handling non-string operands for ENDS WITH
     Given an empty graph
+    And having defined kuzu types: t2_name
     And having executed:
       """
       CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
@@ -194,6 +204,7 @@ Feature: String9 - Exact String Suffix Search
 
   Scenario: [9] NOT with ENDS WITH
     Given an empty graph
+    And having defined kuzu types: t2_name
     And having executed:
       """
       CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
