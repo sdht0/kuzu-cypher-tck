@@ -361,6 +361,6 @@ fn main() {
     futures::executor::block_on(
         Kuzu::cucumber()
             .fail_on_skipped()
-            .run("tests/features/clauses"),
+            .run("tests/features"),
     );
 }

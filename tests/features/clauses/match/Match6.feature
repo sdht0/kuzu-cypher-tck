@@ -57,7 +57,7 @@ Feature: Match6 - Match named paths scenarios
     When executing query:
       """
       MATCH p = (a {name: 'A'})-->(b)
-      RETURN list_transform(properties(nodes(p), 'name'), n->concat('\'', n, '\'')) as p
+      RETURN properties(nodes(p), 'name') as p
       """
     Then the result should be, in any order:
       | p          |
@@ -74,7 +74,7 @@ Feature: Match6 - Match named paths scenarios
     When executing query:
       """
       MATCH p = (a {name: 'A'})-[rel1]->(b)-[rel2]->(c)
-      RETURN list_transform(properties(nodes(p), 'name'), n->concat('\'', n, '\'')) as p
+      RETURN properties(nodes(p), 'name') as p
       """
     Then the result should be, in any order:
       | p               |
@@ -108,7 +108,7 @@ Feature: Match6 - Match named paths scenarios
     When executing query:
       """
       MATCH p = (a:Label1)<--(:Label2)
-      RETURN list_transform(properties(nodes(p), 'name'), n->concat('\'', n, '\'')) as p
+      RETURN properties(nodes(p), 'name') as p
       """
     Then the result should be, in any order:
       | p                    |
@@ -125,7 +125,7 @@ Feature: Match6 - Match named paths scenarios
     When executing query:
       """
       MATCH p = (b)<--(a)
-      RETURN list_transform(properties(nodes(p), 'name'), n->concat('\'', n, '\'')) as p
+      RETURN properties(nodes(p), 'name') as p
       """
     Then the result should be, in any order:
       | p          |
@@ -143,7 +143,7 @@ Feature: Match6 - Match named paths scenarios
     When executing query:
       """
       MATCH p = ({name: 'a'})-->({name: 'b'})
-      RETURN list_transform(properties(nodes(p), 'name'), n->concat('\'', n, '\'')) as p
+      RETURN properties(nodes(p), 'name') as p
       """
     Then the result should be, in any order:
       | p          |
@@ -164,7 +164,7 @@ Feature: Match6 - Match named paths scenarios
     When executing query:
       """
       MATCH p = (n)-->(k)<--(n)
-      RETURN list_transform(properties(nodes(p), 'name'), n->concat('\'', n, '\'')) as p
+      RETURN properties(nodes(p), 'name') as p
       """
     Then the result should be, in any order:
       | p |
@@ -182,7 +182,7 @@ Feature: Match6 - Match named paths scenarios
     When executing query:
       """
       MATCH p = (a:Label1)<--(:Label2)--()
-      RETURN list_transform(properties(nodes(p), 'name'), n->concat('\'', n, '\'')) as p
+      RETURN properties(nodes(p), 'name') as p
       """
     Then the result should be, in any order:
       | p                              |
@@ -203,7 +203,7 @@ Feature: Match6 - Match named paths scenarios
     When executing query:
       """
       MATCH p = (n)-->(m)--(o)
-      RETURN list_transform(properties(nodes(p), 'name'), x->concat('\'', x, '\'')) as p
+      RETURN properties(nodes(p), 'name') as p
       """
     Then the result should be, in any order:
       | p               |
@@ -225,7 +225,7 @@ Feature: Match6 - Match named paths scenarios
     When executing query:
       """
       MATCH path = (n)-->(m)--(o)--(p)
-      RETURN list_transform(properties(nodes(path), 'name'), x->concat('\'', x, '\'')) as path
+      RETURN properties(nodes(path), 'name') as path
       """
     Then the result should be, in any order:
       | path                 |
@@ -246,7 +246,7 @@ Feature: Match6 - Match named paths scenarios
     When executing query:
       """
       MATCH p=(n)<-->(k)<-->(n)
-      RETURN list_transform(properties(nodes(p), 'name'), x->concat('\'', x, '\'')) as p
+      RETURN properties(nodes(p), 'name') as p
       """
     Then the result should be, in any order:
       | p               |
@@ -270,7 +270,7 @@ Feature: Match6 - Match named paths scenarios
     When executing query:
       """
       MATCH p = (n)<-->(k)<--(n)
-      RETURN list_transform(properties(nodes(p), 'name'), x->concat('\'', x, '\'')) as p
+      RETURN properties(nodes(p), 'name') as p
       """
     Then the result should be, in any order:
       | p               |
@@ -296,7 +296,7 @@ Feature: Match6 - Match named paths scenarios
     When executing query:
       """
       MATCH topRoute = (:Start)<-[:CONNECTED_TO]-()-[:CONNECTED_TO*3..3]-(:Eend)
-      RETURN list_transform(properties(nodes(topRoute), 'name'), x->concat('\'', x, '\'')) as topRoute
+      RETURN properties(nodes(topRoute), 'name') as topRoute
       """
     Then the result should be, in any order:
       | topRoute                                |
@@ -332,7 +332,7 @@ Feature: Match6 - Match named paths scenarios
     When executing query:
       """
       MATCH p = (n {name: 'A'})-[:KNOWS*1..2]->(x)
-      RETURN list_transform(properties(nodes(p), 'name'), l->concat('\'', l, '\'')) as p
+      RETURN properties(nodes(p), 'name') as p
       """
     Then the result should be, in any order:
       | p               |
@@ -352,7 +352,7 @@ Feature: Match6 - Match named paths scenarios
     When executing query:
       """
       MATCH p = (a {name: 'A'})-[:KNOWS*0..1]->(b)-[:FRIEND*0..1]->(c)
-      RETURN list_transform(properties(list_distinct(nodes(p)), 'name'), l->concat('\'', l, '\'')) as p
+      RETURN properties(list_distinct(nodes(p)), 'name') as p
       """
     Then the result should be, in any order:
       | p               |
@@ -372,7 +372,7 @@ Feature: Match6 - Match named paths scenarios
     When executing query:
       """
       MATCH p = (n:Movie)--(m)
-      RETURN list_transform(properties(list_distinct(nodes(p)), 'name'), l->concat('\'', l, '\'')) as p
+      RETURN properties(list_distinct(nodes(p)), 'name') as p
         LIMIT 1
       """
     Then the result should be, in any order:
@@ -393,7 +393,7 @@ Feature: Match6 - Match named paths scenarios
     When executing query:
       """
       MATCH p = ({name: 'A'})-[:KNOWS*..2]->()
-      RETURN list_transform(properties(list_distinct(nodes(p)), 'name'), l->concat('\'', l, '\'')) as p
+      RETURN properties(list_distinct(nodes(p)), 'name') as p
       """
     Then the result should be, in any order:
       | p               |
@@ -414,7 +414,7 @@ Feature: Match6 - Match named paths scenarios
     When executing query:
       """
       MATCH p = ({name: 'A'})-[:KNOWS*..]->()
-      RETURN list_transform(properties(list_distinct(nodes(p)), 'name'), l->concat('\'', l, '\'')) as p
+      RETURN properties(list_distinct(nodes(p)), 'name') as p
       """
     Then the result should be, in any order:
       | p               |
