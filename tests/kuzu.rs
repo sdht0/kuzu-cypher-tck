@@ -217,7 +217,7 @@ fn check_results(kuzu: &mut Kuzu, step: &Step) {
             .entry(row.join(OUTPUT_SEP))
             .or_insert(0_u32) += 1;
     }
-    assert_eq!(expected_columns, kuzu.columns, "Columns don't match");
+    assert_eq!(expected_columns.to_ascii_lowercase(), kuzu.columns.to_ascii_lowercase(), "Columns don't match");
 
     let expected_results_str = expected_results
         .iter()

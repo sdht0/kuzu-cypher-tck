@@ -775,6 +775,12 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE DoesNotExist(_k SERIAL PRIMARY KEY);
             "
         }
+        "dd" => {
+            "
+              CREATE NODE TABLE DoesExist(_k SERIAL PRIMARY KEY, num INT64);
+              CREATE NODE TABLE DoesNotExist(_k SERIAL PRIMARY KEY, num INT64);
+            "
+        }
         "d_num" => {
             "
               CREATE NODE TABLE DoesNotExist(_k SERIAL PRIMARY KEY, num INT64);
@@ -1301,6 +1307,13 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY);
               CREATE NODE TABLE Person(_k SERIAL PRIMARY KEY, name STRING);
               CREATE REL TABLE T(FROM Person to N);
+            "
+        }
+        "ns:r" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE S(_k SERIAL PRIMARY KEY);
+              CREATE REL TABLE REL(FROM S to S);
             "
         }
         "ns:t" => {
