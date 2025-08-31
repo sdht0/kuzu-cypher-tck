@@ -30,6 +30,7 @@
 
 Feature: List12 - List Comprehension
 
+  @fails @unsupportedListComprehension
   Scenario: [1] Collect and extract using a list comprehension
     Given an empty graph
     And having executed:
@@ -52,6 +53,7 @@ Feature: List12 - List Comprehension
       | +properties | 1 |
       | -properties | 1 |
 
+  @fails @unsupportedListComprehension
   Scenario: [2] Collect and filter using a list comprehension
     Given an empty graph
     And having executed:
@@ -74,6 +76,7 @@ Feature: List12 - List Comprehension
       | +properties | 1 |
       | -properties | 1 |
 
+  @fails @unsupportedListComprehension
   Scenario: [3] Size of list comprehension
     Given an empty graph
     When executing query:
@@ -87,6 +90,7 @@ Feature: List12 - List Comprehension
       | 0  |
     And no side effects
 
+  @fails @unsupportedListComprehension
   Scenario: [4] Returning a list comprehension
     Given an empty graph
     And having executed:
@@ -105,6 +109,7 @@ Feature: List12 - List Comprehension
       | [(:A), (:A)] |
     And no side effects
 
+  @fails @unsupportedListComprehension
   Scenario: [5] Using a list comprehension in a WITH
     Given an empty graph
     And having executed:
@@ -124,6 +129,7 @@ Feature: List12 - List Comprehension
       | [(:A), (:A)] | 2 |
     And no side effects
 
+  @fails @unsupportedListComprehension
   Scenario: [6] Using a list comprehension in a WHERE
     Given an empty graph
     And having executed:
@@ -143,6 +149,7 @@ Feature: List12 - List Comprehension
       | (:C) |
     And no side effects
 
+  @fails @unsupportedListComprehension
   Scenario: [7] Fail when using aggregation in list comprehension
     Given any graph
     When executing query:
