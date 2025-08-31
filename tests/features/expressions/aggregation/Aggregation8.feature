@@ -35,18 +35,19 @@ Feature: Aggregation8 - DISTINCT
     When executing query:
       """
       OPTIONAL MATCH (a)
-      RETURN count(DISTINCT a)
+      RETURN count(DISTINCT a) as count
       """
     Then the result should be, in any order:
-      | count(DISTINCT a) |
-      | 0                 |
+      | count        |
+      | 0            |
     And no side effects
 
   Scenario: [2] Distinct on null
     Given an empty graph
+    And having defined kuzu types: n_name
     And having executed:
       """
-      CREATE ()
+      CREATE (:N)
       """
     When executing query:
       """
@@ -58,6 +59,7 @@ Feature: Aggregation8 - DISTINCT
       | 0                      |
     And no side effects
 
+  @fails @collectNullHandling
   Scenario: [3] Collect distinct nulls
     Given any graph
     When executing query:

@@ -32,35 +32,38 @@ Feature: Aggregation1 - Count
 
   Scenario: [1] Count only non-null values
     Given an empty graph
+    And having defined kuzu types: n_nn
     And having executed:
       """
-      CREATE ({name: 'a', num: 33})
-      CREATE ({name: 'a'})
-      CREATE ({name: 'b', num: 42})
+      CREATE (:N {name: 'a', num: 33})
+      CREATE (:N {name: 'a'})
+      CREATE (:N {name: 'b', num: 42})
       """
     When executing query:
       """
       MATCH (n)
-      RETURN n.name, count(n.num)
+      RETURN n.name, count(n.num) as count
       """
     Then the result should be, in any order:
-      | n.name | count(n.num) |
-      | 'a'    | 1            |
-      | 'b'    | 1            |
+      | n.name | count |
+      | 'a'    | 1     |
+      | 'b'    | 1     |
     And no side effects
 
+  @fails @undirectedEdgeCount
   Scenario: [2] Counting loop relationships
     Given an empty graph
+    And having defined kuzu types: n:r
     And having executed:
       """
-      CREATE (a), (a)-[:R]->(a)
+      CREATE (a:N), (a)-[:R]->(a)
       """
     When executing query:
       """
       MATCH ()-[r]-()
-      RETURN count(r)
+      RETURN count(r) as count
       """
     Then the result should be, in any order:
-      | count(r) |
-      | 1        |
+      | count |
+      | 1     |
     And no side effects

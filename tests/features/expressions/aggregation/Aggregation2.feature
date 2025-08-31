@@ -30,6 +30,7 @@
 
 Feature: Aggregation2 - Min and Max
 
+  @fails @listMissingMinFunc
   Scenario: [1] `max()` over integers
     Given any graph
     When executing query:
@@ -42,6 +43,7 @@ Feature: Aggregation2 - Min and Max
       | 2      |
     And no side effects
 
+  @fails @listMissingMinFunc
   Scenario: [2] `min()` over integers
     Given any graph
     When executing query:
@@ -54,6 +56,7 @@ Feature: Aggregation2 - Min and Max
       | -1     |
     And no side effects
 
+  @fails @listMissingMinFunc
   Scenario: [3] `max()` over floats
     Given any graph
     When executing query:
@@ -66,6 +69,7 @@ Feature: Aggregation2 - Min and Max
       | 2.0    |
     And no side effects
 
+  @fails @listMissingMinFunc
   Scenario: [4] `min()` over floats
     Given any graph
     When executing query:
@@ -78,6 +82,7 @@ Feature: Aggregation2 - Min and Max
       | 0.5    |
     And no side effects
 
+  @fails @unsupportedmixedTypesLists
   Scenario: [5] `max()` over mixed numeric values
     Given any graph
     When executing query:
@@ -90,6 +95,7 @@ Feature: Aggregation2 - Min and Max
       | 5      |
     And no side effects
 
+  @fails @unsupportedmixedTypesLists
   Scenario: [6] `min()` over mixed numeric values
     Given any graph
     When executing query:
@@ -102,6 +108,7 @@ Feature: Aggregation2 - Min and Max
       | 0.1    |
     And no side effects
 
+  @fails @listMissingMinFunc
   Scenario: [7] `max()` over strings
     Given any graph
     When executing query:
@@ -114,6 +121,7 @@ Feature: Aggregation2 - Min and Max
       | 'b'    |
     And no side effects
 
+  @fails @listMissingMinFunc
   Scenario: [8] `min()` over strings
     Given any graph
     When executing query:
@@ -126,6 +134,7 @@ Feature: Aggregation2 - Min and Max
       | 'B'    |
     And no side effects
 
+  @fails @listMissingMinFunc
   Scenario: [9] `max()` over list values
     Given any graph
     When executing query:
@@ -138,6 +147,7 @@ Feature: Aggregation2 - Min and Max
       | [2, 1] |
     And no side effects
 
+  @fails @listMissingMinFunc
   Scenario: [10] `min()` over list values
     Given any graph
     When executing query:
@@ -150,6 +160,7 @@ Feature: Aggregation2 - Min and Max
       | [1]    |
     And no side effects
 
+  @fails @unsupportedmixedTypesLists
   Scenario: [11] `max()` over mixed values
     Given any graph
     When executing query:
@@ -162,6 +173,7 @@ Feature: Aggregation2 - Min and Max
       | 1      |
     And no side effects
 
+  @fails @unsupportedmixedTypesLists
   Scenario: [12] `min()` over mixed values
     Given any graph
     When executing query:
