@@ -1358,6 +1358,14 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE T2(FROM N to X, FROM N to N, id INT64);
             "
         }
+        "nx:ot" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE X(_k SERIAL PRIMARY KEY);
+              CREATE REL TABLE T(FROM X to N);
+              CREATE REL TABLE OTHER(FROM X to N);
+            "
+        }
         "nz:r" => {
             "
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY);
@@ -1426,6 +1434,16 @@ pub fn get_table(id: &str) -> &str {
         "t_num" => {
             "
               CREATE NODE TABLE TheLabel(_k SERIAL PRIMARY KEY, num INT64);
+            "
+        }
+        "t_numbers" => {
+            "
+              CREATE NODE TABLE TheLabel(_k SERIAL PRIMARY KEY, numbers INT64[]);
+            "
+        }
+        "t_array" => {
+            "
+              CREATE NODE TABLE TheLabel(_k SERIAL PRIMARY KEY, array INT64[]);
             "
         }
         "t2_name" => {

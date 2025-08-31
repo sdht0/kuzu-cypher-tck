@@ -149,6 +149,9 @@ fn setup_parameters(kuzu: &mut Kuzu, step: &Step) {
                             ("name".to_string(), LogicalType::String),
                         ]
                     }, list))
+                } else if key == "expr:list1"  {
+                    key = "expr".to_string();
+                    Some(Value::List(LogicalType::String, vec![Value::String("Apa".to_string())]))
                 } else {
                     None
                 };
@@ -355,6 +358,11 @@ fn check_comptime_error(kuzu: &mut Kuzu, _error: String) {
 #[then(expr = "a {word} should be raised at runtime: {word}")]
 fn check_runtime_error(kuzu: &mut Kuzu, _etype: String, _error: String) {
     kuzu.error.as_ref().expect("Runtime error expected");
+}
+
+#[then(expr = "a {word} should be raised at any time: {word}")]
+fn check_error(kuzu: &mut Kuzu, _etype: String, _error: String) {
+    kuzu.error.as_ref().expect("Error expected");
 }
 
 fn main() {
