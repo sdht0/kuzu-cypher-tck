@@ -250,6 +250,14 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE X(_k SERIAL PRIMARY KEY);
             "
         }
+        "abc_p2:r" => {
+            "
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, prop1 INT64, prop2 INT64);
+              CREATE NODE TABLE B(_k SERIAL PRIMARY KEY, prop1 INT64, prop2 INT64);
+              CREATE NODE TABLE C(_k SERIAL PRIMARY KEY, prop1 INT64, prop2 INT64);
+              CREATE REL TABLE R(FROM A to B, FROM B to C, FROM C to A);
+            "
+        }
         "abc_p12" => {
             "
               CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, p1 INT64);
@@ -768,6 +776,13 @@ pub fn get_table(id: &str) -> &str {
             "
               CREATE NODE TABLE City(_k SERIAL PRIMARY KEY, name STRING);
               CREATE NODE TABLE Person(_k SERIAL PRIMARY KEY, name STRING, bornIn STRING);
+            "
+        }
+        "cr_var:t" => {
+            "
+              CREATE NODE TABLE Root(_k SERIAL PRIMARY KEY, var INT64);
+              CREATE NODE TABLE Child(_k SERIAL PRIMARY KEY, var INT64);
+              CREATE REL TABLE T(FROM Root to Child);
             "
         }
         "d" => {
