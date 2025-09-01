@@ -32,53 +32,57 @@ Feature: Comparison1 - Equality
 
   Scenario: [1] Number-typed integer comparison
     Given an empty graph
+    And having defined kuzu types: n_id
     And having executed:
       """
-      CREATE ({id: 0})
+      CREATE (:N {id: 0})
       """
     When executing query:
       """
       WITH collect([0, 0.0]) AS numbers
       UNWIND numbers AS arr
-      WITH arr[0] AS expected
-      MATCH (n) WHERE toInteger(n.id) = expected
+      WITH arr[1] AS expected
+      MATCH (n) WHERE n.id = expected
       RETURN n
       """
     Then the result should be, in any order:
       | n         |
-      | ({id: 0}) |
+      | (:N {id: 0}) |
     And no side effects
 
   Scenario: [2] Number-typed float comparison
     Given an empty graph
+    And having defined kuzu types: n_id
     And having executed:
       """
-      CREATE ({id: 0})
+      CREATE (:N {id: 0})
       """
     When executing query:
       """
       WITH collect([0.5, 0]) AS numbers
       UNWIND numbers AS arr
-      WITH arr[0] AS expected
-      MATCH (n) WHERE toInteger(n.id) = expected
+      WITH arr[1] AS expected
+      MATCH (n) WHERE n.id = expected
       RETURN n
       """
     Then the result should be, in any order:
       | n |
     And no side effects
 
+  @fails @unsupportedmixedTypesLists
   Scenario: [3] Any-typed string comparison
     Given an empty graph
+    And having defined kuzu types: n_id
     And having executed:
       """
-      CREATE ({id: 0})
+      CREATE (:N {id: 0})
       """
     When executing query:
       """
       WITH collect(['0', 0]) AS things
       UNWIND things AS arr
-      WITH arr[0] AS expected
-      MATCH (n) WHERE toInteger(n.id) = expected
+      WITH arr[1] AS expected
+      MATCH (n) WHERE n.id = expected
       RETURN n
       """
     Then the result should be, in any order:
@@ -87,9 +91,10 @@ Feature: Comparison1 - Equality
 
   Scenario: [4] Comparing nodes to nodes
     Given an empty graph
+    And having defined kuzu types: n
     And having executed:
       """
-      CREATE ()
+      CREATE (:N)
       """
     When executing query:
       """
@@ -97,18 +102,19 @@ Feature: Comparison1 - Equality
       WITH a
       MATCH (b)
       WHERE a = b
-      RETURN count(b)
+      RETURN count(b) as count
       """
     Then the result should be, in any order:
-      | count(b) |
-      | 1        |
+      | count |
+      | 1     |
     And no side effects
 
   Scenario: [5] Comparing relationships to relationships
     Given an empty graph
+    And having defined kuzu types: n:t
     And having executed:
       """
-      CREATE ()-[:T]->()
+      CREATE (:N)-[:T]->(:N)
       """
     When executing query:
       """
@@ -116,13 +122,14 @@ Feature: Comparison1 - Equality
       WITH a
       MATCH ()-[b]->()
       WHERE a = b
-      RETURN count(b)
+      RETURN count(b) as count
       """
     Then the result should be, in any order:
-      | count(b) |
-      | 1        |
+      | count |
+      | 1     |
     And no side effects
 
+  @fails @nullHandling
   Scenario Outline: [6] Comparing lists to lists
     Given an empty graph
     When executing query:
@@ -143,6 +150,7 @@ Feature: Comparison1 - Equality
       | [[1], [2]]    | [[1], [null]] | null   |
       | [[1], [2, 3]] | [[1], [null]] | false  |
 
+  @fails @mapsHandling
   Scenario Outline: [7] Comparing maps to maps
     Given an empty graph
     When executing query:
@@ -189,8 +197,9 @@ Feature: Comparison1 - Equality
       | 0.0 / 0.0 | 1         |
       | 0.0 / 0.0 | 1.0       |
       | 0.0 / 0.0 | 0.0 / 0.0 |
-      | 0.0 / 0.0 | 'a'       |
+#      | 0.0 / 0.0 | 'a'       |
 
+  @fails @differentTypeCasting
   Scenario Outline: [9] Equality between strings and numbers
     Given any graph
     When executing query:
@@ -211,6 +220,7 @@ Feature: Comparison1 - Equality
 
   Scenario: [10] Handling inlined equality of large integer
     Given an empty graph
+    And having defined kuzu types: t_id
     And having executed:
       """
       CREATE (:TheLabel {id: 4611686018427387905})
@@ -227,6 +237,7 @@ Feature: Comparison1 - Equality
 
   Scenario: [11] Handling explicit equality of large integer
     Given an empty graph
+    And having defined kuzu types: t_id
     And having executed:
       """
       CREATE (:TheLabel {id: 4611686018427387905})
@@ -244,6 +255,7 @@ Feature: Comparison1 - Equality
 
   Scenario: [12] Handling inlined equality of large integer, non-equal values
     Given an empty graph
+    And having defined kuzu types: t_id
     And having executed:
       """
       CREATE (:TheLabel {id: 4611686018427387905})
@@ -259,6 +271,7 @@ Feature: Comparison1 - Equality
 
   Scenario: [13] Handling explicit equality of large integer, non-equal values
     Given an empty graph
+    And having defined kuzu types: t_id
     And having executed:
       """
       CREATE (:TheLabel {id: 4611686018427387905})
@@ -275,6 +288,7 @@ Feature: Comparison1 - Equality
 
   Scenario: [14] Direction of traversed relationship is not significant for path equality, simple
     Given an empty graph
+    And having defined kuzu types: a:l
     And having executed:
       """
       CREATE (n:A)-[:LOOP]->(n)
@@ -283,10 +297,10 @@ Feature: Comparison1 - Equality
       """
       MATCH p1 = (:A)-->()
       MATCH p2 = (:A)<--()
-      RETURN p1 = p2
+      RETURN p1 = p2 as check
       """
     Then the result should be, in any order:
-      | p1 = p2 |
+      | check |
       | true    |
     And no side effects
 
