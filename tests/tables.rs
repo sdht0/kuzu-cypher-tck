@@ -1067,6 +1067,11 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, numbers INT64[]);
             "
         }
+        "n_nt" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, name STRING, title STRING);
+            "
+        }
         "n_nn" => {
             "
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, num INT64, name STRING);
