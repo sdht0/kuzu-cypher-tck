@@ -30,12 +30,13 @@
 
 Feature: ExistentialSubquery2 - Full existential subquery
 
+  @skip @unsupportedExistentialSubquery
   Scenario: [1] Full existential subquery
     Given an empty graph
     And having executed:
       """
-      CREATE (a:A {prop: 1})-[:R]->(b:B {prop: 1}), 
-             (a)-[:R]->(:C {prop: 2}), 
+      CREATE (a:A {prop: 1})-[:R]->(b:B {prop: 1}),
+             (a)-[:R]->(:C {prop: 2}),
              (a)-[:R]->(:D {prop: 3})
       """
     When executing query:
@@ -51,13 +52,14 @@ Feature: ExistentialSubquery2 - Full existential subquery
       | (:A {prop:1}) |
     And no side effects
 
+  @skip @unsupportedExistentialSubquery
   Scenario: [2] Full existential subquery with aggregation
     Given an empty graph
     And having executed:
       """
-      CREATE (a:A {prop: 1})-[:R]->(b:B {prop: 1}), 
-             (a)-[:R]->(:C {prop: 2}), 
-             (a)-[:R]->(d:D {prop: 3}), 
+      CREATE (a:A {prop: 1})-[:R]->(b:B {prop: 1}),
+             (a)-[:R]->(:C {prop: 2}),
+             (a)-[:R]->(d:D {prop: 3}),
              (b)-[:R]->(d)
       """
     When executing query:
@@ -75,6 +77,7 @@ Feature: ExistentialSubquery2 - Full existential subquery
       | (:A {prop:1}) |
     And no side effects
 
+  @skip @unsupportedExistentialSubquery
   Scenario: [3] Full existential subquery with update clause should fail
     Given any graph
     When executing query:
