@@ -469,6 +469,15 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE KNOWS(FROM A to B, FROM A TO C, FROM D TO B, FROM D TO C);
             "
         }
+        "abcd_prop:r" => {
+            "
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, prop INT64);
+              CREATE NODE TABLE B(_k SERIAL PRIMARY KEY, prop INT64);
+              CREATE NODE TABLE C(_k SERIAL PRIMARY KEY, prop INT64);
+              CREATE NODE TABLE D(_k SERIAL PRIMARY KEY, prop INT64);
+              CREATE REL TABLE R(FROM A to B, FROM A to C, FROM A to D);
+            "
+        }
         "abce_name:l" => {
             "
               CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, name STRING);
