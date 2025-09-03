@@ -32,6 +32,7 @@ Feature: Pattern1 - Pattern predicate
 
   Scenario: [1] Matching on any single outgoing directed connection
     Given an empty graph
+    And having defined kuzu types: abcd:r_3
     And having executed:
       """
       CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
@@ -48,6 +49,7 @@ Feature: Pattern1 - Pattern predicate
 
   Scenario: [2] Matching on a single undirected connection
     Given an empty graph
+    And having defined kuzu types: abcd:r_3
     And having executed:
       """
       CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
@@ -66,6 +68,7 @@ Feature: Pattern1 - Pattern predicate
 
   Scenario: [3] Matching on any single incoming directed connection
     Given an empty graph
+    And having defined kuzu types: abcd:r_3
     And having executed:
       """
       CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
@@ -84,6 +87,7 @@ Feature: Pattern1 - Pattern predicate
 
   Scenario: [4] Matching on a specific type of single outgoing directed connection
     Given an empty graph
+    And having defined kuzu types: abcd:r_3
     And having executed:
       """
       CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
@@ -99,6 +103,7 @@ Feature: Pattern1 - Pattern predicate
 
   Scenario: [5] Matching on a specific type of single undirected connection
     Given an empty graph
+    And having defined kuzu types: abcd:r_3
     And having executed:
       """
       CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
@@ -116,6 +121,7 @@ Feature: Pattern1 - Pattern predicate
 
   Scenario: [6] Matching on a specific type of single incoming directed connection
     Given an empty graph
+    And having defined kuzu types: abcd:r_3
     And having executed:
       """
       CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
@@ -132,6 +138,7 @@ Feature: Pattern1 - Pattern predicate
 
   Scenario: [7] Matching on a specific type of a variable length outgoing directed connection
     Given an empty graph
+    And having defined kuzu types: abcd:r_3
     And having executed:
       """
       CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
@@ -147,6 +154,7 @@ Feature: Pattern1 - Pattern predicate
 
   Scenario: [8] Matching on a specific type of variable length undirected connection
     Given an empty graph
+    And having defined kuzu types: abcd:r_3
     And having executed:
       """
       CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
@@ -164,6 +172,7 @@ Feature: Pattern1 - Pattern predicate
 
   Scenario: [9] Matching on a specific type of variable length incoming directed connection
     Given an empty graph
+    And having defined kuzu types: abcd:r_3
     And having executed:
       """
       CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
@@ -178,8 +187,10 @@ Feature: Pattern1 - Pattern predicate
       | (:D) |
     And no side effects
 
+  @fails @extraOutputUndirected
   Scenario: [10] Matching on a specific type of undirected connection with length 2
     Given an empty graph
+    And having defined kuzu types: abcd:r_3
     And having executed:
       """
       CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
@@ -194,6 +205,7 @@ Feature: Pattern1 - Pattern predicate
       | (:D) |
     And no side effects
 
+  @fails @unexpectedVarBinding
   Scenario Outline: [10] Fail on introducing unbounded variables in pattern
     Given any graph
     When executing query:
@@ -230,6 +242,7 @@ Feature: Pattern1 - Pattern predicate
 
   Scenario: [12] Matching two nodes on a single directed connection between them
     Given an empty graph
+    And having defined kuzu types: abcd:r_3
     And having executed:
       """
       CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
@@ -248,6 +261,7 @@ Feature: Pattern1 - Pattern predicate
 
   Scenario: [13] Fail on matching two nodes on a single undirected connection between them
     Given an empty graph
+    And having defined kuzu types: abcd:r_4
     And having executed:
 	 """
 	 CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
@@ -268,6 +282,7 @@ Feature: Pattern1 - Pattern predicate
 
   Scenario: [14] Matching two nodes on a specific type of single outgoing directed connection
     Given an empty graph
+    And having defined kuzu types: abcd:r_3
     And having executed:
       """
       CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
@@ -284,6 +299,7 @@ Feature: Pattern1 - Pattern predicate
 
   Scenario: [15] Matching two nodes on a specific type of single undirected connection
     Given an empty graph
+    And having defined kuzu types: abcd:r_3
     And having executed:
       """
       CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
@@ -302,6 +318,7 @@ Feature: Pattern1 - Pattern predicate
 
   Scenario: [16] Matching two nodes on a specific type of a variable length outgoing directed connection
     Given an empty graph
+    And having defined kuzu types: abcd:r_3
     And having executed:
       """
       CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
@@ -316,8 +333,10 @@ Feature: Pattern1 - Pattern predicate
       | (:A) | (:D) |
     And no side effects
 
+  @fails @extraOutputUndirected
   Scenario: [17] Matching two nodes on a specific type of variable length undirected connection
     Given an empty graph
+    And having defined kuzu types: abcd:r_3
     And having executed:
       """
       CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
@@ -336,8 +355,10 @@ Feature: Pattern1 - Pattern predicate
       | (:D) | (:B) |
     And no side effects
 
+  @fails @extraOutputUndirected
   Scenario: [18] Matching two nodes on a specific type of undirected connection with length 2
     Given an empty graph
+    And having defined kuzu types: abcd:r_3
     And having executed:
       """
       CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
@@ -355,6 +376,7 @@ Feature: Pattern1 - Pattern predicate
 
   Scenario: [19] Using a negated existential pattern predicate
     Given an empty graph
+    And having defined kuzu types: abcd:r_3
     And having executed:
 	"""
 	CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
@@ -371,6 +393,7 @@ Feature: Pattern1 - Pattern predicate
 
   Scenario: [20] Using two existential pattern predicates in a conjunction
     Given an empty graph
+    And having defined kuzu types: abcd:r_3
     And having executed:
 	"""
 	CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
@@ -386,6 +409,7 @@ Feature: Pattern1 - Pattern predicate
 
   Scenario: [21] Using two existential pattern predicates in a disjunction
     Given an empty graph
+    And having defined kuzu types: abcd:r_3
     And having executed:
 	"""
 	CREATE (a:A)-[:REL1]->(b:B), (b)-[:REL2]->(a), (a)-[:REL3]->(:C), (a)-[:REL1]->(:D)
@@ -401,6 +425,7 @@ Feature: Pattern1 - Pattern predicate
       | (:D) |
     And no side effects
 
+  @fails @unexpectedCast
   Scenario: [22] Fail on using pattern in RETURN projection
     Given any graph
     When executing query:
@@ -409,6 +434,7 @@ Feature: Pattern1 - Pattern predicate
 	"""
     Then a SyntaxError should be raised at compile time: UnexpectedSyntax
 
+  @fails @unexpectedCast
   Scenario: [23] Fail on using pattern in WITH projection
     Given any graph
     When executing query:

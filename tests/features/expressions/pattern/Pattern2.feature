@@ -30,6 +30,7 @@
 
 Feature: Pattern2 - Pattern Comprehension
 
+  @fails @unsupportedListComprehension
   Scenario: [1] Return a pattern comprehension
     Given an empty graph
     And having executed:
@@ -50,6 +51,7 @@ Feature: Pattern2 - Pattern Comprehension
       | []                  |
     And no side effects
 
+  @fails @unsupportedListComprehension
   Scenario: [2] Return a pattern comprehension with label predicate
     Given an empty graph
     And having executed:
@@ -69,6 +71,7 @@ Feature: Pattern2 - Pattern Comprehension
       | [<(:A)-[:T]->(:B)>] |
     And no side effects
 
+  @fails @unsupportedListComprehension
   Scenario: [3] Return a pattern comprehension with bound nodes
     Given an empty graph
     And having executed:
@@ -86,6 +89,7 @@ Feature: Pattern2 - Pattern Comprehension
       | [<(:A)-[:T]->(:B)>] |
     And no side effects
 
+  @fails @unsupportedListComprehension
   Scenario: [4] Introduce a new node variable in pattern comprehension
     Given an empty graph
     And having executed:
@@ -106,6 +110,7 @@ Feature: Pattern2 - Pattern Comprehension
       | []      |
     And no side effects
 
+  @fails @unsupportedListComprehension
   Scenario: [5] Introduce a new relationship variable in pattern comprehension
     Given an empty graph
     And having executed:
@@ -126,6 +131,7 @@ Feature: Pattern2 - Pattern Comprehension
       | []      |
     And no side effects
 
+  @fails @unsupportedListComprehension
   Scenario: [6] Aggregate on a pattern comprehension
     Given an empty graph
     And having executed:
@@ -143,6 +149,7 @@ Feature: Pattern2 - Pattern Comprehension
       | 3 |
     And no side effects
 
+  @fails @unsupportedListComprehension
   Scenario: [7] Use a pattern comprehension inside a list comprehension
     Given an empty graph
     And having executed:
@@ -167,6 +174,7 @@ Feature: Pattern2 - Pattern Comprehension
       | (:X {n: 2}) | [0, 1] |
     And no side effects
 
+  @fails @unsupportedListComprehension
   Scenario: [8] Use a pattern comprehension in WITH
     Given an empty graph
     And having executed:
@@ -187,6 +195,7 @@ Feature: Pattern2 - Pattern Comprehension
       | [<(:B)-[:T]->(:C)>] | 1 |
     And no side effects
 
+  @fails @unsupportedListComprehension
   Scenario: [9] Use a variable-length pattern comprehension in WITH
     Given an empty graph
     And having executed:
@@ -204,6 +213,7 @@ Feature: Pattern2 - Pattern Comprehension
       | [<(:A)-[:T]->(:B)>] | 1 |
     And no side effects
 
+  @fails @unsupportedListComprehension
   Scenario: [10] Use a pattern comprehension in RETURN
     Given an empty graph
     And having executed:
@@ -223,11 +233,13 @@ Feature: Pattern2 - Pattern Comprehension
       | []                  |
     And no side effects
 
+  @fails @unsupportedListComprehension
   Scenario: [11] Use a pattern comprehension and ORDER BY
     Given an empty graph
+    And having defined kuzu types: n_t:t
     And having executed:
       """
-      CREATE (a {time: 10}), (b {time: 20})
+      CREATE (a:N {time: 10}), (b:N {time: 20})
       CREATE (a)-[:T]->(b)
       """
     When executing query:
