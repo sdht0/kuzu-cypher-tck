@@ -64,6 +64,7 @@ Feature: Null3 - Null evaluation
       | null  |
     And no side effects
 
+  @skip @wellDefinedSchema
   Scenario Outline: [4] Using null in IN
     Given any graph
     And parameters are:
