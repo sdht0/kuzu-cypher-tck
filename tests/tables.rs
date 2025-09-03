@@ -1020,6 +1020,11 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, `exists` INT64, missing INT64);
             "
         }
+        "n_e" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, `exists` INT64);
+            "
+        }
         "n_id" => {
             "
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, id INT64);
@@ -1558,6 +1563,11 @@ pub fn get_table(id: &str) -> &str {
         "x" => {
             "
               CREATE NODE TABLE X(_k SERIAL PRIMARY KEY);
+            "
+        }
+        "x_p" => {
+            "
+              CREATE NODE TABLE X(_k SERIAL PRIMARY KEY, prop INT64);
             "
         }
         "x_n3" => {
