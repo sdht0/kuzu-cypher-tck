@@ -659,12 +659,20 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE C(_k SERIAL PRIMARY KEY);
             "
         }
-        "abe:r_num" => {
+        "bcs:r_n" => {
+            "
+              CREATE NODE TABLE B(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE C(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE Start(_k SERIAL PRIMARY KEY);
+              CREATE REL TABLE REL(FROM Start to B, FROM B to C, num INT64);
+            "
+        }
+        "abe:r_n" => {
             "
               CREATE NODE TABLE A(_k SERIAL PRIMARY KEY);
               CREATE NODE TABLE B(_k SERIAL PRIMARY KEY);
-              CREATE NODE TABLE Endd(_k SERIAL PRIMARY KEY);
-              CREATE REL TABLE REL(FROM A to B, FROM B TO Endd, num INT64);
+              CREATE NODE TABLE `End`(_k SERIAL PRIMARY KEY);
+              CREATE REL TABLE REL(FROM A to B, FROM B TO `End`, num INT64);
             "
         }
         "an:r" => {
