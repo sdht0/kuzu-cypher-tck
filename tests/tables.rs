@@ -810,6 +810,13 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE DoesNotExist(_k SERIAL PRIMARY KEY, num INT64);
             "
         }
+        "dp:o" => {
+            "
+              CREATE NODE TABLE Dog(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE Person(_k SERIAL PRIMARY KEY);
+              CREATE REL TABLE OWNS(FROM Person to Dog);
+            "
+        }
         "dssst:bcdsst" => {
             "
               CREATE NODE TABLE Department(_k SERIAL PRIMARY KEY, name STRING);
@@ -1008,9 +1015,26 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, division STRING);
             "
         }
+        "n_em" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, `exists` INT64, missing INT64);
+            "
+        }
         "n_id" => {
             "
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, id INT64);
+            "
+        }
+        "n:k" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY);
+              CREATE REL TABLE KNOWS(FROM N to N);
+            "
+        }
+        "n:k_sy" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY);
+              CREATE REL TABLE KNOWS(FROM N to N, status STRING, year STRING);
             "
         }
         "n_id:k" => {
@@ -1059,6 +1083,16 @@ pub fn get_table(id: &str) -> &str {
         "n_name2" => {
             "
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, name2 STRING);
+            "
+        }
+        "n_ns" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, name STRING, surname STRING);
+            "
+        }
+        "n_no2s" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, name STRING, otherName STRING, otherSurname STRING, surname STRING);
             "
         }
         "n_num" => {
@@ -1123,6 +1157,12 @@ pub fn get_table(id: &str) -> &str {
             "
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, num INT64);
               CREATE REL TABLE T(FROM N to N);
+            "
+        }
+        "n:r_em" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY);
+              CREATE REL TABLE REL(FROM N to N, existing INT64, missing INT64);
             "
         }
         "n:r_p2" => {
