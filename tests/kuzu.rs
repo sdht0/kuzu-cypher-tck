@@ -126,12 +126,15 @@ fn setup_parameters(kuzu: &mut Kuzu, step: &Step) {
                         ("year".to_string(), Value::Int64(2016)),
                         ("id".to_string(), Value::Int64(2)),
                     ]));
-                    Some(Value::List(LogicalType::Struct{
-                        fields: vec![
-                            ("year".to_string(), LogicalType::Int64),
-                            ("id".to_string(), LogicalType::Int64),
-                        ]
-                    }, list))
+                    Some(Value::List(
+                        LogicalType::Struct {
+                            fields: vec![
+                                ("year".to_string(), LogicalType::Int64),
+                                ("id".to_string(), LogicalType::Int64),
+                            ],
+                        },
+                        list,
+                    ))
                 } else if key == "props:unwind1" {
                     key = "props".to_string();
                     let mut list = Vec::new();
@@ -143,15 +146,43 @@ fn setup_parameters(kuzu: &mut Kuzu, step: &Step) {
                         ("login".to_string(), Value::String("login2".to_string())),
                         ("name".to_string(), Value::String("name2".to_string())),
                     ]));
-                    Some(Value::List(LogicalType::Struct{
-                        fields: vec![
-                            ("login".to_string(), LogicalType::String),
-                            ("name".to_string(), LogicalType::String),
-                        ]
-                    }, list))
-                } else if key == "expr:list1"  {
+                    Some(Value::List(
+                        LogicalType::Struct {
+                            fields: vec![
+                                ("login".to_string(), LogicalType::String),
+                                ("name".to_string(), LogicalType::String),
+                            ],
+                        },
+                        list,
+                    ))
+                } else if key == "expr:list1" {
                     key = "expr".to_string();
-                    Some(Value::List(LogicalType::String, vec![Value::String("Apa".to_string())]))
+                    Some(Value::List(
+                        LogicalType::String,
+                        vec![Value::String("Apa".to_string())],
+                    ))
+                } else if key == "expr:map2" {
+                    key = "expr".to_string();
+                    Some(Value::Map(
+                        (LogicalType::String, LogicalType::String),
+                        vec![(
+                            Value::String("Apa".to_string()),
+                            Value::String("Apa".to_string()),
+                        )],
+                    ))
+                } else if key == "param:map3" {
+                    key = "param".to_string();
+                    Some(Value::Struct(vec![
+                        ("name".to_string(), Value::String("Alice".to_string())),
+                        ("age".to_string(), Value::Int64(38)),
+                        (
+                            "address".to_string(),
+                            Value::Struct(vec![
+                                ("city".to_string(), Value::String("London".to_string())),
+                                ("residential".to_string(), Value::Bool(true)),
+                            ]),
+                        ),
+                    ]))
                 } else {
                     None
                 };
@@ -181,7 +212,12 @@ fn execute_query(kuzu: &mut Kuzu, step: &Step) {
 
     match res {
         Ok(res) => {
-            kuzu.columns = res.get_column_names().iter().map(|c| if c == "COUNT_STAR()" { "count(*)" } else { c }).collect::<Vec<_>>().join(OUTPUT_SEP);
+            kuzu.columns = res
+                .get_column_names()
+                .iter()
+                .map(|c| if c == "COUNT_STAR()" { "count(*)" } else { c })
+                .collect::<Vec<_>>()
+                .join(OUTPUT_SEP);
             kuzu.results.clear();
             kuzu.results_ordered.clear();
             for r in res {
@@ -343,33 +379,65 @@ fn check_side_effects(kuzu: &mut Kuzu, step: &Step) {
     let found = kuzu.get_state();
     if expected_state != found {
         if expected_state.0 != found.0 {
-            println!("Node counts don't match: expected: {}, found: {}", expected_state.0, found.0);
+            println!(
+                "Node counts don't match: expected: {}, found: {}",
+                expected_state.0, found.0
+            );
         }
         if expected_state.1 != found.1 {
-            println!("Relationship counts don't match: expected: {}, found: {}", expected_state.1, found.1);
+            println!(
+                "Relationship counts don't match: expected: {}, found: {}",
+                expected_state.1, found.1
+            );
         }
     }
 }
 
 #[then(expr = "a {word} should be raised at compile time: {word}")]
 fn check_comptime_error(kuzu: &mut Kuzu, _etype: String, _error: String) {
-    kuzu.error.as_ref().expect("Compile time error expected");
+    kuzu.error.as_ref().expect(
+        format!(
+            "Compile time error expected, but got output:\n{}",
+            kuzu.results
+                .iter()
+                .map(|(result, count)| format!("{result} (x{count})"))
+                .collect::<Vec<_>>()
+                .join("\n"),
+        )
+        .as_str(),
+    );
 }
 
 #[then(expr = "a {word} should be raised at runtime: {word}")]
 fn check_runtime_error(kuzu: &mut Kuzu, _etype: String, _error: String) {
-    kuzu.error.as_ref().expect("Runtime error expected");
+    kuzu.error.as_ref().expect(
+        format!(
+            "Runtime error expected, but got output:\n{}",
+            kuzu.results
+                .iter()
+                .map(|(result, count)| format!("{result} (x{count})"))
+                .collect::<Vec<_>>()
+                .join("\n"),
+        )
+        .as_str(),
+    );
 }
 
 #[then(expr = "a {word} should be raised at any time: {word}")]
 fn check_error(kuzu: &mut Kuzu, _etype: String, _error: String) {
-    kuzu.error.as_ref().expect("Error expected");
+    kuzu.error.as_ref().expect(
+        format!(
+            "Error expected, but got output:\n{}",
+            kuzu.results
+                .iter()
+                .map(|(result, count)| format!("{result} (x{count})"))
+                .collect::<Vec<_>>()
+                .join("\n"),
+        )
+        .as_str(),
+    );
 }
 
 fn main() {
-    futures::executor::block_on(
-        Kuzu::cucumber()
-            .fail_on_skipped()
-            .run("tests/features"),
-    );
+    futures::executor::block_on(Kuzu::cucumber().fail_on_skipped().run("tests/features"));
 }
