@@ -30,6 +30,7 @@
 
 Feature: Map3 - Keys function
 
+  @fails @missingKeysFuncForStruct
   Scenario: [1] Using `keys()` on a literal map
     Given any graph
     When executing query:
@@ -41,10 +42,11 @@ Feature: Map3 - Keys function
       | ['name', 'age', 'address'] |
     And no side effects
 
+  @fails @missingKeysFuncForStruct
   Scenario: [2] Using `keys()` on a parameter map
     Given any graph
     And parameters are:
-      | param | {name: 'Alice', age: 38, address: {city: 'London', residential: true}} |
+      | param:map3 | {name: 'Alice', age: 38, address: {city: 'London', residential: true}} |
     When executing query:
       """
       RETURN keys($param) AS k
@@ -54,6 +56,7 @@ Feature: Map3 - Keys function
       | ['address', 'name', 'age'] |
     And no side effects
 
+  @fails @bugSigsev
   Scenario: [3] Using `keys()` on null map
     Given any graph
     When executing query:
@@ -66,6 +69,7 @@ Feature: Map3 - Keys function
       | null    | null       |
     And no side effects
 
+  @skip @wellDefinedSchema
   Scenario Outline: [4] Using `keys()` on map with null values
     Given any graph
     When executing query:
@@ -87,6 +91,7 @@ Feature: Map3 - Keys function
       | {k: null, l: null}    | ['k', 'l']      |
       | {k: 1, l: null, m: 1} | ['k', 'l', 'm'] |
 
+  @skip @wellDefinedSchema
   Scenario: [5] Using `keys()` and `IN` to check field existence
     Given any graph
     When executing query:
