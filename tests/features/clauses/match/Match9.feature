@@ -57,14 +57,14 @@ Feature: Match9 - Match deprecated scenarios
   @keywordClash
   Scenario: [2] Return relationships by collecting them as a list - directed, one way
     Given an empty graph
-    And having defined kuzu types: abe:r_num
+    And having defined kuzu types: abe:r_n
     And having executed:
       """
-      CREATE (a:A)-[:REL {num: 1}]->(b:B)-[:REL {num: 2}]->(e:Endd)
+      CREATE (a:A)-[:REL {num: 1}]->(b:B)-[:REL {num: 2}]->(e:`End`)
       """
     When executing query:
       """
-      MATCH (a)-[r:REL*2..2]->(b:Endd)
+      MATCH (a)-[r:REL*2..2]->(b:`End`)
       RETURN r
       """
     Then the result should be, in any order:
@@ -75,14 +75,14 @@ Feature: Match9 - Match deprecated scenarios
   @keywordClash @testbug @fails @extraOutputUndirected
   Scenario: [3] Return relationships by collecting them as a list - undirected, starting from two extremes
     Given an empty graph
-    And having defined kuzu types: abe:r_num
+    And having defined kuzu types: abe:r_n
     And having executed:
       """
-      CREATE (a:Endd)-[:REL {num: 1}]->(b:B)-[:REL {num: 2}]->(c:Endd)
+      CREATE (a:`End`)-[:REL {num: 1}]->(b:B)-[:REL {num: 2}]->(c:`End`)
       """
     When executing query:
       """
-      MATCH (a)-[r:REL*2..2]-(b:Endd)
+      MATCH (a)-[r:REL*2..2]-(b:`End`)
       RETURN list_transform(rels(r), i->concat('[:', label(i), ' {num: ', i.num, '}]')) as r
       """
     Then the result should be, in any order:
