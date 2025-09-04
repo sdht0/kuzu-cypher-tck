@@ -948,6 +948,16 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE A(FROM L to N);
             "
         }
+        "m_r" => {
+            "
+              CREATE NODE TABLE Movie(_k SERIAL PRIMARY KEY, rating INT64);
+            "
+        }
+        "m_w" => {
+            "
+              CREATE NODE TABLE Movie(_k SERIAL PRIMARY KEY, watched BOOL);
+            "
+        }
         "mn_var" => {
             "
               CREATE NODE TABLE M(_k SERIAL PRIMARY KEY, var INT64);
