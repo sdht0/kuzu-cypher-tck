@@ -81,6 +81,94 @@ fn empty_graph(kuzu: &mut Kuzu) {
     kuzu.expected_state = kuzu.get_state();
 }
 
+#[given(expr = "the {word} graph")]
+fn binary_tree_graph(kuzu: &mut Kuzu, name: String) {
+    let queries = match name.as_str() {
+        "binary-tree-1" => "
+            CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, name STRING);
+            CREATE NODE TABLE X(_k SERIAL PRIMARY KEY, name STRING);
+            CREATE NODE TABLE Y(_k SERIAL PRIMARY KEY, name STRING);
+            CREATE REL TABLE KNOWS(FROM A to X);
+            CREATE REL TABLE FOLLOWS(FROM A to X);
+            CREATE REL TABLE FRIEND(FROM X to Y, FROM X to X);
+            CREATE (a:A {name: 'a'}),
+            (b1:X {name: 'b1'}),
+            (b2:X {name: 'b2'}),
+            (b3:X {name: 'b3'}),
+            (b4:X {name: 'b4'}),
+            (c11:X {name: 'c11'}),
+            (c12:X {name: 'c12'}),
+            (c21:X {name: 'c21'}),
+            (c22:X {name: 'c22'}),
+            (c31:X {name: 'c31'}),
+            (c32:X {name: 'c32'}),
+            (c41:X {name: 'c41'}),
+            (c42:X {name: 'c42'})
+            CREATE (a)-[:KNOWS]->(b1),
+                (a)-[:KNOWS]->(b2),
+                (a)-[:FOLLOWS]->(b3),
+                (a)-[:FOLLOWS]->(b4)
+            CREATE (b1)-[:FRIEND]->(c11),
+                (b1)-[:FRIEND]->(c12),
+                (b2)-[:FRIEND]->(c21),
+                (b2)-[:FRIEND]->(c22),
+                (b3)-[:FRIEND]->(c31),
+                (b3)-[:FRIEND]->(c32),
+                (b4)-[:FRIEND]->(c41),
+                (b4)-[:FRIEND]->(c42)
+            CREATE (b1)-[:FRIEND]->(b2),
+                (b2)-[:FRIEND]->(b3),
+                (b3)-[:FRIEND]->(b4),
+                (b4)-[:FRIEND]->(b1);
+            ",
+        "binary-tree-2" => "
+            CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, name STRING);
+            CREATE NODE TABLE X(_k SERIAL PRIMARY KEY, name STRING);
+            CREATE NODE TABLE Y(_k SERIAL PRIMARY KEY, name STRING);
+            CREATE REL TABLE KNOWS(FROM A to X);
+            CREATE REL TABLE FOLLOWS(FROM A to X);
+            CREATE REL TABLE FRIEND(FROM X to Y, FROM X to X);
+            CREATE (a:A {name: 'a'}),
+                (b1:X {name: 'b1'}),
+                (b2:X {name: 'b2'}),
+                (b3:X {name: 'b3'}),
+                (b4:X {name: 'b4'}),
+                (c11:X {name: 'c11'}),
+                (c12:Y {name: 'c12'}),
+                (c21:X {name: 'c21'}),
+                (c22:Y {name: 'c22'}),
+                (c31:X {name: 'c31'}),
+                (c32:Y {name: 'c32'}),
+                (c41:X {name: 'c41'}),
+                (c42:Y {name: 'c42'})
+            CREATE (a)-[:KNOWS]->(b1),
+                (a)-[:KNOWS]->(b2),
+                (a)-[:FOLLOWS]->(b3),
+                (a)-[:FOLLOWS]->(b4)
+            CREATE (b1)-[:FRIEND]->(c11),
+                (b1)-[:FRIEND]->(c12),
+                (b2)-[:FRIEND]->(c21),
+                (b2)-[:FRIEND]->(c22),
+                (b3)-[:FRIEND]->(c31),
+                (b3)-[:FRIEND]->(c32),
+                (b4)-[:FRIEND]->(c41),
+                (b4)-[:FRIEND]->(c42)
+            CREATE (b1)-[:FRIEND]->(b2),
+                (b2)-[:FRIEND]->(b3),
+                (b3)-[:FRIEND]->(b4),
+                (b4)-[:FRIEND]->(b1);
+        ",
+        _ => panic!("Unknown graph: {name}"),
+    };
+    for query in queries.split(";") {
+        if query.trim().is_empty() {
+            continue;
+        }
+        let _ = kuzu_query(&kuzu.db, query).expect("Failed to execute query");
+    }
+    kuzu.expected_state = kuzu.get_state();
+}
+
 #[given(expr = "having defined kuzu types: {word}")]
 fn pre_create_types(kuzu: &mut Kuzu, id: String) {
     let query = crate::tables::get_table(id.as_str());

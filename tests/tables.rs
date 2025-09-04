@@ -222,6 +222,21 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE KNOWS(FROM A to B);
             "
         }
+        "ab:l" => {
+            "
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE B(_k SERIAL PRIMARY KEY);
+              CREATE REL TABLE LOOP(FROM A to B);
+            "
+        }
+        "ab:lt" => {
+            "
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE B(_k SERIAL PRIMARY KEY);
+              CREATE REL TABLE LOOP(FROM A to A);
+              CREATE REL TABLE T(FROM B to B);
+            "
+        }
         "ab_num:l" => {
             "
               CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, num INT64);
