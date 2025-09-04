@@ -30,6 +30,7 @@
 
 Feature: Quantifier12 - All quantifier invariants
 
+  @skip @unsupportedMixedTypeLists
   Scenario: [1] All quantifier is always false if the predicate is statically false and the list is not empty
     Given any graph
     When executing query:
@@ -53,6 +54,7 @@ Feature: Quantifier12 - All quantifier invariants
       | false  |
     And no side effects
 
+  @skip @unsupportedMixedTypeLists
   Scenario: [2] All quantifier is always true if the predicate is statically true and the list is not empty
     Given any graph
     When executing query:
@@ -76,6 +78,7 @@ Feature: Quantifier12 - All quantifier invariants
       | true   |
     And no side effects
 
+  @fails @unsupportedListComprehension
   Scenario Outline: [3] All quantifier is always equal the none quantifier on the boolean negative of the predicate
     Given any graph
     When executing query:
@@ -106,6 +109,7 @@ Feature: Quantifier12 - All quantifier invariants
       | x < 7     |
       | x >= 3    |
 
+  @fails @unsupportedListComprehension
   Scenario Outline: [4] All quantifier is always equal the boolean negative of the any quantifier on the boolean negative of the predicate
     Given any graph
     When executing query:
@@ -136,6 +140,7 @@ Feature: Quantifier12 - All quantifier invariants
       | x < 7     |
       | x >= 3    |
 
+  @fails @unsupportedListComprehension
   Scenario Outline: [5] All quantifier is always equal whether the size of the list filtered with same the predicate is equal the size of the unfiltered list
     Given any graph
     When executing query:

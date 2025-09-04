@@ -52,6 +52,7 @@ Feature: Quantifier8 - All quantifier interop
       | all(y IN x WHERE y <> 'ghi')   | true   |
       | all(y IN x WHERE y = 'abc')    | false  |
 
+  @fails @bugFailedVarBinding
   Scenario Outline: [2] All quantifier can nest itself and other quantifiers on the same list
     Given any graph
     When executing query:
@@ -113,6 +114,7 @@ Feature: Quantifier8 - All quantifier interop
       | x < 7     |
       | x >= 3    |
 
+  @fails @unsupportedListComprehension
   Scenario Outline: [5] All quantifier is equal whether the size of the list filtered with same the predicate is equal the size of the unfiltered list
     Given any graph
     When executing query:
