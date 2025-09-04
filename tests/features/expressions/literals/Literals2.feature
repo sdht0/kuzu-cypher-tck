@@ -118,6 +118,7 @@ Feature: Literals2 - Decimal integer
       | -9223372036854775808 |
     And no side effects
 
+  @skip @supportedInt128
   Scenario: [9] Fail on a too large integer
     Given any graph
     When executing query:
@@ -126,6 +127,7 @@ Feature: Literals2 - Decimal integer
       """
     Then a SyntaxError should be raised at compile time: IntegerOverflow
 
+  @skip @supportedInt128
   Scenario: [10] Fail on a too small integer
     Given any graph
     When executing query:

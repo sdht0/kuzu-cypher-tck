@@ -31,25 +31,27 @@
 Feature: With2 - Forward single expression
   # correctly projecting an expression, no other effects
 
+  @note @tckbugIncorrectQuery
   Scenario: [1] Forwarding a property to express a join
     Given an empty graph
+    And having defined kuzu types: be_in:t
     And having executed:
       """
-      CREATE (a:End {num: 42, id: 0}),
-             (:End {num: 3}),
-             (:Begin {num: a.id})
+      CREATE (a:`End` {num: 42, id: 0}),
+             (:`End` {num: 3}),
+             (:Begin {num: 42})
       """
     When executing query:
       """
       MATCH (a:Begin)
       WITH a.num AS property
-      MATCH (b)
-      WHERE b.id = property
+      MATCH (b:`End`)
+      WHERE b.num = property
       RETURN b
       """
     Then the result should be, in any order:
       | b                       |
-      | (:End {num: 42, id: 0}) |
+      | (:End {id: 0, num: 42}) |
     And no side effects
 
   Scenario: [2] Forwarding a nested map literal
@@ -57,9 +59,9 @@ Feature: With2 - Forward single expression
     When executing query:
       """
       WITH {name: {name2: 'baz'}} AS nestedMap
-      RETURN nestedMap.name.name2
+      RETURN nestedMap.name.name2 as nested
       """
     Then the result should be, in any order:
-      | nestedMap.name.name2 |
-      | 'baz'                |
+      | nested |
+      | 'baz'  |
     And no side effects

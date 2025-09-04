@@ -30,33 +30,15 @@
 
 Feature: WithWhere7 - Variable visibility under aliasing
 
+  @note @tckbugWithBindings
   Scenario: [1] WHERE sees a variable bound before but not after WITH
     Given an empty graph
+    And having defined kuzu types: n_name2
     And having executed:
       """
-      CREATE ({name2: 'A'}),
-             ({name2: 'B'}),
-             ({name2: 'C'})
-      """
-    When executing query:
-      """
-      MATCH (a)
-      WITH a.name2 AS name
-      WHERE a.name2 = 'B'
-      RETURN *
-      """
-    Then the result should be, in any order:
-      | name |
-      | 'B'  |
-    And no side effects
-
-  Scenario: [2] WHERE sees a variable bound after but not before WITH
-    Given an empty graph
-    And having executed:
-      """
-      CREATE ({name2: 'A'}),
-             ({name2: 'B'}),
-             ({name2: 'C'})
+      CREATE (:N {name2: 'A'}),
+             (:N {name2: 'B'}),
+             (:N {name2: 'C'})
       """
     When executing query:
       """
@@ -70,13 +52,36 @@ Feature: WithWhere7 - Variable visibility under aliasing
       | 'B'  |
     And no side effects
 
-  Scenario: [3] WHERE sees both, variable bound before but not after WITH and variable bound after but not before WITH
+  Scenario: [2] WHERE sees a variable bound after but not before WITH
     Given an empty graph
+    And having defined kuzu types: n_name2
     And having executed:
       """
-      CREATE ({name2: 'A'}),
-             ({name2: 'B'}),
-             ({name2: 'C'})
+      CREATE (:N {name2: 'A'}),
+             (:N {name2: 'B'}),
+             (:N {name2: 'C'})
+      """
+    When executing query:
+      """
+      MATCH (a)
+      WITH a.name2 AS name
+      WHERE name = 'B'
+      RETURN *
+      """
+    Then the result should be, in any order:
+      | name |
+      | 'B'  |
+    And no side effects
+
+  @fails @unsupportedUndeclaredVarsInWithWhere #https://github.com/kuzudb/kuzu/issues/5841
+  Scenario: [3] WHERE sees both, variable bound before but not after WITH and variable bound after but not before WITH
+    Given an empty graph
+    And having defined kuzu types: n_name2
+    And having executed:
+      """
+      CREATE (:N {name2: 'A'}),
+             (:N {name2: 'B'}),
+             (:N {name2: 'C'})
       """
     When executing query:
       """

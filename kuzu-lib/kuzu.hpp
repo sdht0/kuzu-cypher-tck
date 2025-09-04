@@ -150,6 +150,24 @@ static std::map<K, V> copyMap(const std::map<K, V>& objects) {
     }
     return result;
 }
+
+#include <cstdint>
+
+namespace kuzu {
+namespace common {
+
+struct ArrowResultConfig {
+    int64_t chunkSize;
+
+    ArrowResultConfig() : chunkSize(DEFAULT_CHUNK_SIZE) {}
+    explicit ArrowResultConfig(int64_t chunkSize) : chunkSize(chunkSize) {}
+
+private:
+    static constexpr int64_t DEFAULT_CHUNK_SIZE = 1000;
+};
+
+} // namespace common
+} // namespace kuzu
 #include <string>
 
 namespace kuzu {
@@ -319,6 +337,52 @@ struct DatabaseLifeCycleManager {
 #include <cstdint>
 
 namespace kuzu {
+namespace common {
+
+enum class StatementType : uint8_t {
+    QUERY = 0,
+    CREATE_TABLE = 1,
+    DROP = 2,
+    ALTER = 3,
+    COPY_TO = 19,
+    COPY_FROM = 20,
+    STANDALONE_CALL = 21,
+    STANDALONE_CALL_FUNCTION = 22,
+    EXPLAIN = 23,
+    CREATE_MACRO = 24,
+    TRANSACTION = 30,
+    EXTENSION = 31,
+    EXPORT_DATABASE = 32,
+    IMPORT_DATABASE = 33,
+    ATTACH_DATABASE = 34,
+    DETACH_DATABASE = 35,
+    USE_DATABASE = 36,
+    CREATE_SEQUENCE = 37,
+    CREATE_TYPE = 39,
+    EXTENSION_CLAUSE = 40,
+};
+
+} // namespace common
+} // namespace kuzu
+
+#include <algorithm>
+#include <array>
+#include <cstddef>
+
+namespace kuzu::common {
+template<typename T, size_t N1, size_t N2>
+constexpr std::array<T, N1 + N2> arrayConcat(const std::array<T, N1>& arr1,
+    const std::array<T, N2>& arr2) {
+    std::array<T, N1 + N2> ret{};
+    std::copy_n(arr1.cbegin(), arr1.size(), ret.begin());
+    std::copy_n(arr2.cbegin(), arr2.size(), ret.begin() + arr1.size());
+    return ret;
+}
+} // namespace kuzu::common
+
+#include <cstdint>
+
+namespace kuzu {
 
 namespace testing {
 class BaseGraphTest;
@@ -376,52 +440,6 @@ class TransactionContext;
 } // namespace transaction
 
 } // namespace kuzu
-
-#include <cstdint>
-
-namespace kuzu {
-namespace common {
-
-enum class StatementType : uint8_t {
-    QUERY = 0,
-    CREATE_TABLE = 1,
-    DROP = 2,
-    ALTER = 3,
-    COPY_TO = 19,
-    COPY_FROM = 20,
-    STANDALONE_CALL = 21,
-    STANDALONE_CALL_FUNCTION = 22,
-    EXPLAIN = 23,
-    CREATE_MACRO = 24,
-    TRANSACTION = 30,
-    EXTENSION = 31,
-    EXPORT_DATABASE = 32,
-    IMPORT_DATABASE = 33,
-    ATTACH_DATABASE = 34,
-    DETACH_DATABASE = 35,
-    USE_DATABASE = 36,
-    CREATE_SEQUENCE = 37,
-    CREATE_TYPE = 39,
-    EXTENSION_CLAUSE = 40,
-};
-
-} // namespace common
-} // namespace kuzu
-
-#include <algorithm>
-#include <array>
-#include <cstddef>
-
-namespace kuzu::common {
-template<typename T, size_t N1, size_t N2>
-constexpr std::array<T, N1 + N2> arrayConcat(const std::array<T, N1>& arr1,
-    const std::array<T, N2>& arr2) {
-    std::array<T, N1 + N2> ret{};
-    std::copy_n(arr1.cbegin(), arr1.size(), ret.begin());
-    std::copy_n(arr2.cbegin(), arr2.size(), ret.begin() + arr1.size());
-    return ret;
-}
-} // namespace kuzu::common
 
 #include <cstdint>
 #include <string>
@@ -1211,6 +1229,66 @@ struct KUZU_API ku_string_t {
 
 } // namespace common
 } // namespace kuzu
+
+#include <cstdint>
+
+
+namespace kuzu {
+namespace common {
+enum class StatementType : uint8_t;
+}
+
+namespace main {
+
+/**
+ * @brief PreparedSummary stores the compiling time and query options of a query.
+ */
+struct PreparedSummary { // NOLINT(*-pro-type-member-init)
+    double compilingTime = 0;
+    common::StatementType statementType;
+};
+
+/**
+ * @brief QuerySummary stores the execution time, plan, compiling time and query options of a query.
+ */
+class QuerySummary {
+
+public:
+    QuerySummary() = default;
+    explicit QuerySummary(const PreparedSummary& preparedSummary)
+        : preparedSummary{preparedSummary} {}
+    /**
+     * @return query compiling time in milliseconds.
+     */
+    KUZU_API double getCompilingTime() const;
+    /**
+     * @return query execution time in milliseconds.
+     */
+    KUZU_API double getExecutionTime() const;
+
+    void setExecutionTime(double time);
+
+    void incrementCompilingTime(double increment);
+
+    void incrementExecutionTime(double increment);
+
+    /**
+     * @return true if the query is executed with EXPLAIN.
+     */
+    bool isExplain() const;
+
+    /**
+     * @return the statement type of the query.
+     */
+    common::StatementType getStatementType() const;
+
+private:
+    double executionTime = 0;
+    PreparedSummary preparedSummary;
+};
+
+} // namespace main
+} // namespace kuzu
 #include <cstdint>
 
 namespace kuzu {
@@ -1245,13 +1323,13 @@ using storage_version_t = uint64_t;
 
 struct StorageVersionInfo {
     static std::unordered_map<std::string, storage_version_t> getStorageVersionInfo() {
-        return {{"0.11.2", 39}, {"0.11.1", 39}, {"0.11.0", 39}, {"0.10.0", 38}, {"0.9.0", 37},
-            {"0.8.0", 36}, {"0.7.1.1", 35}, {"0.7.0", 34}, {"0.6.0.6", 33}, {"0.6.0.5", 32},
-            {"0.6.0.2", 31}, {"0.6.0.1", 31}, {"0.6.0", 28}, {"0.5.0", 28}, {"0.4.2", 27},
-            {"0.4.1", 27}, {"0.4.0", 27}, {"0.3.2", 26}, {"0.3.1", 26}, {"0.3.0", 26},
-            {"0.2.1", 25}, {"0.2.0", 25}, {"0.1.0", 24}, {"0.0.12.3", 24}, {"0.0.12.2", 24},
-            {"0.0.12.1", 24}, {"0.0.12", 23}, {"0.0.11", 23}, {"0.0.10", 23}, {"0.0.9", 23},
-            {"0.0.8", 17}, {"0.0.7", 15}, {"0.0.6", 9}, {"0.0.5", 8}, {"0.0.4", 7}, {"0.0.3", 1}};
+        return {{"0.11.1", 39}, {"0.11.0", 39}, {"0.10.0", 38}, {"0.9.0", 37}, {"0.8.0", 36},
+            {"0.7.1.1", 35}, {"0.7.0", 34}, {"0.6.0.6", 33}, {"0.6.0.5", 32}, {"0.6.0.2", 31},
+            {"0.6.0.1", 31}, {"0.6.0", 28}, {"0.5.0", 28}, {"0.4.2", 27}, {"0.4.1", 27},
+            {"0.4.0", 27}, {"0.3.2", 26}, {"0.3.1", 26}, {"0.3.0", 26}, {"0.2.1", 25},
+            {"0.2.0", 25}, {"0.1.0", 24}, {"0.0.12.3", 24}, {"0.0.12.2", 24}, {"0.0.12.1", 24},
+            {"0.0.12", 23}, {"0.0.11", 23}, {"0.0.10", 23}, {"0.0.9", 23}, {"0.0.8", 17},
+            {"0.0.7", 15}, {"0.0.6", 9}, {"0.0.5", 8}, {"0.0.4", 7}, {"0.0.3", 1}};
     }
 
     static KUZU_API storage_version_t getStorageVersion();
@@ -1393,58 +1471,6 @@ struct ClientConfig {
     bool enablePlanOptimizer = ClientConfigDefault::ENABLE_PLAN_OPTIMIZER;
     // If use internal catalog during binding
     bool enableInternalCatalog = ClientConfigDefault::ENABLE_INTERNAL_CATALOG;
-};
-
-} // namespace main
-} // namespace kuzu
-
-
-namespace kuzu {
-namespace main {
-
-/**
- * @brief PreparedSummary stores the compiling time and query options of a query.
- */
-struct PreparedSummary { // NOLINT(*-pro-type-member-init)
-    double compilingTime = 0;
-    common::StatementType statementType;
-};
-
-/**
- * @brief QuerySummary stores the execution time, plan, compiling time and query options of a query.
- */
-class QuerySummary {
-    friend class ClientContext;
-    friend class benchmark::Benchmark;
-
-public:
-    /**
-     * @return query compiling time in milliseconds.
-     */
-    KUZU_API double getCompilingTime() const;
-    /**
-     * @return query execution time in milliseconds.
-     */
-    KUZU_API double getExecutionTime() const;
-
-    void incrementCompilingTime(double increment);
-    void incrementExecutionTime(double increment);
-
-    void setPreparedSummary(PreparedSummary preparedSummary_);
-
-    /**
-     * @return true if the query is executed with EXPLAIN.
-     */
-    bool isExplain() const;
-
-    /**
-     * @return the statement type of the query.
-     */
-    common::StatementType getStatementType() const;
-
-private:
-    double executionTime = 0;
-    PreparedSummary preparedSummary;
 };
 
 } // namespace main
@@ -1691,86 +1717,6 @@ private:
 };
 
 } // namespace common
-} // namespace kuzu
-
-#include <memory>
-#include <string>
-#include <unordered_map>
-#include <vector>
-
-
-namespace kuzu {
-namespace common {
-class LogicalType;
-}
-namespace parser {
-class Statement;
-}
-
-namespace main {
-
-// Prepared statement cached in client context and NEVER serialized to client side.
-struct CachedPreparedStatement {
-    bool useInternalCatalogEntry = false;
-    std::shared_ptr<parser::Statement> parsedStatement;
-    std::unique_ptr<planner::LogicalPlan> logicalPlan;
-    std::vector<std::shared_ptr<binder::Expression>> columns;
-
-    CachedPreparedStatement();
-    ~CachedPreparedStatement();
-
-    std::vector<std::string> getColumnNames() const;
-    std::vector<common::LogicalType> getColumnTypes() const;
-};
-
-/**
- * @brief A prepared statement is a parameterized query which can avoid planning the same query for
- * repeated execution.
- */
-class PreparedStatement {
-    friend class Connection;
-    friend class ClientContext;
-    friend class testing::TestHelper;
-    friend class testing::TestRunner;
-
-public:
-    KUZU_API ~PreparedStatement();
-    /**
-     * @return the query is prepared successfully or not.
-     */
-    KUZU_API bool isSuccess() const;
-    /**
-     * @return the error message if the query is not prepared successfully.
-     */
-    KUZU_API std::string getErrorMessage() const;
-    /**
-     * @return the prepared statement is read-only or not.
-     */
-    KUZU_API bool isReadOnly() const;
-
-    std::unordered_map<std::string, std::shared_ptr<common::Value>>& getParameterMapUnsafe() {
-        return parameterMap;
-    }
-
-    std::string getName() const { return cachedPreparedStatementName; }
-
-    common::StatementType getStatementType() const;
-
-    void validateExecuteParam(const std::string& paramName, common::Value* param) const;
-
-    static std::unique_ptr<PreparedStatement> getPreparedStatementWithError(
-        const std::string& errorMessage);
-
-private:
-    bool success = true;
-    bool readOnly = true;
-    std::string errMsg;
-    PreparedSummary preparedSummary;
-    std::string cachedPreparedStatementName;
-    std::unordered_map<std::string, std::shared_ptr<common::Value>> parameterMap;
-};
-
-} // namespace main
 } // namespace kuzu
 
 
@@ -3038,8 +2984,6 @@ namespace kuzu {
 namespace common {
 
 struct ku_list_t {
-
-public:
     ku_list_t() : size{0}, overflowPtr{0} {}
     ku_list_t(uint64_t size, uint64_t overflowPtr) : size{size}, overflowPtr{overflowPtr} {}
 
@@ -3620,6 +3564,194 @@ struct KUZU_API ResultSetDescriptor {
 } // namespace processor
 } // namespace kuzu
 
+#include <string>
+
+
+namespace kuzu {
+namespace processor {
+class FlatTuple;
+}
+namespace main {
+
+enum class QueryResultType {
+    FTABLE = 0,
+    ARROW = 1,
+};
+
+/**
+ * @brief QueryResult stores the result of a query execution.
+ */
+class QueryResult {
+public:
+    /**
+     * @brief Used to create a QueryResult object for the failing query.
+     */
+    KUZU_API QueryResult();
+    explicit QueryResult(QueryResultType type);
+    QueryResult(QueryResultType type, std::vector<std::string> columnNames,
+        std::vector<common::LogicalType> columnTypes);
+
+    /**
+     * @brief Deconstructs the QueryResult object.
+     */
+    KUZU_API virtual ~QueryResult() = 0;
+    /**
+     * @return if the query is executed successfully or not.
+     */
+    KUZU_API bool isSuccess() const;
+    /**
+     * @return error message of the query execution if the query fails.
+     */
+    KUZU_API std::string getErrorMessage() const;
+    /**
+     * @return number of columns in query result.
+     */
+    KUZU_API size_t getNumColumns() const;
+    /**
+     * @return name of each column in the query result.
+     */
+    KUZU_API std::vector<std::string> getColumnNames() const;
+    /**
+     * @return dataType of each column in the query result.
+     */
+    KUZU_API std::vector<common::LogicalType> getColumnDataTypes() const;
+    /**
+     * @return query summary which stores the execution time, compiling time, plan and query
+     * options.
+     */
+    KUZU_API QuerySummary* getQuerySummary() const;
+    QuerySummary* getQuerySummaryUnsafe();
+    /**
+     * @return whether there are more query results to read.
+     */
+    KUZU_API bool hasNextQueryResult() const;
+    /**
+     * @return get the next query result to read (for multiple query statements).
+     */
+    KUZU_API QueryResult* getNextQueryResult();
+    /**
+     * @return num of tuples in query result.
+     */
+    KUZU_API virtual uint64_t getNumTuples() const = 0;
+    /**
+     * @return whether there are more tuples to read.
+     */
+    KUZU_API virtual bool hasNext() const = 0;
+    /**
+     * @return next flat tuple in the query result. Note that to reduce resource allocation, all
+     * calls to getNext() reuse the same FlatTuple object. Since its contents will be overwritten,
+     * please complete processing a FlatTuple or make a copy of its data before calling getNext()
+     * again.
+     */
+    KUZU_API virtual std::shared_ptr<processor::FlatTuple> getNext() = 0;
+    /**
+     * @brief Resets the result tuple iterator.
+     */
+    KUZU_API virtual void resetIterator() = 0;
+    /**
+     * @return string of first query result.
+     */
+    KUZU_API virtual std::string toString() const = 0;
+    /**
+     * @brief Returns the arrow schema of the query result.
+     * @return datatypes of the columns as an arrow schema
+     *
+     * It is the caller's responsibility to call the release function to release the underlying data
+     * If converting to another arrow type, this is usually handled automatically.
+     */
+    KUZU_API std::unique_ptr<ArrowSchema> getArrowSchema() const;
+    /**
+     * @return whether there are more arrow chunk to read.
+     */
+    KUZU_API virtual bool hasNextArrowChunk() = 0;
+    /**
+     * @brief Returns the next chunk of the query result as an arrow array.
+     * @param chunkSize number of tuples to return in the chunk.
+     * @return An arrow array representation of the next chunkSize tuples of the query result.
+     *
+     * The ArrowArray internally stores an arrow struct with fields for each of the columns.
+     * This can be converted to a RecordBatch with arrow's ImportRecordBatch function
+     *
+     * It is the caller's responsibility to call the release function to release the underlying data
+     * If converting to another arrow type, this is usually handled automatically.
+     */
+    KUZU_API virtual std::unique_ptr<ArrowArray> getNextArrowChunk(int64_t chunkSize) = 0;
+
+    QueryResultType getType() const { return type; }
+
+    void setColumnNames(std::vector<std::string> columnNames);
+    void setColumnTypes(std::vector<common::LogicalType> columnTypes);
+
+    void addNextResult(std::unique_ptr<QueryResult> next_);
+    std::unique_ptr<QueryResult> moveNextResult();
+
+    void setQuerySummary(std::unique_ptr<QuerySummary> summary);
+
+    void setDBLifeCycleManager(
+        std::shared_ptr<common::DatabaseLifeCycleManager> dbLifeCycleManager);
+
+    static std::unique_ptr<QueryResult> getQueryResultWithError(const std::string& errorMessage);
+
+    template<class TARGET>
+    TARGET& cast() {
+        return common::ku_dynamic_cast<TARGET&>(*this);
+    }
+    template<class TARGET>
+    const TARGET& constCast() const {
+        return common::ku_dynamic_cast<const TARGET&>(*this);
+    }
+
+protected:
+    void validateQuerySucceed() const;
+    void checkDatabaseClosedOrThrow() const;
+
+protected:
+    class QueryResultIterator {
+    public:
+        QueryResultIterator() = default;
+
+        explicit QueryResultIterator(QueryResult* startResult) : current(startResult) {}
+
+        void operator++() {
+            if (current) {
+                current = current->nextQueryResult.get();
+            }
+        }
+
+        bool isEnd() const { return current == nullptr; }
+
+        bool hasNextQueryResult() const { return current->nextQueryResult != nullptr; }
+
+        QueryResult* getCurrentResult() const { return current; }
+
+    private:
+        QueryResult* current;
+    };
+
+    QueryResultType type;
+
+    bool success = true;
+
+    std::string errMsg;
+
+    std::vector<std::string> columnNames;
+
+    std::vector<common::LogicalType> columnTypes;
+
+    std::shared_ptr<processor::FlatTuple> tuple;
+
+    std::unique_ptr<QuerySummary> querySummary;
+
+    std::unique_ptr<QueryResult> nextQueryResult;
+
+    QueryResultIterator queryResultIterator;
+
+    std::shared_ptr<common::DatabaseLifeCycleManager> dbLifeCycleManager;
+};
+
+} // namespace main
+} // namespace kuzu
+
 #include <array>
 #include <cstdint>
 #include <string_view>
@@ -3838,486 +3970,6 @@ static constexpr char LOCAL_DB_NAME[] = "local(kuzu)";
 constexpr auto DECIMAL_PRECISION_LIMIT = 38;
 
 } // namespace common
-} // namespace kuzu
-
-#include <type_traits>
-
-
-namespace kuzu {
-namespace common {
-
-class ValueVector;
-
-template<class... Funcs>
-struct overload : Funcs... {
-    explicit overload(Funcs... funcs) : Funcs(funcs)... {}
-    using Funcs::operator()...;
-};
-
-class TypeUtils {
-public:
-    template<typename Func, typename... Types, size_t... indices>
-    static void paramPackForEachHelper(const Func& func, std::index_sequence<indices...>,
-        Types&&... values) {
-        ((func(indices, values)), ...);
-    }
-
-    template<typename Func, typename... Types>
-    static void paramPackForEach(const Func& func, Types&&... values) {
-        paramPackForEachHelper(func, std::index_sequence_for<Types...>(),
-            std::forward<Types>(values)...);
-    }
-
-    static std::string entryToString(const LogicalType& dataType, const uint8_t* value,
-        ValueVector* vector);
-
-    template<typename T>
-    static inline std::string toString(const T& val, void* /*valueVector*/ = nullptr) {
-        if constexpr (std::is_same_v<T, std::string>) {
-            return val;
-        } else if constexpr (std::is_same_v<T, ku_string_t>) {
-            return val.getAsString();
-        } else {
-            static_assert(std::is_same<T, int64_t>::value || std::is_same<T, int32_t>::value ||
-                          std::is_same<T, int16_t>::value || std::is_same<T, int8_t>::value ||
-                          std::is_same<T, uint64_t>::value || std::is_same<T, uint32_t>::value ||
-                          std::is_same<T, uint16_t>::value || std::is_same<T, uint8_t>::value ||
-                          std::is_same<T, double>::value || std::is_same<T, float>::value);
-            return std::to_string(val);
-        }
-    }
-    static std::string nodeToString(const struct_entry_t& val, ValueVector* vector);
-    static std::string relToString(const struct_entry_t& val, ValueVector* vector);
-
-    static inline void encodeOverflowPtr(uint64_t& overflowPtr, page_idx_t pageIdx,
-        uint32_t pageOffset) {
-        memcpy(&overflowPtr, &pageIdx, 4);
-        memcpy(((uint8_t*)&overflowPtr) + 4, &pageOffset, 4);
-    }
-    static inline void decodeOverflowPtr(uint64_t overflowPtr, page_idx_t& pageIdx,
-        uint32_t& pageOffset) {
-        pageIdx = 0;
-        memcpy(&pageIdx, &overflowPtr, 4);
-        memcpy(&pageOffset, ((uint8_t*)&overflowPtr) + 4, 4);
-    }
-
-    template<typename T>
-    static inline constexpr common::PhysicalTypeID getPhysicalTypeIDForType() {
-        if constexpr (std::is_same_v<T, int64_t>) {
-            return common::PhysicalTypeID::INT64;
-        } else if constexpr (std::is_same_v<T, int32_t>) {
-            return common::PhysicalTypeID::INT32;
-        } else if constexpr (std::is_same_v<T, int16_t>) {
-            return common::PhysicalTypeID::INT16;
-        } else if constexpr (std::is_same_v<T, int8_t>) {
-            return common::PhysicalTypeID::INT8;
-        } else if constexpr (std::is_same_v<T, uint64_t>) {
-            return common::PhysicalTypeID::UINT64;
-        } else if constexpr (std::is_same_v<T, uint32_t>) {
-            return common::PhysicalTypeID::UINT32;
-        } else if constexpr (std::is_same_v<T, uint16_t>) {
-            return common::PhysicalTypeID::UINT16;
-        } else if constexpr (std::is_same_v<T, uint8_t>) {
-            return common::PhysicalTypeID::UINT8;
-        } else if constexpr (std::is_same_v<T, float>) {
-            return common::PhysicalTypeID::FLOAT;
-        } else if constexpr (std::is_same_v<T, double>) {
-            return common::PhysicalTypeID::DOUBLE;
-        } else if constexpr (std::is_same_v<T, int128_t>) {
-            return common::PhysicalTypeID::INT128;
-        } else if constexpr (std::is_same_v<T, interval_t>) {
-            return common::PhysicalTypeID::INTERVAL;
-        } else if constexpr (std::same_as<T, ku_string_t> || std::same_as<T, std::string> ||
-                             std::same_as<T, std::string_view>) {
-            return common::PhysicalTypeID::STRING;
-        } else {
-            KU_UNREACHABLE;
-        }
-    }
-
-    /*
-     * TypeUtils::visit can be used to call generic code on all or some Logical and Physical type
-     * variants with access to type information.
-     *
-     * E.g.
-     *
-     *  std::string result;
-     *  visit(dataType, [&]<typename T>(T) {
-     *      if constexpr(std::is_same_v<T, ku_string_t>()) {
-     *          result = vector->getValue<ku_string_t>(0).getAsString();
-     *      } else if (std::integral<T>) {
-     *          result = std::to_string(vector->getValue<T>(0));
-     *      } else {
-     *          KU_UNREACHABLE;
-     *      }
-     *  });
-     *
-     * or
-     *  std::string result;
-     *  visit(dataType,
-     *      [&](ku_string_t) {
-     *          result = vector->getValue<ku_string_t>(0);
-     *      },
-     *      [&]<std::integral T>(T) {
-     *          result = std::to_string(vector->getValue<T>(0));
-     *      },
-     *      [](auto) { KU_UNREACHABLE; }
-     *  );
-     *
-     * Note that when multiple functions are provided, at least one function must match all data
-     * types.
-     *
-     * Also note that implicit conversions may occur with the multi-function variant
-     * if you don't include a generic auto function to cover types which aren't explicitly included.
-     * See https://en.cppreference.com/w/cpp/utility/variant/visit
-     */
-    template<typename... Fs>
-    static inline auto visit(const LogicalType& dataType, Fs... funcs) {
-        // Note: arguments are used only for type deduction and have no meaningful value.
-        // They should be optimized out by the compiler
-        auto func = overload(funcs...);
-        switch (dataType.getLogicalTypeID()) {
-        /* NOLINTBEGIN(bugprone-branch-clone)*/
-        case LogicalTypeID::INT8:
-            return func(int8_t());
-        case LogicalTypeID::UINT8:
-            return func(uint8_t());
-        case LogicalTypeID::INT16:
-            return func(int16_t());
-        case LogicalTypeID::UINT16:
-            return func(uint16_t());
-        case LogicalTypeID::INT32:
-            return func(int32_t());
-        case LogicalTypeID::UINT32:
-            return func(uint32_t());
-        case LogicalTypeID::SERIAL:
-        case LogicalTypeID::INT64:
-            return func(int64_t());
-        case LogicalTypeID::UINT64:
-            return func(uint64_t());
-        case LogicalTypeID::BOOL:
-            return func(bool());
-        case LogicalTypeID::INT128:
-            return func(int128_t());
-        case LogicalTypeID::DOUBLE:
-            return func(double());
-        case LogicalTypeID::FLOAT:
-            return func(float());
-        case LogicalTypeID::DECIMAL:
-            switch (dataType.getPhysicalType()) {
-            case PhysicalTypeID::INT16:
-                return func(int16_t());
-            case PhysicalTypeID::INT32:
-                return func(int32_t());
-            case PhysicalTypeID::INT64:
-                return func(int64_t());
-            case PhysicalTypeID::INT128:
-                return func(int128_t());
-            default:
-                KU_UNREACHABLE;
-            }
-        case LogicalTypeID::INTERVAL:
-            return func(interval_t());
-        case LogicalTypeID::INTERNAL_ID:
-            return func(internalID_t());
-        case LogicalTypeID::STRING:
-            return func(ku_string_t());
-        case LogicalTypeID::DATE:
-            return func(date_t());
-        case LogicalTypeID::TIMESTAMP_NS:
-            return func(timestamp_ns_t());
-        case LogicalTypeID::TIMESTAMP_MS:
-            return func(timestamp_ms_t());
-        case LogicalTypeID::TIMESTAMP_SEC:
-            return func(timestamp_sec_t());
-        case LogicalTypeID::TIMESTAMP_TZ:
-            return func(timestamp_tz_t());
-        case LogicalTypeID::TIMESTAMP:
-            return func(timestamp_t());
-        case LogicalTypeID::BLOB:
-            return func(blob_t());
-        case LogicalTypeID::UUID:
-            return func(ku_uuid_t());
-        case LogicalTypeID::ARRAY:
-        case LogicalTypeID::LIST:
-            return func(list_entry_t());
-        case LogicalTypeID::MAP:
-            return func(map_entry_t());
-        case LogicalTypeID::NODE:
-        case LogicalTypeID::REL:
-        case LogicalTypeID::RECURSIVE_REL:
-        case LogicalTypeID::STRUCT:
-            return func(struct_entry_t());
-        case LogicalTypeID::UNION:
-            return func(union_entry_t());
-        /* NOLINTEND(bugprone-branch-clone)*/
-        default:
-            // Unsupported type
-            KU_UNREACHABLE;
-        }
-    }
-
-    template<typename... Fs>
-    static inline auto visit(PhysicalTypeID dataType, Fs&&... funcs) {
-        // Note: arguments are used only for type deduction and have no meaningful value.
-        // They should be optimized out by the compiler
-        auto func = overload(funcs...);
-        switch (dataType) {
-        /* NOLINTBEGIN(bugprone-branch-clone)*/
-        case PhysicalTypeID::INT8:
-            return func(int8_t());
-        case PhysicalTypeID::UINT8:
-            return func(uint8_t());
-        case PhysicalTypeID::INT16:
-            return func(int16_t());
-        case PhysicalTypeID::UINT16:
-            return func(uint16_t());
-        case PhysicalTypeID::INT32:
-            return func(int32_t());
-        case PhysicalTypeID::UINT32:
-            return func(uint32_t());
-        case PhysicalTypeID::INT64:
-            return func(int64_t());
-        case PhysicalTypeID::UINT64:
-            return func(uint64_t());
-        case PhysicalTypeID::BOOL:
-            return func(bool());
-        case PhysicalTypeID::INT128:
-            return func(int128_t());
-        case PhysicalTypeID::DOUBLE:
-            return func(double());
-        case PhysicalTypeID::FLOAT:
-            return func(float());
-        case PhysicalTypeID::INTERVAL:
-            return func(interval_t());
-        case PhysicalTypeID::INTERNAL_ID:
-            return func(internalID_t());
-        case PhysicalTypeID::STRING:
-            return func(ku_string_t());
-        case PhysicalTypeID::ARRAY:
-        case PhysicalTypeID::LIST:
-            return func(list_entry_t());
-        case PhysicalTypeID::STRUCT:
-            return func(struct_entry_t());
-        /* NOLINTEND(bugprone-branch-clone)*/
-        case PhysicalTypeID::ANY:
-        case PhysicalTypeID::POINTER:
-        case PhysicalTypeID::ALP_EXCEPTION_DOUBLE:
-        case PhysicalTypeID::ALP_EXCEPTION_FLOAT:
-            // Unsupported type
-            KU_UNREACHABLE;
-            // Needed for return type deduction to work
-            return func(uint8_t());
-        default:
-            KU_UNREACHABLE;
-        }
-    }
-};
-
-// Forward declaration of template specializations.
-template<>
-std::string TypeUtils::toString(const int128_t& val, void* valueVector);
-template<>
-std::string TypeUtils::toString(const bool& val, void* valueVector);
-template<>
-std::string TypeUtils::toString(const internalID_t& val, void* valueVector);
-template<>
-std::string TypeUtils::toString(const date_t& val, void* valueVector);
-template<>
-std::string TypeUtils::toString(const timestamp_ns_t& val, void* valueVector);
-template<>
-std::string TypeUtils::toString(const timestamp_ms_t& val, void* valueVector);
-template<>
-std::string TypeUtils::toString(const timestamp_sec_t& val, void* valueVector);
-template<>
-std::string TypeUtils::toString(const timestamp_tz_t& val, void* valueVector);
-template<>
-std::string TypeUtils::toString(const timestamp_t& val, void* valueVector);
-template<>
-std::string TypeUtils::toString(const interval_t& val, void* valueVector);
-template<>
-std::string TypeUtils::toString(const ku_string_t& val, void* valueVector);
-template<>
-std::string TypeUtils::toString(const blob_t& val, void* valueVector);
-template<>
-std::string TypeUtils::toString(const ku_uuid_t& val, void* valueVector);
-template<>
-std::string TypeUtils::toString(const list_entry_t& val, void* valueVector);
-template<>
-std::string TypeUtils::toString(const map_entry_t& val, void* valueVector);
-template<>
-std::string TypeUtils::toString(const struct_entry_t& val, void* valueVector);
-template<>
-std::string TypeUtils::toString(const union_entry_t& val, void* valueVector);
-
-} // namespace common
-} // namespace kuzu
-
-#include <atomic>
-#include <mutex>
-
-
-namespace kuzu {
-namespace binder {
-struct BoundAlterInfo;
-}
-namespace catalog {
-class CatalogEntry;
-class CatalogSet;
-class SequenceCatalogEntry;
-struct SequenceRollbackData;
-} // namespace catalog
-namespace main {
-class ClientContext;
-} // namespace main
-namespace storage {
-class LocalWAL;
-class LocalStorage;
-class UndoBuffer;
-class WAL;
-class VersionInfo;
-class UpdateInfo;
-struct VectorUpdateInfo;
-class ChunkedNodeGroup;
-class VersionRecordHandler;
-} // namespace storage
-namespace transaction {
-class TransactionManager;
-
-enum class TransactionType : uint8_t { READ_ONLY, WRITE, CHECKPOINT, DUMMY, RECOVERY };
-
-class LocalCacheManager;
-class KUZU_API LocalCacheObject {
-public:
-    explicit LocalCacheObject(std::string key) : key{std::move(key)} {}
-
-    virtual ~LocalCacheObject() = default;
-
-    std::string getKey() const { return key; }
-
-    template<typename T>
-    T* cast() {
-        return common::ku_dynamic_cast<T*>(this);
-    }
-
-private:
-    std::string key;
-};
-
-class LocalCacheManager {
-public:
-    bool contains(const std::string& key) {
-        std::unique_lock lck{mtx};
-        return cachedObjects.contains(key);
-    }
-    LocalCacheObject& at(const std::string& key) {
-        std::unique_lock lck{mtx};
-        return *cachedObjects.at(key);
-    }
-    bool put(std::unique_ptr<LocalCacheObject> object);
-
-    void remove(const std::string& key) {
-        std::unique_lock lck{mtx};
-        cachedObjects.erase(key);
-    }
-
-private:
-    std::unordered_map<std::string, std::unique_ptr<LocalCacheObject>> cachedObjects;
-    std::mutex mtx;
-};
-
-class KUZU_API Transaction {
-    friend class TransactionManager;
-
-public:
-    static constexpr common::transaction_t DUMMY_TRANSACTION_ID = 0;
-    static constexpr common::transaction_t DUMMY_START_TIMESTAMP = 0;
-    static constexpr common::transaction_t START_TRANSACTION_ID =
-        static_cast<common::transaction_t>(1) << 63;
-
-    Transaction(main::ClientContext& clientContext, TransactionType transactionType,
-        common::transaction_t transactionID, common::transaction_t startTS);
-
-    explicit Transaction(TransactionType transactionType) noexcept;
-    Transaction(TransactionType transactionType, common::transaction_t ID,
-        common::transaction_t startTS) noexcept;
-
-    ~Transaction();
-
-    TransactionType getType() const { return type; }
-    bool isReadOnly() const { return TransactionType::READ_ONLY == type; }
-    bool isWriteTransaction() const { return TransactionType::WRITE == type; }
-    bool isDummy() const { return TransactionType::DUMMY == type; }
-    bool isRecovery() const { return TransactionType::RECOVERY == type; }
-    common::transaction_t getID() const { return ID; }
-    common::transaction_t getStartTS() const { return startTS; }
-    common::transaction_t getCommitTS() const { return commitTS; }
-    int64_t getCurrentTS() const { return currentTS; }
-
-    void setForceCheckpoint() { forceCheckpoint = true; }
-    bool shouldAppendToUndoBuffer() const {
-        // Only write transactions and recovery transactions should append to the undo buffer.
-        return isWriteTransaction() || isRecovery();
-    }
-    bool shouldLogToWAL() const;
-    storage::LocalWAL& getLocalWAL() const {
-        KU_ASSERT(localWAL);
-        return *localWAL;
-    }
-
-    bool shouldForceCheckpoint() const;
-
-    void commit(storage::WAL* wal);
-    void rollback(storage::WAL* wal);
-
-    storage::LocalStorage* getLocalStorage() const { return localStorage.get(); }
-    LocalCacheManager& getLocalCacheManager() { return localCacheManager; }
-    bool isUnCommitted(common::table_id_t tableID, common::offset_t nodeOffset) const;
-    common::row_idx_t getLocalRowIdx(common::table_id_t tableID,
-        common::offset_t nodeOffset) const {
-        return nodeOffset - getMinUncommittedNodeOffset(tableID);
-    }
-    common::offset_t getUncommittedOffset(common::table_id_t tableID,
-        common::row_idx_t localRowIdx) const {
-        return getMinUncommittedNodeOffset(tableID) + localRowIdx;
-    }
-
-    void pushCreateDropCatalogEntry(catalog::CatalogSet& catalogSet,
-        catalog::CatalogEntry& catalogEntry, bool isInternal, bool skipLoggingToWAL = false);
-    void pushAlterCatalogEntry(catalog::CatalogSet& catalogSet, catalog::CatalogEntry& catalogEntry,
-        const binder::BoundAlterInfo& alterInfo);
-    void pushSequenceChange(catalog::SequenceCatalogEntry* sequenceEntry, int64_t kCount,
-        const catalog::SequenceRollbackData& data);
-    void pushInsertInfo(common::node_group_idx_t nodeGroupIdx, common::row_idx_t startRow,
-        common::row_idx_t numRows, const storage::VersionRecordHandler* versionRecordHandler) const;
-    void pushDeleteInfo(common::node_group_idx_t nodeGroupIdx, common::row_idx_t startRow,
-        common::row_idx_t numRows, const storage::VersionRecordHandler* versionRecordHandler) const;
-    void pushVectorUpdateInfo(storage::UpdateInfo& updateInfo, common::idx_t vectorIdx,
-        storage::VectorUpdateInfo& vectorUpdateInfo) const;
-
-private:
-    common::offset_t getMinUncommittedNodeOffset(common::table_id_t tableID) const;
-
-private:
-    TransactionType type;
-    common::transaction_t ID;
-    common::transaction_t startTS;
-    common::transaction_t commitTS;
-    int64_t currentTS;
-    main::ClientContext* clientContext;
-    std::unique_ptr<storage::LocalStorage> localStorage;
-    std::unique_ptr<storage::UndoBuffer> undoBuffer;
-    std::unique_ptr<storage::LocalWAL> localWAL;
-    LocalCacheManager localCacheManager;
-    bool forceCheckpoint;
-    std::atomic<bool> hasCatalogChanges;
-};
-
-// TODO(bmwinger): These shouldn't need to be exported
-extern KUZU_API Transaction DUMMY_TRANSACTION;
-extern KUZU_API Transaction DUMMY_CHECKPOINT_TRANSACTION;
-
-} // namespace transaction
 } // namespace kuzu
 
 #include <utility>
@@ -5236,17 +4888,11 @@ using scalar_bind_func =
 struct KUZU_API Function {
     std::string name;
     std::vector<common::LogicalTypeID> parameterTypeIDs;
-    // Currently we only one variable-length function which is list creation. The expectation is
-    // that all parameters must have the same type as parameterTypes[0].
-    // For variable length function. A
-    bool isVarLength = false;
-    bool isListLambda = false;
     bool isReadOnly = true;
 
-    Function() : isVarLength{false}, isListLambda{false}, isReadOnly{true} {};
+    Function() : isReadOnly{true} {};
     Function(std::string name, std::vector<common::LogicalTypeID> parameterTypeIDs)
-        : name{std::move(name)}, parameterTypeIDs{std::move(parameterTypeIDs)}, isVarLength{false},
-          isListLambda{false} {}
+        : name{std::move(name)}, parameterTypeIDs{std::move(parameterTypeIDs)} {}
     Function(const Function&) = default;
 
     virtual ~Function() = default;
@@ -5330,70 +4976,6 @@ private:
 } // namespace common
 } // namespace kuzu
 
-#include <mutex>
-
-
-namespace kuzu {
-
-namespace main {
-class ClientContext;
-}
-
-namespace transaction {
-
-/**
- * If the connection is in AUTO_COMMIT mode, any query over the connection will be wrapped around
- * a transaction and committed (even if the query is READ_ONLY).
- * If the connection is in MANUAL transaction mode, which happens only if an application
- * manually begins a transaction (see below), then an application has to manually commit or
- * rollback the transaction by calling commit() or rollback().
- *
- * AUTO_COMMIT is the default mode when a Connection is created. If an application calls
- * begin[ReadOnly/Write]Transaction at any point, the mode switches to MANUAL. This creates
- * an "active transaction" in the connection. When a connection is in MANUAL mode and the
- * active transaction is rolled back or committed, then the active transaction is removed (so
- * the connection no longer has an active transaction), and the mode automatically switches
- * back to AUTO_COMMIT.
- * Note: When a Connection object is deconstructed, if the connection has an active (manual)
- * transaction, then the active transaction is rolled back.
- */
-enum class TransactionMode : uint8_t { AUTO = 0, MANUAL = 1 };
-
-class KUZU_API TransactionContext {
-public:
-    explicit TransactionContext(main::ClientContext& clientContext);
-    ~TransactionContext();
-
-    bool isAutoTransaction() const { return mode == TransactionMode::AUTO; }
-
-    void beginReadTransaction();
-    void beginWriteTransaction();
-    void beginAutoTransaction(bool readOnlyStatement);
-    void beginRecoveryTransaction();
-    void validateManualTransaction(bool readOnlyStatement) const;
-
-    void commit();
-    void rollback();
-
-    TransactionMode getTransactionMode() const { return mode; }
-    bool hasActiveTransaction() const { return activeTransaction != nullptr; }
-    Transaction* getActiveTransaction() const { return activeTransaction; }
-
-    void clearTransaction();
-
-private:
-    void beginTransactionInternal(TransactionType transactionType);
-
-private:
-    std::mutex mtx;
-    main::ClientContext& clientContext;
-    TransactionMode mode;
-    Transaction* activeTransaction;
-};
-
-} // namespace transaction
-} // namespace kuzu
-
 #include <string>
 #include <vector>
 
@@ -5455,159 +5037,88 @@ private:
 } // namespace common
 } // namespace kuzu
 
-#include <cstdint>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 
 namespace kuzu {
-namespace processor {
+namespace common {
+class LogicalType;
+}
+namespace parser {
+class Statement;
+}
+namespace binder {
+class Expression;
+}
+namespace planner {
+class LogicalPlan;
+}
+
+namespace main {
+
+// Prepared statement cached in client context and NEVER serialized to client side.
+struct CachedPreparedStatement {
+    bool useInternalCatalogEntry = false;
+    std::shared_ptr<parser::Statement> parsedStatement;
+    std::unique_ptr<planner::LogicalPlan> logicalPlan;
+    std::vector<std::shared_ptr<binder::Expression>> columns;
+
+    CachedPreparedStatement();
+    ~CachedPreparedStatement();
+
+    std::vector<std::string> getColumnNames() const;
+    std::vector<common::LogicalType> getColumnTypes() const;
+};
 
 /**
- * @brief Stores a vector of Values.
+ * @brief A prepared statement is a parameterized query which can avoid planning the same query for
+ * repeated execution.
  */
-class FlatTuple {
+class PreparedStatement {
+    friend class Connection;
+    friend class ClientContext;
+
 public:
-    void addValue(std::unique_ptr<common::Value> value);
-
+    KUZU_API ~PreparedStatement();
     /**
-     * @return number of values in the FlatTuple.
+     * @return the query is prepared successfully or not.
      */
-    KUZU_API uint32_t len() const;
-
+    KUZU_API bool isSuccess() const;
     /**
-     * @param idx value index to get.
-     * @return the value stored at idx.
+     * @return the error message if the query is not prepared successfully.
      */
-    KUZU_API common::Value* getValue(uint32_t idx) const;
-
-    KUZU_API std::string toString();
-
+    KUZU_API std::string getErrorMessage() const;
     /**
-     * @param colsWidth The length of each column
-     * @param delimiter The delimiter to separate each value.
-     * @param maxWidth The maximum length of each column. Only the first maxWidth number of
-     * characters of each column will be displayed.
-     * @return all values in string format.
+     * @return the prepared statement is read-only or not.
      */
-    KUZU_API std::string toString(const std::vector<uint32_t>& colsWidth,
-        const std::string& delimiter = "|", uint32_t maxWidth = -1);
+    KUZU_API bool isReadOnly() const;
+
+    std::unordered_map<std::string, std::shared_ptr<common::Value>>& getParameterMapUnsafe() {
+        return parameterMap;
+    }
+
+    std::string getName() const { return cachedPreparedStatementName; }
+
+    common::StatementType getStatementType() const;
+
+    void validateExecuteParam(const std::string& paramName, common::Value* param) const;
+
+    static std::unique_ptr<PreparedStatement> getPreparedStatementWithError(
+        const std::string& errorMessage);
 
 private:
-    std::vector<std::unique_ptr<common::Value>> values;
+    bool success = true;
+    bool readOnly = true;
+    std::string errMsg;
+    PreparedSummary preparedSummary;
+    std::string cachedPreparedStatementName;
+    std::unordered_map<std::string, std::shared_ptr<common::Value>> parameterMap;
 };
 
-} // namespace processor
-} // namespace kuzu
-
-#include <string>
-#include <variant>
-#include <vector>
-
-
-namespace kuzu {
-namespace common {
-class ValueVector;
-}
-namespace storage {
-class ColumnChunkData;
-}
-
-namespace processor {
-
-template<typename T>
-concept DataSource =
-    std::same_as<storage::ColumnChunkData, T> || std::same_as<common::ValueVector, T>;
-
-struct KUZU_API WarningSourceData {
-    // we should stick to integral types here as each value essentially adds a column to the output
-    // when reading from a file
-    using DataType = std::variant<uint64_t, uint32_t>;
-
-    static constexpr size_t BLOCK_IDX_IDX = 0;
-    static constexpr size_t OFFSET_IN_BLOCK_IDX = 1;
-    static constexpr size_t NUM_BLOCK_VALUES = 2;
-
-    WarningSourceData() : WarningSourceData(0) {}
-    explicit WarningSourceData(uint64_t numSourceSpecificValues);
-
-    template<std::integral... Types>
-    void dumpTo(uint64_t& blockIdx, uint32_t& offsetInBlock, Types&... vars) const;
-
-    template<std::integral... Types>
-    static WarningSourceData constructFrom(uint64_t blockIdx, uint32_t offsetInBlock,
-        Types... newValues);
-
-    uint64_t getBlockIdx() const;
-    uint32_t getOffsetInBlock() const;
-
-    template<DataSource T>
-    static WarningSourceData constructFromData(const std::vector<T*>& chunks, common::idx_t pos);
-
-    std::array<DataType, common::CopyConstants::MAX_NUM_WARNING_DATA_COLUMNS> values;
-    uint64_t numValues;
-};
-
-struct LineContext {
-    uint64_t startByteOffset;
-    uint64_t endByteOffset;
-
-    bool isCompleteLine;
-
-    void setNewLine(uint64_t start);
-    void setEndOfLine(uint64_t end);
-};
-
-// If parsing in parallel during parsing we may not be able to determine line numbers
-// Thus we have additional fields that can be used to determine line numbers + reconstruct lines
-// After parsing this will be used to populate a PopulatedCopyFromError instance
-struct KUZU_API CopyFromFileError {
-    CopyFromFileError(std::string message, WarningSourceData warningData, bool completedLine = true,
-        bool mustThrow = false);
-
-    std::string message;
-    bool completedLine;
-    WarningSourceData warningData;
-
-    bool mustThrow;
-
-    bool operator<(const CopyFromFileError& o) const;
-};
-
-struct PopulatedCopyFromError {
-    std::string message;
-    std::string filePath;
-    std::string skippedLineOrRecord;
-    uint64_t lineNumber;
-};
-
-template<std::integral... Types>
-void WarningSourceData::dumpTo(uint64_t& blockIdx, uint32_t& offsetInBlock, Types&... vars) const {
-    static_assert(sizeof...(Types) + NUM_BLOCK_VALUES <= std::tuple_size_v<decltype(values)>);
-    KU_ASSERT(sizeof...(Types) + NUM_BLOCK_VALUES == numValues);
-    common::TypeUtils::paramPackForEach(
-        [this](auto idx, auto& value) {
-            value = std::get<std::decay_t<decltype(value)>>(values[idx]);
-        },
-        blockIdx, offsetInBlock, vars...);
-}
-
-template<std::integral... Types>
-WarningSourceData WarningSourceData::constructFrom(uint64_t blockIdx, uint32_t offsetInBlock,
-    Types... newValues) {
-    static_assert(sizeof...(Types) + NUM_BLOCK_VALUES <= std::tuple_size_v<decltype(values)>,
-        "For performance reasons the number of warning metadata columns has a "
-        "statically-defined limit, modify "
-        "'common::CopyConstants::WARNING_DATA_MAX_NUM_COLUMNS' if you wish to increase it.");
-
-    WarningSourceData ret{sizeof...(Types) + NUM_BLOCK_VALUES};
-    common::TypeUtils::paramPackForEach([&ret](auto idx, auto value) { ret.values[idx] = value; },
-        blockIdx, offsetInBlock, newValues...);
-    return ret;
-}
-
-} // namespace processor
+} // namespace main
 } // namespace kuzu
 
 #include <string>
@@ -5615,7 +5126,6 @@ WarningSourceData WarningSourceData::constructFrom(uint64_t blockIdx, uint32_t o
 
 namespace kuzu {
 namespace common {
-class Value;
 enum class LogicalTypeID : uint8_t;
 } // namespace common
 
@@ -5673,6 +5183,8 @@ struct DBConfig {
     bool autoCheckpoint;
     uint64_t checkpointThreshold;
     bool forceCheckpointOnClose;
+    bool throwOnWalReplayFailure;
+    bool enableChecksums;
     bool enableSpillingToDisk;
 #if defined(__APPLE__)
     uint32_t threadQos;
@@ -5792,6 +5304,71 @@ private:
 };
 
 } // namespace common
+} // namespace kuzu
+
+#include <cstdint>
+#include <string>
+#include <vector>
+
+
+namespace kuzu {
+namespace processor {
+
+/**
+ * @brief Stores a vector of Values.
+ */
+class FlatTuple {
+public:
+    explicit FlatTuple(const std::vector<common::LogicalType>& types);
+
+    DELETE_COPY_AND_MOVE(FlatTuple);
+
+    /**
+     * @return number of values in the FlatTuple.
+     */
+    KUZU_API common::idx_t len() const;
+    /**
+     * @brief Get a pointer to the value at the specified index.
+     * @param idx The index of the value to retrieve.
+     * @return A pointer to the Value at the specified index.
+     */
+    KUZU_API common::Value* getValue(common::idx_t idx);
+
+    /**
+     * @brief Access the value at the specified index by reference.
+     * @param idx The index of the value to access.
+     * @return A reference to the Value at the specified index.
+     */
+    KUZU_API common::Value& operator[](common::idx_t idx);
+
+    /**
+     * @brief Access the value at the specified index by const reference.
+     * @param idx The index of the value to access.
+     * @return A const reference to the Value at the specified index.
+     */
+    KUZU_API const common::Value& operator[](common::idx_t idx) const;
+
+    /**
+     * @brief Convert the FlatTuple to a string representation.
+     * @return A string representation of all values in the FlatTuple.
+     */
+    KUZU_API std::string toString() const;
+
+    /**
+     * @param colsWidth The length of each column
+     * @param delimiter The delimiter to separate each value.
+     * @param maxWidth The maximum length of each column. Only the first maxWidth number of
+     * characters of each column will be displayed.
+     * @return all values in string format.
+     */
+    KUZU_API std::string toString(const std::vector<uint32_t>& colsWidth,
+        const std::string& delimiter = "|", uint32_t maxWidth = -1);
+
+private:
+    std::vector<common::Value> values;
+};
+
+} // namespace processor
 } // namespace kuzu
 
 #include <optional>
@@ -6197,231 +5774,6 @@ struct KUZU_API ExtraScanTableFuncBindInput : ExtraTableFuncBindInput {
 } // namespace function
 } // namespace kuzu
 
-#include <string>
-
-namespace kuzu {
-namespace main {
-
-/**
- * @brief QueryResult stores the result of a query execution.
- */
-class QueryResult {
-    friend class Connection;
-    friend class ClientContext;
-    class QueryResultIterator {
-    private:
-        QueryResult* currentResult;
-
-    public:
-        QueryResultIterator() = default;
-
-        explicit QueryResultIterator(QueryResult* startResult) : currentResult(startResult) {}
-
-        void operator++() {
-            if (currentResult) {
-                currentResult = currentResult->nextQueryResult.get();
-            }
-        }
-
-        bool isEnd() const { return currentResult == nullptr; }
-
-        bool hasNextQueryResult() const { return currentResult->nextQueryResult != nullptr; }
-
-        QueryResult* getCurrentResult() const { return currentResult; }
-    };
-
-public:
-    /**
-     * @brief Used to create a QueryResult object for the failing query.
-     */
-    KUZU_API QueryResult();
-
-    explicit QueryResult(const PreparedSummary& preparedSummary);
-    /**
-     * @brief Deconstructs the QueryResult object.
-     */
-    KUZU_API ~QueryResult();
-    /**
-     * @return query is executed successfully or not.
-     */
-    KUZU_API bool isSuccess() const;
-    /**
-     * @return error message of the query execution if the query fails.
-     */
-    KUZU_API std::string getErrorMessage() const;
-    /**
-     * @return number of columns in query result.
-     */
-    KUZU_API size_t getNumColumns() const;
-    /**
-     * @return name of each column in query result.
-     */
-    KUZU_API std::vector<std::string> getColumnNames() const;
-    /**
-     * @return dataType of each column in query result.
-     */
-    KUZU_API std::vector<common::LogicalType> getColumnDataTypes() const;
-    /**
-     * @return num of tuples in query result.
-     */
-    KUZU_API uint64_t getNumTuples() const;
-    /**
-     * @return query summary which stores the execution time, compiling time, plan and query
-     * options.
-     */
-    KUZU_API QuerySummary* getQuerySummary() const;
-    /**
-     * @return whether there are more tuples to read.
-     */
-    KUZU_API bool hasNext() const;
-    /**
-     * @return whether there are more query results to read.
-     */
-    KUZU_API bool hasNextQueryResult() const;
-    /**
-     * @return get next query result to read (for multiple query statements).
-     */
-    KUZU_API QueryResult* getNextQueryResult();
-
-    std::unique_ptr<QueryResult> nextQueryResult;
-    /**
-     * @return next flat tuple in the query result. Note that to reduce resource allocation, all
-     * calls to getNext() reuse the same FlatTuple object. Since its contents will be overwritten,
-     * please complete processing a FlatTuple or make a copy of its data before calling getNext()
-     * again.
-     */
-    KUZU_API std::shared_ptr<processor::FlatTuple> getNext();
-    /**
-     * @return string of first query result.
-     */
-    KUZU_API std::string toString() const;
-
-    /**
-     * @brief Resets the result tuple iterator.
-     */
-    KUZU_API void resetIterator();
-
-    /**
-     * @brief Returns the arrow schema of the query result.
-     * @return datatypes of the columns as an arrow schema
-     *
-     * It is the caller's responsibility to call the release function to release the underlying data
-     * If converting to another arrow type, this this is usually handled automatically.
-     */
-    KUZU_API std::unique_ptr<ArrowSchema> getArrowSchema() const;
-
-    /**
-     * @brief Returns the next chunk of the query result as an arrow array.
-     * @param chunkSize number of tuples to return in the chunk.
-     * @return An arrow array representation of the next chunkSize tuples of the query result.
-     *
-     * The ArrowArray internally stores an arrow struct with fields for each of the columns.
-     * This can be converted to a RecordBatch with arrow's ImportRecordBatch function
-     *
-     * It is the caller's responsibility to call the release function to release the underlying data
-     * If converting to another arrow type, this this is usually handled automatically.
-     */
-    KUZU_API std::unique_ptr<ArrowArray> getNextArrowChunk(int64_t chunkSize);
-
-    processor::FactorizedTable* getTable() { return factorizedTable.get(); }
-
-    static std::unique_ptr<QueryResult> getQueryResultWithError(const std::string& errorMessage);
-
-private:
-    void setColumnHeader(std::vector<std::string> columnNames,
-        std::vector<common::LogicalType> columnTypes);
-    void initResultTableAndIterator(std::shared_ptr<processor::FactorizedTable> factorizedTable_);
-    void validateQuerySucceed() const;
-    std::pair<std::unique_ptr<processor::FlatTuple>, std::unique_ptr<processor::FlatTupleIterator>>
-    getIterator() const;
-    void checkDatabaseClosedOrThrow() const;
-
-private:
-    // execution status
-    bool success = true;
-    std::string errMsg;
-
-    // header information
-    std::vector<std::string> columnNames;
-    std::vector<common::LogicalType> columnDataTypes;
-    // data
-    std::shared_ptr<processor::FactorizedTable> factorizedTable;
-    std::unique_ptr<processor::FlatTupleIterator> iterator;
-    std::shared_ptr<processor::FlatTuple> tuple;
-
-    // execution statistics
-    std::unique_ptr<QuerySummary> querySummary;
-
-    // query iterator
-    QueryResultIterator queryResultIterator;
-
-    // database life cycle manager
-    std::shared_ptr<common::DatabaseLifeCycleManager> dbLifeCycleManager;
-};
-
-} // namespace main
-} // namespace kuzu
-
-#include <functional>
-#include <mutex>
-#include <vector>
-
-
-namespace kuzu {
-namespace common {
-class ValueVector;
-}
-namespace storage {
-class ColumnChunkData;
-}
-
-namespace processor {
-
-class SerialCSVReader;
-
-struct WarningInfo {
-    uint64_t queryID;
-    PopulatedCopyFromError warning;
-
-    WarningInfo(PopulatedCopyFromError warning, uint64_t queryID)
-        : queryID(queryID), warning(std::move(warning)) {}
-};
-
-using populate_func_t = std::function<PopulatedCopyFromError(CopyFromFileError, common::idx_t)>;
-using get_file_idx_func_t = std::function<common::idx_t(const CopyFromFileError&)>;
-
-class KUZU_API WarningContext {
-public:
-    explicit WarningContext(main::ClientConfig* clientConfig);
-
-    void appendWarningMessages(const std::vector<CopyFromFileError>& messages);
-
-    void populateWarnings(uint64_t queryID, populate_func_t populateFunc = {},
-        get_file_idx_func_t getFileIdxFunc = {});
-    void defaultPopulateAllWarnings(uint64_t queryID);
-
-    const std::vector<WarningInfo>& getPopulatedWarnings() const;
-    uint64_t getWarningCount(uint64_t queryID);
-    void clearPopulatedWarnings();
-
-    void setIgnoreErrorsForCurrentQuery(bool ignoreErrors);
-    // NOTE: this function only works if the logical operator is COPY FROM
-    // for other operators setIgnoreErrorsForCurrentQuery() is not called
-    bool getIgnoreErrorsOption() const;
-
-private:
-    std::mutex mtx;
-    main::ClientConfig* clientConfig;
-    std::vector<CopyFromFileError> unpopulatedWarnings;
-    std::vector<WarningInfo> populatedWarnings;
-    uint64_t queryWarningCount;
-    uint64_t numStoredWarnings;
-    bool ignoreErrorsOption;
-};
-
-} // namespace processor
-} // namespace kuzu
-
 #include <memory>
 #include <mutex>
 #include <vector>
@@ -6430,22 +5782,13 @@ private:
 #include <pthread/qos.h>
 #endif
 
+
 namespace kuzu {
 namespace common {
 class FileSystem;
-enum class LogicalTypeID : uint8_t;
 } // namespace common
 
-namespace catalog {
-class CatalogEntry;
-} // namespace catalog
-
-namespace function {
-struct Function;
-} // namespace function
-
 namespace extension {
-struct ExtensionUtils;
 class ExtensionManager;
 class TransformerExtension;
 class BinderExtension;
@@ -6458,9 +5801,7 @@ class StorageExtension;
 } // namespace storage
 
 namespace main {
-struct ExtensionOption;
 class DatabaseManager;
-
 /**
  * @brief Stores runtime configuration for creating or opening a Database
  */
@@ -6486,11 +5827,17 @@ struct KUZU_API SystemConfig {
      * @param checkpointThreshold The threshold of the WAL file size in bytes. When the size of the
      * WAL file exceeds this threshold, the database will checkpoint if autoCheckpoint is true.
      * @param forceCheckpointOnClose If true, the database will force checkpoint when closing.
+     * @param throwOnWalReplayFailure If true, any WAL replaying failure when loading the database
+     * will throw an error. Otherwise, Kuzu will silently ignore the failure and replay up to where
+     * the error occured.
+     * @param enableChecksums If true, the database will use checksums to detect corruption in the
+     * WAL file.
      */
     explicit SystemConfig(uint64_t bufferPoolSize = -1u, uint64_t maxNumThreads = 0,
         bool enableCompression = true, bool readOnly = false, uint64_t maxDBSize = -1u,
         bool autoCheckpoint = true, uint64_t checkpointThreshold = 16777216 /* 16MB */,
-        bool forceCheckpointOnClose = true
+        bool forceCheckpointOnClose = true, bool throwOnWalReplayFailure = true,
+        bool enableChecksums = true
 #if defined(__APPLE__)
         ,
         uint32_t threadQos = QOS_CLASS_DEFAULT
@@ -6505,6 +5852,8 @@ struct KUZU_API SystemConfig {
     bool autoCheckpoint;
     uint64_t checkpointThreshold;
     bool forceCheckpointOnClose;
+    bool throwOnWalReplayFailure;
+    bool enableChecksums;
 #if defined(__APPLE__)
     uint32_t threadQos;
 #endif
@@ -6517,11 +5866,7 @@ class Database {
     friend class EmbeddedShell;
     friend class ClientContext;
     friend class Connection;
-    friend class StorageDriver;
     friend class testing::BaseGraphTest;
-    friend class testing::PrivateGraphTest;
-    friend class transaction::TransactionContext;
-    friend struct extension::ExtensionUtils;
 
 public:
     /**
@@ -6572,6 +5917,20 @@ public:
 
     uint64_t getNextQueryID();
 
+    storage::StorageManager* getStorageManager() { return storageManager.get(); }
+
+    transaction::TransactionManager* getTransactionManager() { return transactionManager.get(); }
+
+    DatabaseManager* getDatabaseManager() { return databaseManager.get(); }
+
+    storage::MemoryManager* getMemoryManager() { return memoryManager.get(); }
+
+    processor::QueryProcessor* getQueryProcessor() { return queryProcessor.get(); }
+
+    extension::ExtensionManager* getExtensionManager() { return extensionManager.get(); }
+
+    common::VirtualFileSystem* getVFS() { return vfs.get(); }
+
 private:
     using construct_bm_func_t =
         std::function<std::unique_ptr<storage::BufferManager>(const Database&)>;
@@ -6582,7 +5941,7 @@ private:
     };
 
     static std::unique_ptr<storage::BufferManager> initBufferManager(const Database& db);
-    void initMembers(std::string_view dbPath, construct_bm_func_t initBmFunc = initBufferManager);
+    void initMembers(std::string_view dbPath, construct_bm_func_t initBmFunc);
 
     // factory method only to be used for tests
     Database(std::string_view databasePath, SystemConfig systemConfig,
@@ -6680,6 +6039,319 @@ public:
     std::vector<std::shared_ptr<ValueVector>> valueVectors;
     std::shared_ptr<DataChunkState> state;
 };
+
+} // namespace common
+} // namespace kuzu
+
+#include <type_traits>
+
+
+namespace kuzu {
+namespace common {
+
+class ValueVector;
+
+template<class... Funcs>
+struct overload : Funcs... {
+    explicit overload(Funcs... funcs) : Funcs(funcs)... {}
+    using Funcs::operator()...;
+};
+
+class TypeUtils {
+public:
+    template<typename Func, typename... Types, size_t... indices>
+    static void paramPackForEachHelper(const Func& func, std::index_sequence<indices...>,
+        Types&&... values) {
+        ((func(indices, values)), ...);
+    }
+
+    template<typename Func, typename... Types>
+    static void paramPackForEach(const Func& func, Types&&... values) {
+        paramPackForEachHelper(func, std::index_sequence_for<Types...>(),
+            std::forward<Types>(values)...);
+    }
+
+    static std::string entryToString(const LogicalType& dataType, const uint8_t* value,
+        ValueVector* vector);
+
+    template<typename T>
+    static inline std::string toString(const T& val, void* /*valueVector*/ = nullptr) {
+        if constexpr (std::is_same_v<T, std::string>) {
+            return val;
+        } else if constexpr (std::is_same_v<T, ku_string_t>) {
+            return val.getAsString();
+        } else {
+            static_assert(std::is_same<T, int64_t>::value || std::is_same<T, int32_t>::value ||
+                          std::is_same<T, int16_t>::value || std::is_same<T, int8_t>::value ||
+                          std::is_same<T, uint64_t>::value || std::is_same<T, uint32_t>::value ||
+                          std::is_same<T, uint16_t>::value || std::is_same<T, uint8_t>::value ||
+                          std::is_same<T, double>::value || std::is_same<T, float>::value);
+            return std::to_string(val);
+        }
+    }
+    static std::string nodeToString(const struct_entry_t& val, ValueVector* vector);
+    static std::string relToString(const struct_entry_t& val, ValueVector* vector);
+
+    static inline void encodeOverflowPtr(uint64_t& overflowPtr, page_idx_t pageIdx,
+        uint32_t pageOffset) {
+        memcpy(&overflowPtr, &pageIdx, 4);
+        memcpy(((uint8_t*)&overflowPtr) + 4, &pageOffset, 4);
+    }
+    static inline void decodeOverflowPtr(uint64_t overflowPtr, page_idx_t& pageIdx,
+        uint32_t& pageOffset) {
+        pageIdx = 0;
+        memcpy(&pageIdx, &overflowPtr, 4);
+        memcpy(&pageOffset, ((uint8_t*)&overflowPtr) + 4, 4);
+    }
+
+    template<typename T>
+    static inline constexpr common::PhysicalTypeID getPhysicalTypeIDForType() {
+        if constexpr (std::is_same_v<T, int64_t>) {
+            return common::PhysicalTypeID::INT64;
+        } else if constexpr (std::is_same_v<T, int32_t>) {
+            return common::PhysicalTypeID::INT32;
+        } else if constexpr (std::is_same_v<T, int16_t>) {
+            return common::PhysicalTypeID::INT16;
+        } else if constexpr (std::is_same_v<T, int8_t>) {
+            return common::PhysicalTypeID::INT8;
+        } else if constexpr (std::is_same_v<T, uint64_t>) {
+            return common::PhysicalTypeID::UINT64;
+        } else if constexpr (std::is_same_v<T, uint32_t>) {
+            return common::PhysicalTypeID::UINT32;
+        } else if constexpr (std::is_same_v<T, uint16_t>) {
+            return common::PhysicalTypeID::UINT16;
+        } else if constexpr (std::is_same_v<T, uint8_t>) {
+            return common::PhysicalTypeID::UINT8;
+        } else if constexpr (std::is_same_v<T, float>) {
+            return common::PhysicalTypeID::FLOAT;
+        } else if constexpr (std::is_same_v<T, double>) {
+            return common::PhysicalTypeID::DOUBLE;
+        } else if constexpr (std::is_same_v<T, int128_t>) {
+            return common::PhysicalTypeID::INT128;
+        } else if constexpr (std::is_same_v<T, interval_t>) {
+            return common::PhysicalTypeID::INTERVAL;
+        } else if constexpr (std::same_as<T, ku_string_t> || std::same_as<T, std::string> ||
+                             std::same_as<T, std::string_view>) {
+            return common::PhysicalTypeID::STRING;
+        } else {
+            KU_UNREACHABLE;
+        }
+    }
+
+    /*
+     * TypeUtils::visit can be used to call generic code on all or some Logical and Physical type
+     * variants with access to type information.
+     *
+     * E.g.
+     *
+     *  std::string result;
+     *  visit(dataType, [&]<typename T>(T) {
+     *      if constexpr(std::is_same_v<T, ku_string_t>()) {
+     *          result = vector->getValue<ku_string_t>(0).getAsString();
+     *      } else if (std::integral<T>) {
+     *          result = std::to_string(vector->getValue<T>(0));
+     *      } else {
+     *          KU_UNREACHABLE;
+     *      }
+     *  });
+     *
+     * or
+     *  std::string result;
+     *  visit(dataType,
+     *      [&](ku_string_t) {
+     *          result = vector->getValue<ku_string_t>(0);
+     *      },
+     *      [&]<std::integral T>(T) {
+     *          result = std::to_string(vector->getValue<T>(0));
+     *      },
+     *      [](auto) { KU_UNREACHABLE; }
+     *  );
+     *
+     * Note that when multiple functions are provided, at least one function must match all data
+     * types.
+     *
+     * Also note that implicit conversions may occur with the multi-function variant
+     * if you don't include a generic auto function to cover types which aren't explicitly included.
+     * See https://en.cppreference.com/w/cpp/utility/variant/visit
+     */
+    template<typename... Fs>
+    static inline auto visit(const LogicalType& dataType, Fs... funcs) {
+        // Note: arguments are used only for type deduction and have no meaningful value.
+        // They should be optimized out by the compiler
+        auto func = overload(funcs...);
+        switch (dataType.getLogicalTypeID()) {
+        /* NOLINTBEGIN(bugprone-branch-clone)*/
+        case LogicalTypeID::INT8:
+            return func(int8_t());
+        case LogicalTypeID::UINT8:
+            return func(uint8_t());
+        case LogicalTypeID::INT16:
+            return func(int16_t());
+        case LogicalTypeID::UINT16:
+            return func(uint16_t());
+        case LogicalTypeID::INT32:
+            return func(int32_t());
+        case LogicalTypeID::UINT32:
+            return func(uint32_t());
+        case LogicalTypeID::SERIAL:
+        case LogicalTypeID::INT64:
+            return func(int64_t());
+        case LogicalTypeID::UINT64:
+            return func(uint64_t());
+        case LogicalTypeID::BOOL:
+            return func(bool());
+        case LogicalTypeID::INT128:
+            return func(int128_t());
+        case LogicalTypeID::DOUBLE:
+            return func(double());
+        case LogicalTypeID::FLOAT:
+            return func(float());
+        case LogicalTypeID::DECIMAL:
+            switch (dataType.getPhysicalType()) {
+            case PhysicalTypeID::INT16:
+                return func(int16_t());
+            case PhysicalTypeID::INT32:
+                return func(int32_t());
+            case PhysicalTypeID::INT64:
+                return func(int64_t());
+            case PhysicalTypeID::INT128:
+                return func(int128_t());
+            default:
+                KU_UNREACHABLE;
+            }
+        case LogicalTypeID::INTERVAL:
+            return func(interval_t());
+        case LogicalTypeID::INTERNAL_ID:
+            return func(internalID_t());
+        case LogicalTypeID::STRING:
+            return func(ku_string_t());
+        case LogicalTypeID::DATE:
+            return func(date_t());
+        case LogicalTypeID::TIMESTAMP_NS:
+            return func(timestamp_ns_t());
+        case LogicalTypeID::TIMESTAMP_MS:
+            return func(timestamp_ms_t());
+        case LogicalTypeID::TIMESTAMP_SEC:
+            return func(timestamp_sec_t());
+        case LogicalTypeID::TIMESTAMP_TZ:
+            return func(timestamp_tz_t());
+        case LogicalTypeID::TIMESTAMP:
+            return func(timestamp_t());
+        case LogicalTypeID::BLOB:
+            return func(blob_t());
+        case LogicalTypeID::UUID:
+            return func(ku_uuid_t());
+        case LogicalTypeID::ARRAY:
+        case LogicalTypeID::LIST:
+            return func(list_entry_t());
+        case LogicalTypeID::MAP:
+            return func(map_entry_t());
+        case LogicalTypeID::NODE:
+        case LogicalTypeID::REL:
+        case LogicalTypeID::RECURSIVE_REL:
+        case LogicalTypeID::STRUCT:
+            return func(struct_entry_t());
+        case LogicalTypeID::UNION:
+            return func(union_entry_t());
+        /* NOLINTEND(bugprone-branch-clone)*/
+        default:
+            // Unsupported type
+            KU_UNREACHABLE;
+        }
+    }
+
+    template<typename... Fs>
+    static inline auto visit(PhysicalTypeID dataType, Fs&&... funcs) {
+        // Note: arguments are used only for type deduction and have no meaningful value.
+        // They should be optimized out by the compiler
+        auto func = overload(funcs...);
+        switch (dataType) {
+        /* NOLINTBEGIN(bugprone-branch-clone)*/
+        case PhysicalTypeID::INT8:
+            return func(int8_t());
+        case PhysicalTypeID::UINT8:
+            return func(uint8_t());
+        case PhysicalTypeID::INT16:
+            return func(int16_t());
+        case PhysicalTypeID::UINT16:
+            return func(uint16_t());
+        case PhysicalTypeID::INT32:
+            return func(int32_t());
+        case PhysicalTypeID::UINT32:
+            return func(uint32_t());
+        case PhysicalTypeID::INT64:
+            return func(int64_t());
+        case PhysicalTypeID::UINT64:
+            return func(uint64_t());
+        case PhysicalTypeID::BOOL:
+            return func(bool());
+        case PhysicalTypeID::INT128:
+            return func(int128_t());
+        case PhysicalTypeID::DOUBLE:
+            return func(double());
+        case PhysicalTypeID::FLOAT:
+            return func(float());
+        case PhysicalTypeID::INTERVAL:
+            return func(interval_t());
+        case PhysicalTypeID::INTERNAL_ID:
+            return func(internalID_t());
+        case PhysicalTypeID::STRING:
+            return func(ku_string_t());
+        case PhysicalTypeID::ARRAY:
+        case PhysicalTypeID::LIST:
+            return func(list_entry_t());
+        case PhysicalTypeID::STRUCT:
+            return func(struct_entry_t());
+        /* NOLINTEND(bugprone-branch-clone)*/
+        case PhysicalTypeID::ANY:
+        case PhysicalTypeID::POINTER:
+        case PhysicalTypeID::ALP_EXCEPTION_DOUBLE:
+        case PhysicalTypeID::ALP_EXCEPTION_FLOAT:
+            // Unsupported type
+            KU_UNREACHABLE;
+            // Needed for return type deduction to work
+            return func(uint8_t());
+        default:
+            KU_UNREACHABLE;
+        }
+    }
+};
+
+// Forward declaration of template specializations.
+template<>
+std::string TypeUtils::toString(const int128_t& val, void* valueVector);
+template<>
+std::string TypeUtils::toString(const bool& val, void* valueVector);
+template<>
+std::string TypeUtils::toString(const internalID_t& val, void* valueVector);
+template<>
+std::string TypeUtils::toString(const date_t& val, void* valueVector);
+template<>
+std::string TypeUtils::toString(const timestamp_ns_t& val, void* valueVector);
+template<>
+std::string TypeUtils::toString(const timestamp_ms_t& val, void* valueVector);
+template<>
+std::string TypeUtils::toString(const timestamp_sec_t& val, void* valueVector);
+template<>
+std::string TypeUtils::toString(const timestamp_tz_t& val, void* valueVector);
+template<>
+std::string TypeUtils::toString(const timestamp_t& val, void* valueVector);
+template<>
+std::string TypeUtils::toString(const interval_t& val, void* valueVector);
+template<>
+std::string TypeUtils::toString(const ku_string_t& val, void* valueVector);
+template<>
+std::string TypeUtils::toString(const blob_t& val, void* valueVector);
+template<>
+std::string TypeUtils::toString(const ku_uuid_t& val, void* valueVector);
+template<>
+std::string TypeUtils::toString(const list_entry_t& val, void* valueVector);
+template<>
+std::string TypeUtils::toString(const map_entry_t& val, void* valueVector);
+template<>
+std::string TypeUtils::toString(const struct_entry_t& val, void* valueVector);
+template<>
+std::string TypeUtils::toString(const union_entry_t& val, void* valueVector);
 
 } // namespace common
 } // namespace kuzu
@@ -7131,8 +6803,8 @@ struct TernaryFunctionExecutor {
         typename OP_WRAPPER>
     static void executeFlatFlatUnflat(common::ValueVector& a, common::SelectionVector* aSelVector,
         common::ValueVector& b, common::SelectionVector* bSelVector, common::ValueVector& c,
-        common::SelectionVector* cSelVector, common::ValueVector& result, common::SelectionVector*,
-        void* dataPtr) {
+        common::SelectionVector* cSelVector, common::ValueVector& result,
+        common::SelectionVector* resultSelVector, void* dataPtr) {
         auto aPos = (*aSelVector)[0];
         auto bPos = (*bSelVector)[0];
         if (a.isNull(aPos) || b.isNull(bPos)) {
@@ -7140,14 +6812,16 @@ struct TernaryFunctionExecutor {
         } else if (c.hasNoNullsGuarantee()) {
             if (cSelVector->isUnfiltered()) {
                 for (auto i = 0u; i < cSelVector->getSelSize(); ++i) {
+                    auto rPos = (*resultSelVector)[i];
                     executeOnValue<A_TYPE, B_TYPE, C_TYPE, RESULT_TYPE, FUNC, OP_WRAPPER>(a, b, c,
-                        result, aPos, bPos, i, i, dataPtr);
+                        result, aPos, bPos, i, rPos, dataPtr);
                 }
             } else {
                 for (auto i = 0u; i < cSelVector->getSelSize(); ++i) {
                     auto pos = (*cSelVector)[i];
+                    auto rPos = (*resultSelVector)[i];
                     executeOnValue<A_TYPE, B_TYPE, C_TYPE, RESULT_TYPE, FUNC, OP_WRAPPER>(a, b, c,
-                        result, aPos, bPos, pos, pos, dataPtr);
+                        result, aPos, bPos, pos, rPos, dataPtr);
                 }
             }
         } else {
@@ -7155,8 +6829,9 @@ struct TernaryFunctionExecutor {
                 for (auto i = 0u; i < cSelVector->getSelSize(); ++i) {
                     result.setNull(i, c.isNull(i));
                     if (!result.isNull(i)) {
+                        auto rPos = (*resultSelVector)[i];
                         executeOnValue<A_TYPE, B_TYPE, C_TYPE, RESULT_TYPE, FUNC, OP_WRAPPER>(a, b,
-                            c, result, aPos, bPos, i, i, dataPtr);
+                            c, result, aPos, bPos, i, rPos, dataPtr);
                     }
                 }
             } else {
@@ -7164,8 +6839,9 @@ struct TernaryFunctionExecutor {
                     auto pos = (*cSelVector)[i];
                     result.setNull(pos, c.isNull(pos));
                     if (!result.isNull(pos)) {
+                        auto rPos = (*resultSelVector)[i];
                         executeOnValue<A_TYPE, B_TYPE, C_TYPE, RESULT_TYPE, FUNC, OP_WRAPPER>(a, b,
-                            c, result, aPos, bPos, pos, pos, dataPtr);
+                            c, result, aPos, bPos, pos, rPos, dataPtr);
                     }
                 }
             }
@@ -7177,7 +6853,7 @@ struct TernaryFunctionExecutor {
     static void executeFlatUnflatUnflat(common::ValueVector& a, common::SelectionVector* aSelVector,
         common::ValueVector& b, common::SelectionVector* bSelVector, common::ValueVector& c,
         [[maybe_unused]] common::SelectionVector* cSelVector, common::ValueVector& result,
-        common::SelectionVector*, void* dataPtr) {
+        common::SelectionVector* resultSelVector, void* dataPtr) {
         KU_ASSERT(bSelVector == cSelVector);
         auto aPos = (*aSelVector)[0];
         if (a.isNull(aPos)) {
@@ -7191,8 +6867,9 @@ struct TernaryFunctionExecutor {
             } else {
                 for (auto i = 0u; i < bSelVector->getSelSize(); ++i) {
                     auto pos = (*bSelVector)[i];
+                    auto rPos = (*resultSelVector)[i];
                     executeOnValue<A_TYPE, B_TYPE, C_TYPE, RESULT_TYPE, FUNC, OP_WRAPPER>(a, b, c,
-                        result, aPos, pos, pos, pos, dataPtr);
+                        result, aPos, pos, pos, rPos, dataPtr);
                 }
             }
         } else {
@@ -7200,8 +6877,9 @@ struct TernaryFunctionExecutor {
                 for (auto i = 0u; i < bSelVector->getSelSize(); ++i) {
                     result.setNull(i, b.isNull(i) || c.isNull(i));
                     if (!result.isNull(i)) {
+                        auto rPos = (*resultSelVector)[i];
                         executeOnValue<A_TYPE, B_TYPE, C_TYPE, RESULT_TYPE, FUNC, OP_WRAPPER>(a, b,
-                            c, result, aPos, i, i, i, dataPtr);
+                            c, result, aPos, i, i, rPos, dataPtr);
                     }
                 }
             } else {
@@ -7209,8 +6887,9 @@ struct TernaryFunctionExecutor {
                     auto pos = (*bSelVector)[i];
                     result.setNull(pos, b.isNull(pos) || c.isNull(pos));
                     if (!result.isNull(pos)) {
+                        auto rPos = (*resultSelVector)[i];
                         executeOnValue<A_TYPE, B_TYPE, C_TYPE, RESULT_TYPE, FUNC, OP_WRAPPER>(a, b,
-                            c, result, aPos, pos, pos, pos, dataPtr);
+                            c, result, aPos, pos, pos, rPos, dataPtr);
                     }
                 }
             }
@@ -7221,8 +6900,8 @@ struct TernaryFunctionExecutor {
         typename OP_WRAPPER>
     static void executeFlatUnflatFlat(common::ValueVector& a, common::SelectionVector* aSelVector,
         common::ValueVector& b, common::SelectionVector* bSelVector, common::ValueVector& c,
-        common::SelectionVector* cSelVector, common::ValueVector& result, common::SelectionVector*,
-        void* dataPtr) {
+        common::SelectionVector* cSelVector, common::ValueVector& result,
+        common::SelectionVector* resultSelVector, void* dataPtr) {
         auto aPos = (*aSelVector)[0];
         auto cPos = (*cSelVector)[0];
         if (a.isNull(aPos) || c.isNull(cPos)) {
@@ -7230,14 +6909,16 @@ struct TernaryFunctionExecutor {
         } else if (b.hasNoNullsGuarantee()) {
             if (bSelVector->isUnfiltered()) {
                 for (auto i = 0u; i < bSelVector->getSelSize(); ++i) {
+                    auto rPos = (*resultSelVector)[i];
                     executeOnValue<A_TYPE, B_TYPE, C_TYPE, RESULT_TYPE, FUNC, OP_WRAPPER>(a, b, c,
-                        result, aPos, i, cPos, i, dataPtr);
+                        result, aPos, i, cPos, rPos, dataPtr);
                 }
             } else {
                 for (auto i = 0u; i < bSelVector->getSelSize(); ++i) {
                     auto pos = (*bSelVector)[i];
+                    auto rPos = (*resultSelVector)[i];
                     executeOnValue<A_TYPE, B_TYPE, C_TYPE, RESULT_TYPE, FUNC, OP_WRAPPER>(a, b, c,
-                        result, aPos, pos, cPos, pos, dataPtr);
+                        result, aPos, pos, cPos, rPos, dataPtr);
                 }
             }
         } else {
@@ -7245,8 +6926,9 @@ struct TernaryFunctionExecutor {
                 for (auto i = 0u; i < bSelVector->getSelSize(); ++i) {
                     result.setNull(i, b.isNull(i));
                     if (!result.isNull(i)) {
+                        auto rPos = (*resultSelVector)[i];
                         executeOnValue<A_TYPE, B_TYPE, C_TYPE, RESULT_TYPE, FUNC, OP_WRAPPER>(a, b,
-                            c, result, aPos, i, cPos, i, dataPtr);
+                            c, result, aPos, i, cPos, rPos, dataPtr);
                     }
                 }
             } else {
@@ -7254,8 +6936,9 @@ struct TernaryFunctionExecutor {
                     auto pos = (*bSelVector)[i];
                     result.setNull(pos, b.isNull(pos));
                     if (!result.isNull(pos)) {
+                        auto rPos = (*resultSelVector)[i];
                         executeOnValue<A_TYPE, B_TYPE, C_TYPE, RESULT_TYPE, FUNC, OP_WRAPPER>(a, b,
-                            c, result, aPos, pos, cPos, pos, dataPtr);
+                            c, result, aPos, pos, cPos, rPos, dataPtr);
                     }
                 }
             }
@@ -7267,19 +6950,21 @@ struct TernaryFunctionExecutor {
     static void executeAllUnFlat(common::ValueVector& a, common::SelectionVector* aSelVector,
         common::ValueVector& b, [[maybe_unused]] common::SelectionVector* bSelVector,
         common::ValueVector& c, [[maybe_unused]] common::SelectionVector* cSelVector,
-        common::ValueVector& result, common::SelectionVector*, void* dataPtr) {
+        common::ValueVector& result, common::SelectionVector* resultSelVector, void* dataPtr) {
         KU_ASSERT(aSelVector == bSelVector && bSelVector == cSelVector);
         if (a.hasNoNullsGuarantee() && b.hasNoNullsGuarantee() && c.hasNoNullsGuarantee()) {
             if (aSelVector->isUnfiltered()) {
                 for (uint64_t i = 0; i < aSelVector->getSelSize(); i++) {
+                    auto rPos = (*resultSelVector)[i];
                     executeOnValue<A_TYPE, B_TYPE, C_TYPE, RESULT_TYPE, FUNC, OP_WRAPPER>(a, b, c,
-                        result, i, i, i, i, dataPtr);
+                        result, i, i, i, rPos, dataPtr);
                 }
             } else {
                 for (uint64_t i = 0; i < aSelVector->getSelSize(); i++) {
                     auto pos = (*aSelVector)[i];
+                    auto rPos = (*resultSelVector)[i];
                     executeOnValue<A_TYPE, B_TYPE, C_TYPE, RESULT_TYPE, FUNC, OP_WRAPPER>(a, b, c,
-                        result, pos, pos, pos, pos, dataPtr);
+                        result, pos, pos, pos, rPos, dataPtr);
                 }
             }
         } else {
@@ -7287,8 +6972,9 @@ struct TernaryFunctionExecutor {
                 for (uint64_t i = 0; i < aSelVector->getSelSize(); i++) {
                     result.setNull(i, a.isNull(i) || b.isNull(i) || c.isNull(i));
                     if (!result.isNull(i)) {
+                        auto rPos = (*resultSelVector)[i];
                         executeOnValue<A_TYPE, B_TYPE, C_TYPE, RESULT_TYPE, FUNC, OP_WRAPPER>(a, b,
-                            c, result, i, i, i, i, dataPtr);
+                            c, result, i, i, i, rPos, dataPtr);
                     }
                 }
             } else {
@@ -7296,8 +6982,9 @@ struct TernaryFunctionExecutor {
                     auto pos = (*aSelVector)[i];
                     result.setNull(pos, a.isNull(pos) || b.isNull(pos) || c.isNull(pos));
                     if (!result.isNull(pos)) {
+                        auto rPos = (*resultSelVector)[i];
                         executeOnValue<A_TYPE, B_TYPE, C_TYPE, RESULT_TYPE, FUNC, OP_WRAPPER>(a, b,
-                            c, result, pos, pos, pos, pos, dataPtr);
+                            c, result, pos, pos, pos, rPos, dataPtr);
                     }
                 }
             }
@@ -7308,8 +6995,8 @@ struct TernaryFunctionExecutor {
         typename OP_WRAPPER>
     static void executeUnflatFlatFlat(common::ValueVector& a, common::SelectionVector* aSelVector,
         common::ValueVector& b, common::SelectionVector* bSelVector, common::ValueVector& c,
-        common::SelectionVector* cSelVector, common::ValueVector& result, common::SelectionVector*,
-        void* dataPtr) {
+        common::SelectionVector* cSelVector, common::ValueVector& result,
+        common::SelectionVector* resultSelVector, void* dataPtr) {
         auto bPos = (*bSelVector)[0];
         auto cPos = (*cSelVector)[0];
         if (b.isNull(bPos) || c.isNull(cPos)) {
@@ -7317,14 +7004,16 @@ struct TernaryFunctionExecutor {
         } else if (a.hasNoNullsGuarantee()) {
             if (aSelVector->isUnfiltered()) {
                 for (auto i = 0u; i < aSelVector->getSelSize(); ++i) {
+                    auto rPos = (*resultSelVector)[i];
                     executeOnValue<A_TYPE, B_TYPE, C_TYPE, RESULT_TYPE, FUNC, OP_WRAPPER>(a, b, c,
-                        result, i, bPos, cPos, i, dataPtr);
+                        result, i, bPos, cPos, rPos, dataPtr);
                 }
             } else {
                 for (auto i = 0u; i < aSelVector->getSelSize(); ++i) {
                     auto pos = (*aSelVector)[i];
+                    auto rPos = (*resultSelVector)[i];
                     executeOnValue<A_TYPE, B_TYPE, C_TYPE, RESULT_TYPE, FUNC, OP_WRAPPER>(a, b, c,
-                        result, pos, bPos, cPos, pos, dataPtr);
+                        result, pos, bPos, cPos, rPos, dataPtr);
                 }
             }
         } else {
@@ -7332,8 +7021,9 @@ struct TernaryFunctionExecutor {
                 for (auto i = 0u; i < aSelVector->getSelSize(); ++i) {
                     result.setNull(i, a.isNull(i));
                     if (!result.isNull(i)) {
+                        auto rPos = (*resultSelVector)[i];
                         executeOnValue<A_TYPE, B_TYPE, C_TYPE, RESULT_TYPE, FUNC, OP_WRAPPER>(a, b,
-                            c, result, i, bPos, cPos, i, dataPtr);
+                            c, result, i, bPos, cPos, rPos, dataPtr);
                     }
                 }
             } else {
@@ -7341,8 +7031,9 @@ struct TernaryFunctionExecutor {
                     auto pos = (*aSelVector)[i];
                     result.setNull(pos, a.isNull(pos));
                     if (!result.isNull(pos)) {
+                        auto rPos = (*resultSelVector)[i];
                         executeOnValue<A_TYPE, B_TYPE, C_TYPE, RESULT_TYPE, FUNC, OP_WRAPPER>(a, b,
-                            c, result, pos, bPos, cPos, pos, dataPtr);
+                            c, result, pos, bPos, cPos, rPos, dataPtr);
                     }
                 }
             }
@@ -7354,7 +7045,7 @@ struct TernaryFunctionExecutor {
     static void executeUnflatFlatUnflat(common::ValueVector& a, common::SelectionVector* aSelVector,
         common::ValueVector& b, common::SelectionVector* bSelVector, common::ValueVector& c,
         [[maybe_unused]] common::SelectionVector* cSelVector, common::ValueVector& result,
-        common::SelectionVector*, void* dataPtr) {
+        common::SelectionVector* resultSelVector, void* dataPtr) {
         KU_ASSERT(aSelVector == cSelVector);
         auto bPos = (*bSelVector)[0];
         if (b.isNull(bPos)) {
@@ -7362,14 +7053,16 @@ struct TernaryFunctionExecutor {
         } else if (a.hasNoNullsGuarantee() && c.hasNoNullsGuarantee()) {
             if (aSelVector->isUnfiltered()) {
                 for (auto i = 0u; i < aSelVector->getSelSize(); ++i) {
+                    auto rPos = (*resultSelVector)[i];
                     executeOnValue<A_TYPE, B_TYPE, C_TYPE, RESULT_TYPE, FUNC, OP_WRAPPER>(a, b, c,
-                        result, i, bPos, i, i, dataPtr);
+                        result, i, bPos, i, rPos, dataPtr);
                 }
             } else {
                 for (auto i = 0u; i < aSelVector->getSelSize(); ++i) {
                     auto pos = (*aSelVector)[i];
+                    auto rPos = (*resultSelVector)[i];
                     executeOnValue<A_TYPE, B_TYPE, C_TYPE, RESULT_TYPE, FUNC, OP_WRAPPER>(a, b, c,
-                        result, pos, bPos, pos, pos, dataPtr);
+                        result, pos, bPos, pos, rPos, dataPtr);
                 }
             }
         } else {
@@ -7377,8 +7070,9 @@ struct TernaryFunctionExecutor {
                 for (auto i = 0u; i < aSelVector->getSelSize(); ++i) {
                     result.setNull(i, a.isNull(i) || c.isNull(i));
                     if (!result.isNull(i)) {
+                        auto rPos = (*resultSelVector)[i];
                         executeOnValue<A_TYPE, B_TYPE, C_TYPE, RESULT_TYPE, FUNC, OP_WRAPPER>(a, b,
-                            c, result, i, bPos, i, i, dataPtr);
+                            c, result, i, bPos, i, rPos, dataPtr);
                     }
                 }
             } else {
@@ -7386,8 +7080,9 @@ struct TernaryFunctionExecutor {
                     auto pos = (*bSelVector)[i];
                     result.setNull(pos, a.isNull(pos) || c.isNull(pos));
                     if (!result.isNull(pos)) {
+                        auto rPos = (*resultSelVector)[i];
                         executeOnValue<A_TYPE, B_TYPE, C_TYPE, RESULT_TYPE, FUNC, OP_WRAPPER>(a, b,
-                            c, result, pos, bPos, pos, pos, dataPtr);
+                            c, result, pos, bPos, pos, rPos, dataPtr);
                     }
                 }
             }
@@ -7399,7 +7094,7 @@ struct TernaryFunctionExecutor {
     static void executeUnflatUnFlatFlat(common::ValueVector& a, common::SelectionVector* aSelVector,
         common::ValueVector& b, [[maybe_unused]] common::SelectionVector* bSelVector,
         common::ValueVector& c, common::SelectionVector* cSelVector, common::ValueVector& result,
-        common::SelectionVector*, void* dataPtr) {
+        common::SelectionVector* resultSelVector, void* dataPtr) {
         KU_ASSERT(aSelVector == bSelVector);
         auto cPos = (*cSelVector)[0];
         if (c.isNull(cPos)) {
@@ -7407,14 +7102,16 @@ struct TernaryFunctionExecutor {
         } else if (a.hasNoNullsGuarantee() && b.hasNoNullsGuarantee()) {
             if (aSelVector->isUnfiltered()) {
                 for (auto i = 0u; i < aSelVector->getSelSize(); ++i) {
+                    auto rPos = (*resultSelVector)[i];
                     executeOnValue<A_TYPE, B_TYPE, C_TYPE, RESULT_TYPE, FUNC, OP_WRAPPER>(a, b, c,
-                        result, i, i, cPos, i, dataPtr);
+                        result, i, i, cPos, rPos, dataPtr);
                 }
             } else {
                 for (auto i = 0u; i < aSelVector->getSelSize(); ++i) {
                     auto pos = (*aSelVector)[i];
+                    auto rPos = (*resultSelVector)[i];
                     executeOnValue<A_TYPE, B_TYPE, C_TYPE, RESULT_TYPE, FUNC, OP_WRAPPER>(a, b, c,
-                        result, pos, pos, cPos, pos, dataPtr);
+                        result, pos, pos, cPos, rPos, dataPtr);
                 }
             }
         } else {
@@ -7422,8 +7119,9 @@ struct TernaryFunctionExecutor {
                 for (auto i = 0u; i < aSelVector->getSelSize(); ++i) {
                     result.setNull(i, a.isNull(i) || b.isNull(i));
                     if (!result.isNull(i)) {
+                        auto rPos = (*resultSelVector)[i];
                         executeOnValue<A_TYPE, B_TYPE, C_TYPE, RESULT_TYPE, FUNC, OP_WRAPPER>(a, b,
-                            c, result, i, i, cPos, i, dataPtr);
+                            c, result, i, i, cPos, rPos, dataPtr);
                     }
                 }
             } else {
@@ -7431,8 +7129,9 @@ struct TernaryFunctionExecutor {
                     auto pos = (*aSelVector)[i];
                     result.setNull(pos, a.isNull(pos) || b.isNull(pos));
                     if (!result.isNull(pos)) {
+                        auto rPos = (*resultSelVector)[i];
                         executeOnValue<A_TYPE, B_TYPE, C_TYPE, RESULT_TYPE, FUNC, OP_WRAPPER>(a, b,
-                            c, result, pos, pos, cPos, pos, dataPtr);
+                            c, result, pos, pos, cPos, rPos, dataPtr);
                     }
                 }
             }
@@ -7553,15 +7252,6 @@ struct UnaryStringFunctionWrapper {
     }
 };
 
-struct UnaryStructFunctionWrapper {
-    template<typename OPERAND_TYPE, typename RESULT_TYPE, typename FUNC>
-    static void operation(void* /*inputVector*/, uint64_t /*inputPos*/, void* resultVector,
-        uint64_t resultPos, void* dataPtr) {
-        auto& resultVector_ = *(common::ValueVector*)resultVector;
-        FUNC::operation(resultVector_.getValue<RESULT_TYPE>(resultPos), resultVector_, dataPtr);
-    }
-};
-
 struct UnaryCastStringFunctionWrapper {
     template<typename OPERAND_TYPE, typename RESULT_TYPE, typename FUNC>
     static void operation(void* inputVector, uint64_t inputPos, void* resultVector,
@@ -7584,6 +7274,17 @@ struct UnaryNestedTypeFunctionWrapper {
         auto& resultVector_ = *(common::ValueVector*)resultVector;
         FUNC::operation(inputVector_.getValue<OPERAND_TYPE>(inputPos),
             resultVector_.getValue<RESULT_TYPE>(resultPos), inputVector_, resultVector_);
+    }
+};
+
+struct SetSeedFunctionWrapper {
+    template<typename OPERAND_TYPE, typename RESULT_TYPE, typename FUNC>
+    static inline void operation(void* inputVector, uint64_t inputPos, void* resultVector,
+        uint64_t resultPos, void* dataPtr) {
+        auto& inputVector_ = *(common::ValueVector*)inputVector;
+        auto& resultVector_ = *(common::ValueVector*)resultVector;
+        resultVector_.setNull(resultPos, true /* isNull */);
+        FUNC::operation(inputVector_.getValue<OPERAND_TYPE>(inputPos), dataPtr);
     }
 };
 
@@ -7746,6 +7447,115 @@ public:
 } // namespace processor
 } // namespace kuzu
 
+#include <string>
+#include <variant>
+#include <vector>
+
+
+namespace kuzu {
+namespace common {
+class ValueVector;
+}
+namespace storage {
+class ColumnChunkData;
+}
+
+namespace processor {
+
+template<typename T>
+concept DataSource =
+    std::same_as<storage::ColumnChunkData, T> || std::same_as<common::ValueVector, T>;
+
+struct KUZU_API WarningSourceData {
+    // we should stick to integral types here as each value essentially adds a column to the output
+    // when reading from a file
+    using DataType = std::variant<uint64_t, uint32_t>;
+
+    static constexpr size_t BLOCK_IDX_IDX = 0;
+    static constexpr size_t OFFSET_IN_BLOCK_IDX = 1;
+    static constexpr size_t NUM_BLOCK_VALUES = 2;
+
+    WarningSourceData() : WarningSourceData(0) {}
+    explicit WarningSourceData(uint64_t numSourceSpecificValues);
+
+    template<std::integral... Types>
+    void dumpTo(uint64_t& blockIdx, uint32_t& offsetInBlock, Types&... vars) const;
+
+    template<std::integral... Types>
+    static WarningSourceData constructFrom(uint64_t blockIdx, uint32_t offsetInBlock,
+        Types... newValues);
+
+    uint64_t getBlockIdx() const;
+    uint32_t getOffsetInBlock() const;
+
+    template<DataSource T>
+    static WarningSourceData constructFromData(const std::vector<T*>& chunks, common::idx_t pos);
+
+    std::array<DataType, common::CopyConstants::MAX_NUM_WARNING_DATA_COLUMNS> values;
+    uint64_t numValues;
+};
+
+struct LineContext {
+    uint64_t startByteOffset;
+    uint64_t endByteOffset;
+
+    bool isCompleteLine;
+
+    void setNewLine(uint64_t start);
+    void setEndOfLine(uint64_t end);
+};
+
+// If parsing in parallel during parsing we may not be able to determine line numbers
+// Thus we have additional fields that can be used to determine line numbers + reconstruct lines
+// After parsing this will be used to populate a PopulatedCopyFromError instance
+struct KUZU_API CopyFromFileError {
+    CopyFromFileError(std::string message, WarningSourceData warningData, bool completedLine = true,
+        bool mustThrow = false);
+
+    std::string message;
+    bool completedLine;
+    WarningSourceData warningData;
+
+    bool mustThrow;
+
+    bool operator<(const CopyFromFileError& o) const;
+};
+
+struct PopulatedCopyFromError {
+    std::string message;
+    std::string filePath;
+    std::string skippedLineOrRecord;
+    uint64_t lineNumber;
+};
+
+template<std::integral... Types>
+void WarningSourceData::dumpTo(uint64_t& blockIdx, uint32_t& offsetInBlock, Types&... vars) const {
+    static_assert(sizeof...(Types) + NUM_BLOCK_VALUES <= std::tuple_size_v<decltype(values)>);
+    KU_ASSERT(sizeof...(Types) + NUM_BLOCK_VALUES == numValues);
+    common::TypeUtils::paramPackForEach(
+        [this](auto idx, auto& value) {
+            value = std::get<std::decay_t<decltype(value)>>(values[idx]);
+        },
+        blockIdx, offsetInBlock, vars...);
+}
+
+template<std::integral... Types>
+WarningSourceData WarningSourceData::constructFrom(uint64_t blockIdx, uint32_t offsetInBlock,
+    Types... newValues) {
+    static_assert(sizeof...(Types) + NUM_BLOCK_VALUES <= std::tuple_size_v<decltype(values)>,
+        "For performance reasons the number of warning metadata columns has a "
+        "statically-defined limit, modify "
+        "'common::CopyConstants::WARNING_DATA_MAX_NUM_COLUMNS' if you wish to increase it.");
+
+    WarningSourceData ret{sizeof...(Types) + NUM_BLOCK_VALUES};
+    common::TypeUtils::paramPackForEach([&ret](auto idx, auto value) { ret.values[idx] = value; },
+        blockIdx, offsetInBlock, newValues...);
+    return ret;
+}
+
+} // namespace processor
+} // namespace kuzu
+
 
 namespace kuzu {
 namespace function {
@@ -7767,6 +7577,8 @@ struct KUZU_API ScalarFunction : public ScalarOrAggregateFunction {
     scalar_func_exec_t execFunc = nullptr;
     scalar_func_select_t selectFunc = nullptr;
     scalar_func_compile_exec_t compileFunc = nullptr;
+    bool isListLambda = false;
+    bool isVarLength = false;
 
     ScalarFunction() = default;
     ScalarFunction(std::string name, std::vector<common::LogicalTypeID> parameterTypeIDs,
@@ -7950,15 +7762,15 @@ struct KUZU_API ScalarFunction : public ScalarOrAggregateFunction {
             dataPtr);
     }
 
-    template<typename OPERAND_TYPE, typename RESULT_TYPE, typename FUNC>
-    static void UnaryExecStructFunction(
+    template<typename OPERAND_TYPE, typename RESULT_TYPE, typename FUNC,
+        typename EXECUTOR = UnaryFunctionExecutor>
+    static void UnarySetSeedFunction(
         const std::vector<std::shared_ptr<common::ValueVector>>& params,
         const std::vector<common::SelectionVector*>& paramSelVectors, common::ValueVector& result,
         common::SelectionVector* resultSelVector, void* dataPtr) {
         KU_ASSERT(params.size() == 1);
-        UnaryFunctionExecutor::executeSwitch<OPERAND_TYPE, RESULT_TYPE, FUNC,
-            UnaryStructFunctionWrapper>(*params[0], paramSelVectors[0], result, resultSelVector,
-            dataPtr);
+        EXECUTOR::template executeSwitch<OPERAND_TYPE, RESULT_TYPE, FUNC, SetSeedFunctionWrapper>(
+            *params[0], paramSelVectors[0], result, resultSelVector, dataPtr);
     }
 
     template<typename RESULT_TYPE, typename FUNC>
@@ -8160,6 +7972,68 @@ protected:
     physical_op_vector_t children;
     ResultSet* resultSet;
     std::unique_ptr<OPPrintInfo> printInfo;
+};
+
+} // namespace processor
+} // namespace kuzu
+
+#include <functional>
+#include <mutex>
+#include <vector>
+
+
+namespace kuzu {
+namespace common {
+class ValueVector;
+}
+namespace storage {
+class ColumnChunkData;
+}
+namespace main {
+struct ClientConfig;
+}
+namespace processor {
+
+class SerialCSVReader;
+
+struct WarningInfo {
+    uint64_t queryID;
+    PopulatedCopyFromError warning;
+
+    WarningInfo(PopulatedCopyFromError warning, uint64_t queryID)
+        : queryID(queryID), warning(std::move(warning)) {}
+};
+
+using populate_func_t = std::function<PopulatedCopyFromError(CopyFromFileError, common::idx_t)>;
+using get_file_idx_func_t = std::function<common::idx_t(const CopyFromFileError&)>;
+
+class KUZU_API WarningContext {
+public:
+    explicit WarningContext(main::ClientConfig* clientConfig);
+
+    void appendWarningMessages(const std::vector<CopyFromFileError>& messages);
+
+    void populateWarnings(uint64_t queryID, populate_func_t populateFunc = {},
+        get_file_idx_func_t getFileIdxFunc = {});
+    void defaultPopulateAllWarnings(uint64_t queryID);
+
+    const std::vector<WarningInfo>& getPopulatedWarnings() const;
+    uint64_t getWarningCount(uint64_t queryID);
+    void clearPopulatedWarnings();
+
+    void setIgnoreErrorsForCurrentQuery(bool ignoreErrors);
+    // NOTE: this function only works if the logical operator is COPY FROM
+    // for other operators setIgnoreErrorsForCurrentQuery() is not called
+    bool getIgnoreErrorsOption() const;
+
+private:
+    std::mutex mtx;
+    main::ClientConfig* clientConfig;
+    std::vector<CopyFromFileError> unpopulatedWarnings;
+    std::vector<WarningInfo> populatedWarnings;
+    uint64_t queryWarningCount;
+    uint64_t numStoredWarnings;
+    bool ignoreErrorsOption;
 };
 
 } // namespace processor
@@ -8670,33 +8544,37 @@ struct ScanReplacement {
 
 
 namespace kuzu {
-namespace parser {
-class StandaloneCallRewriter;
-} // namespace parser
-
-namespace binder {
-class Binder;
-class ExpressionBinder;
-} // namespace binder
-
 namespace common {
 class RandomEngine;
 class TaskScheduler;
 class ProgressBar;
+class VirtualFileSystem;
 } // namespace common
+
+namespace catalog {
+class Catalog;
+}
 
 namespace extension {
 class ExtensionManager;
 } // namespace extension
 
-namespace processor {
-class ImportDB;
-class TableFunctionCall;
-} // namespace processor
-
 namespace graph {
 class GraphEntrySet;
 }
+
+namespace storage {
+class StorageManager;
+}
+
+namespace processor {
+class ImportDB;
+} // namespace processor
+
+namespace transaction {
+class TransactionContext;
+class Transaction;
+} // namespace transaction
 
 namespace main {
 struct DBConfig;
@@ -8721,14 +8599,12 @@ struct ActiveQuery {
  */
 class KUZU_API ClientContext {
     friend class Connection;
-    friend class binder::Binder;
-    friend class binder::ExpressionBinder;
-    friend class processor::ImportDB;
-    friend class processor::TableFunctionCall;
-    friend class parser::StandaloneCallRewriter;
-    friend struct SpillToDiskSetting;
     friend class EmbeddedShell;
-    friend class extension::ExtensionManager;
+    friend struct SpillToDiskSetting;
+    friend class processor::ImportDB;
+    friend class transaction::TransactionContext;
+    friend class common::RandomEngine;
+    friend class common::ProgressBar;
 
 public:
     explicit ClientContext(Database* database);
@@ -8757,13 +8633,6 @@ public:
     void setMaxNumThreadForExec(uint64_t numThreads);
     uint64_t getMaxNumThreadForExec() const;
 
-    // Transaction.
-    transaction::Transaction* getTransaction() const;
-    transaction::TransactionContext* getTransactionContext() const;
-
-    // Progress bar
-    common::ProgressBar* getProgressBar() const;
-
     // Replace function.
     void addScanReplace(function::ScanReplacement scanReplacement);
     std::unique_ptr<function::ScanReplacementData> tryReplaceByName(
@@ -8778,17 +8647,9 @@ public:
 
     // Getters.
     std::string getDatabasePath() const;
-    Database* getDatabase() const { return localDatabase; }
-    common::TaskScheduler* getTaskScheduler() const;
-    DatabaseManager* getDatabaseManager() const;
-    storage::StorageManager* getStorageManager() const;
-    storage::MemoryManager* getMemoryManager() const;
-    extension::ExtensionManager* getExtensionManager() const;
-    storage::WAL* getWAL() const;
-    catalog::Catalog* getCatalog() const;
-    transaction::TransactionManager* getTransactionManagerUnsafe() const;
-    common::VirtualFileSystem* getVFSUnsafe() const;
-    common::RandomEngine* getRandomEngine() const;
+    Database* getDatabase() const;
+    AttachedKuzuDatabase* getAttachedDatabase() const;
+
     const CachedPreparedStatementManager& getCachedPreparedStatementManager() const {
         return cachedPreparedStatementManager;
     }
@@ -8819,16 +8680,23 @@ public:
 
     void cleanUp();
 
-    // Query.
+    struct QueryConfig {
+        QueryResultType resultType;
+        common::ArrowResultConfig arrowConfig;
+
+        QueryConfig() : resultType{QueryResultType::FTABLE}, arrowConfig{} {}
+        QueryConfig(QueryResultType resultType, common::ArrowResultConfig arrowConfig)
+            : resultType{resultType}, arrowConfig{arrowConfig} {}
+    };
+
+    std::unique_ptr<QueryResult> query(std::string_view queryStatement,
+        std::optional<uint64_t> queryID = std::nullopt, QueryConfig config = {});
     std::unique_ptr<PreparedStatement> prepareWithParams(std::string_view query,
         std::unordered_map<std::string, std::unique_ptr<common::Value>> inputParams = {});
     std::unique_ptr<QueryResult> executeWithParams(PreparedStatement* preparedStatement,
         std::unordered_map<std::string, std::unique_ptr<common::Value>> inputParams,
         std::optional<uint64_t> queryID = std::nullopt);
-    std::unique_ptr<QueryResult> query(std::string_view queryStatement,
-        std::optional<uint64_t> queryID = std::nullopt);
 
-private:
     struct TransactionHelper {
         enum class TransactionCommitAction : uint8_t {
             COMMIT_IF_NEW,
@@ -8849,6 +8717,8 @@ private:
             const std::function<void()>& fun, bool readOnlyStatement, bool isTransactionStatement,
             TransactionCommitAction action);
     };
+
+private:
     void validateTransaction(bool readOnly, bool requireTransaction) const;
 
     std::vector<std::shared_ptr<parser::Statement>> parseQuery(std::string_view query);
@@ -8875,10 +8745,9 @@ private:
 
     std::unique_ptr<QueryResult> executeNoLock(PreparedStatement* preparedStatement,
         CachedPreparedStatement* cachedPreparedStatement,
-        std::optional<uint64_t> queryID = std::nullopt);
-
+        std::optional<uint64_t> queryID = std::nullopt, QueryConfig config = {});
     std::unique_ptr<QueryResult> queryNoLock(std::string_view query,
-        std::optional<uint64_t> queryID = std::nullopt);
+        std::optional<uint64_t> queryID = std::nullopt, QueryConfig config = {});
 
     bool canExecuteWriteQuery() const;
 
@@ -8963,6 +8832,8 @@ public:
      * @return the result of the query.
      */
     KUZU_API std::unique_ptr<QueryResult> query(std::string_view query);
+
+    KUZU_API std::unique_ptr<QueryResult> queryAsArrow(std::string_view query, int64_t chunkSize);
 
     /**
      * @brief Prepares the given query and returns the prepared statement.

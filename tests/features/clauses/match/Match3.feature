@@ -32,6 +32,7 @@ Feature: Match3 - Match fixed length patterns
 
   Scenario: [1] Get neighbours
     Given an empty graph
+    And having defined kuzu types: ab_num:k
     And having executed:
       """
       CREATE (a:A {num: 1})-[:KNOWS]->(b:B {num: 2})
@@ -48,6 +49,7 @@ Feature: Match3 - Match fixed length patterns
 
   Scenario: [2] Directed match of a simple relationship
     Given an empty graph
+    And having defined kuzu types: ab_num:l
     And having executed:
       """
       CREATE (:A)-[:LOOP]->(:B)
@@ -64,6 +66,7 @@ Feature: Match3 - Match fixed length patterns
 
   Scenario: [3] Undirected match on simple relationship graph
     Given an empty graph
+    And having defined kuzu types: ab_num:l
     And having executed:
       """
       CREATE (:A)-[:LOOP]->(:B)
@@ -81,6 +84,7 @@ Feature: Match3 - Match fixed length patterns
 
   Scenario: [4] Get two related nodes
     Given an empty graph
+    And having defined kuzu types: abc_num:k
     And having executed:
       """
       CREATE (a:A {num: 1}),
@@ -100,6 +104,7 @@ Feature: Match3 - Match fixed length patterns
 
   Scenario: [5] Return two subgraphs with bound undirected relationship
     Given an empty graph
+    And having defined kuzu types: ab_num:r
     And having executed:
       """
       CREATE (a:A {num: 1})-[:REL {name: 'r'}]->(b:B {num: 2})
@@ -117,9 +122,10 @@ Feature: Match3 - Match fixed length patterns
 
   Scenario: [6] Matching a relationship pattern using a label predicate
     Given an empty graph
+    And having defined kuzu types: nf:t
     And having executed:
       """
-      CREATE (a), (b1:Foo), (b2)
+      CREATE (a:N), (b1:Foo), (b2:N)
       CREATE (a)-[:T]->(b1),
              (a)-[:T]->(b2)
       """
@@ -133,6 +139,7 @@ Feature: Match3 - Match fixed length patterns
       | (:Foo) |
     And no side effects
 
+  @fails @unsupportedMultipleLabels #https://github.com/kuzudb/kuzu/issues/3117
   Scenario: [7] Matching nodes with many labels
     Given an empty graph
     And having executed:
@@ -153,6 +160,7 @@ Feature: Match3 - Match fixed length patterns
 
   Scenario: [8] Matching using relationship predicate with multiples of the same type
     Given an empty graph
+    And having defined kuzu types: ab:t
     And having executed:
       """
       CREATE (a:A), (b:B)
@@ -170,6 +178,7 @@ Feature: Match3 - Match fixed length patterns
 
   Scenario: [9] Get related to related to
     Given an empty graph
+    And having defined kuzu types: abc_num:fk
     And having executed:
       """
       CREATE (a:A {num: 1})-[:KNOWS]->(b:B {num: 2})-[:FRIEND]->(c:C {num: 3})
@@ -186,6 +195,7 @@ Feature: Match3 - Match fixed length patterns
 
   Scenario: [10] Matching using self-referencing pattern returns no result
     Given an empty graph
+    And having defined kuzu types: n:t
     And having executed:
       """
       CREATE (a), (b), (c)
@@ -201,8 +211,10 @@ Feature: Match3 - Match fixed length patterns
       | b |
     And no side effects
 
+  @fails @semanticsUndirTraversal
   Scenario: [11] Undirected match in self-relationship graph
     Given an empty graph
+    And having defined kuzu types: a:l
     And having executed:
       """
       CREATE (a:A)-[:LOOP]->(a)
@@ -217,8 +229,10 @@ Feature: Match3 - Match fixed length patterns
       | (:A) | [:LOOP] | (:A) |
     And no side effects
 
+  @fails @semanticsUndirTraversal
   Scenario: [12] Undirected match of self-relationship in self-relationship graph
     Given an empty graph
+    And having defined kuzu types: a:l
     And having executed:
       """
       CREATE (a:A)-[:LOOP]->(a)
@@ -235,6 +249,7 @@ Feature: Match3 - Match fixed length patterns
 
   Scenario: [13] Directed match on self-relationship graph
     Given an empty graph
+    And having defined kuzu types: a:l
     And having executed:
       """
       CREATE (a:A)-[:LOOP]->(a)
@@ -251,6 +266,7 @@ Feature: Match3 - Match fixed length patterns
 
   Scenario: [14] Directed match of self-relationship on self-relationship graph
     Given an empty graph
+    And having defined kuzu types: a:l
     And having executed:
       """
       CREATE (a:A)-[:LOOP]->(a)
@@ -265,8 +281,10 @@ Feature: Match3 - Match fixed length patterns
       | (:A) | [:LOOP] |
     And no side effects
 
+  @fails @semanticsUndirTraversal
   Scenario: [15] Mixing directed and undirected pattern parts with self-relationship, simple
     Given an empty graph
+    And having defined kuzu types: abl:t12l
     And having executed:
       """
       CREATE (:A)-[:T1]->(l:Looper),
@@ -284,8 +302,10 @@ Feature: Match3 - Match fixed length patterns
       | (:A) | [:T1] | (:Looper) | [:T2]   | (:B)      |
     And no side effects
 
+  @fails @semanticsUndirTraversal
   Scenario: [16] Mixing directed and undirected pattern parts with self-relationship, undirected
     Given an empty graph
+    And having defined kuzu types: abl:t12l
     And having executed:
       """
       CREATE (:A)-[:T1]->(l:Looper),
@@ -309,9 +329,10 @@ Feature: Match3 - Match fixed length patterns
 
   Scenario: [17] Handling cyclic patterns
     Given an empty graph
+    And having defined kuzu types: n_name:ab
     And having executed:
       """
-      CREATE (a {name: 'a'}), (b {name: 'b'}), (c {name: 'c'})
+      CREATE (a:N {name: 'a'}), (b:N {name: 'b'}), (c:N {name: 'c'})
       CREATE (a)-[:A]->(b),
              (b)-[:B]->(a),
              (b)-[:B]->(c)
@@ -328,9 +349,10 @@ Feature: Match3 - Match fixed length patterns
 
   Scenario: [18] Handling cyclic patterns when separated into two parts
     Given an empty graph
+    And having defined kuzu types: n_name:ab
     And having executed:
       """
-      CREATE (a {name: 'a'}), (b {name: 'b'}), (c {name: 'c'})
+      CREATE (a:N {name: 'a'}), (b:N {name: 'b'}), (c:N {name: 'c'})
       CREATE (a)-[:A]->(b),
              (b)-[:B]->(a),
              (b)-[:B]->(c)
@@ -345,12 +367,14 @@ Feature: Match3 - Match fixed length patterns
       | 'a'    |
     And no side effects
 
+  @note @switchDoubleArrowToDoubleDash
   Scenario: [19] Two bound nodes pointing to the same node
     Given an empty graph
+    And having defined kuzu types: n_name:k
     And having executed:
       """
-      CREATE (a {name: 'A'}), (b {name: 'B'}),
-             (x1 {name: 'x1'}), (x2 {name: 'x2'})
+      CREATE (a:N {name: 'A'}), (b:N {name: 'B'}),
+             (x1:N {name: 'x1'}), (x2:N {name: 'x2'})
       CREATE (a)-[:KNOWS]->(x1),
              (a)-[:KNOWS]->(x2),
              (b)-[:KNOWS]->(x1),
@@ -359,21 +383,22 @@ Feature: Match3 - Match fixed length patterns
     When executing query:
       """
       MATCH (a {name: 'A'}), (b {name: 'B'})
-      MATCH (a)-->(x)<-->(b)
+      MATCH (a)-->(x)--(b)
       RETURN x
       """
     Then the result should be, in any order:
-      | x              |
-      | ({name: 'x1'}) |
-      | ({name: 'x2'}) |
+      | x                 |
+      | (:N {name: 'x1'}) |
+      | (:N {name: 'x2'}) |
     And no side effects
 
   Scenario: [20] Three bound nodes pointing to the same node
     Given an empty graph
+    And having defined kuzu types: n_name:k
     And having executed:
       """
-      CREATE (a {name: 'A'}), (b {name: 'B'}), (c {name: 'C'}),
-             (x1 {name: 'x1'}), (x2 {name: 'x2'})
+      CREATE (a:N {name: 'A'}), (b:N {name: 'B'}), (c:N {name: 'C'}),
+             (x1:N {name: 'x1'}), (x2:N {name: 'x2'})
       CREATE (a)-[:KNOWS]->(x1),
              (a)-[:KNOWS]->(x2),
              (b)-[:KNOWS]->(x1),
@@ -388,19 +413,20 @@ Feature: Match3 - Match fixed length patterns
       RETURN x
       """
     Then the result should be, in any order:
-      | x              |
-      | ({name: 'x1'}) |
-      | ({name: 'x2'}) |
+      | x                 |
+      | (:N {name: 'x1'}) |
+      | (:N {name: 'x2'}) |
     And no side effects
 
   Scenario: [21] Three bound nodes pointing to the same node with extra connections
     Given an empty graph
+    And having defined kuzu types: n_name:k
     And having executed:
       """
-      CREATE (a {name: 'a'}), (b {name: 'b'}), (c {name: 'c'}),
-             (d {name: 'd'}), (e {name: 'e'}), (f {name: 'f'}),
-             (g {name: 'g'}), (h {name: 'h'}), (i {name: 'i'}),
-             (j {name: 'j'}), (k {name: 'k'})
+      CREATE (a:N {name: 'a'}), (b:N {name: 'b'}), (c:N {name: 'c'}),
+             (d:N {name: 'd'}), (e:N {name: 'e'}), (f:N {name: 'f'}),
+             (g:N {name: 'g'}), (h:N {name: 'h'}), (i:N {name: 'i'}),
+             (j:N {name: 'j'}), (k:N {name: 'k'})
       CREATE (a)-[:KNOWS]->(d),
              (a)-[:KNOWS]->(e),
              (a)-[:KNOWS]->(f),
@@ -424,17 +450,18 @@ Feature: Match3 - Match fixed length patterns
       RETURN x
       """
     Then the result should be, in any order:
-      | x             |
-      | ({name: 'd'}) |
-      | ({name: 'e'}) |
+      | x                |
+      | (:N {name: 'd'}) |
+      | (:N {name: 'e'}) |
     And no side effects
 
   Scenario: [22] Returning bound nodes that are not part of the pattern
     Given an empty graph
+    And having defined kuzu types: n_name:k
     And having executed:
       """
-      CREATE (a {name: 'A'}), (b {name: 'B'}),
-             (c {name: 'C'})
+      CREATE (a:N {name: 'A'}), (b:N {name: 'B'}),
+             (c:N {name: 'C'})
       CREATE (a)-[:KNOWS]->(b)
       """
     When executing query:
@@ -444,12 +471,13 @@ Feature: Match3 - Match fixed length patterns
       RETURN a, b, c
       """
     Then the result should be, in any order:
-      | a             | b             | c             |
-      | ({name: 'A'}) | ({name: 'B'}) | ({name: 'C'}) |
+      | a                | b                | c                |
+      | (:N {name: 'A'}) | (:N {name: 'B'}) | (:N {name: 'C'}) |
     And no side effects
 
   Scenario: [23] Matching disconnected patterns
     Given an empty graph
+    And having defined kuzu types: abc:t
     And having executed:
       """
       CREATE (a:A), (b:B), (c:C)
@@ -470,8 +498,10 @@ Feature: Match3 - Match fixed length patterns
       | (:A) | (:C) | (:A) | (:C) |
     And no side effects
 
+  @fails @bugVariableBinding #https://github.com/kuzudb/kuzu/issues/5963
   Scenario: [24] Matching twice with duplicate relationship types on same relationship
     Given an empty graph
+    And having defined kuzu types: ab:t
     And having executed:
       """
       CREATE (:A)-[:T]->(:B)
@@ -488,11 +518,13 @@ Feature: Match3 - Match fixed length patterns
       | (:A) | [:T] | (:B) |
     And no side effects
 
+  @fails @bugVariableBinding #https://github.com/kuzudb/kuzu/issues/5963
   Scenario: [25] Matching twice with an additional node label
     Given an empty graph
+    And having defined kuzu types: x:t
     And having executed:
       """
-      CREATE ()-[:T]->()
+      CREATE (:X)-[:T]->(:X)
       """
     When executing query:
       """
@@ -505,22 +537,24 @@ Feature: Match3 - Match fixed length patterns
       | a1 | r | b2 |
     And no side effects
 
+  @fails @bugVariableBinding #https://github.com/kuzudb/kuzu/issues/5963
   Scenario: [26] Matching twice with a duplicate predicate
     Given an empty graph
+    And having defined kuzu types: x:t
     And having executed:
       """
-      CREATE (:X:Y)-[:T]->()
+      CREATE (:X)-[:T]->()
       """
     When executing query:
       """
-      MATCH (a1:X:Y)-[r]->()
+      MATCH (a1:X)-[r]->()
       WITH r, a1
-      MATCH (a1:Y)-[r]->(b2)
+      MATCH (a1:X)-[r]->(b2)
       RETURN a1, r, b2
       """
     Then the result should be, in any order:
       | a1     | r    | b2 |
-      | (:X:Y) | [:T] | () |
+      | (:X)   | [:T] | () |
     And no side effects
 
   Scenario: [27] Matching from null nodes should return no results owing to finding no matches
@@ -538,9 +572,10 @@ Feature: Match3 - Match fixed length patterns
 
   Scenario: [28] Matching from null nodes should return no results owing to matches being filtered out
     Given an empty graph
+    And having defined kuzu types: nt:t
     And having executed:
       """
-      CREATE ()-[:T]->()
+      CREATE (:N)-[:T]->(:N)
       """
     When executing query:
       """

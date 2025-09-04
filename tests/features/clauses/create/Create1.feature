@@ -32,26 +32,31 @@ Feature: Create1 - Creating nodes
 
   Scenario: [1] Create a single node
     Given any graph
+    And having defined kuzu types: n
     When executing query:
       """
-      CREATE ()
+      CREATE (:N)
       """
     Then the result should be empty
     And the side effects should be:
       | +nodes | 1 |
+      | +relationships | 0 |
 
   Scenario: [2] Create two nodes
     Given any graph
+    And having defined kuzu types: n
     When executing query:
       """
-      CREATE (), ()
+      CREATE (:N), (:N)
       """
     Then the result should be empty
     And the side effects should be:
       | +nodes | 2 |
+      | +relationships | 0 |
 
   Scenario: [3] Create a single node with a label
     Given an empty graph
+    And having defined kuzu types: l
     When executing query:
       """
       CREATE (:Label)
@@ -60,9 +65,11 @@ Feature: Create1 - Creating nodes
     And the side effects should be:
       | +nodes  | 1 |
       | +labels | 1 |
+      | +relationships | 0 |
 
   Scenario: [4] Create two nodes with same label
     Given an empty graph
+    And having defined kuzu types: l
     When executing query:
       """
       CREATE (:Label), (:Label)
@@ -71,9 +78,12 @@ Feature: Create1 - Creating nodes
     And the side effects should be:
       | +nodes  | 2 |
       | +labels | 1 |
+      | +relationships | 0 |
 
+  @fails @unsupportedMultipleLabels #https://github.com/kuzudb/kuzu/issues/3117
   Scenario: [5] Create a single node with multiple labels
     Given an empty graph
+    And having defined kuzu types: abcde
     When executing query:
       """
       CREATE (:A:B:C:D)
@@ -82,9 +92,12 @@ Feature: Create1 - Creating nodes
     And the side effects should be:
       | +nodes  | 1 |
       | +labels | 4 |
+      | +relationships | 0 |
 
+  @fails @unsupportedMultipleLabels #https://github.com/kuzudb/kuzu/issues/3117
   Scenario: [6] Create three nodes with multiple labels
     Given an empty graph
+    And having defined kuzu types: abcde
     When executing query:
       """
       CREATE (:B:A:D), (:B:C), (:D:E:B)
@@ -93,23 +106,27 @@ Feature: Create1 - Creating nodes
     And the side effects should be:
       | +nodes  | 3 |
       | +labels | 5 |
+      | +relationships | 0 |
 
   Scenario: [7] Create a single node with a property
     Given any graph
+    And having defined kuzu types: n_created
     When executing query:
       """
-      CREATE ({created: true})
+      CREATE (:N {created: true})
       """
     Then the result should be empty
     And the side effects should be:
       | +nodes      | 1 |
       | +properties | 1 |
+      | +relationships | 0 |
 
   Scenario: [8] Create a single node with a property and return it
     Given any graph
+    And having defined kuzu types: n_name
     When executing query:
       """
-      CREATE (n {name: 'foo'})
+      CREATE (n:N {name: 'foo'})
       RETURN n.name AS p
       """
     Then the result should be, in any order:
@@ -118,23 +135,27 @@ Feature: Create1 - Creating nodes
     And the side effects should be:
       | +nodes      | 1 |
       | +properties | 1 |
+      | +relationships | 0 |
 
   Scenario: [9] Create a single node with two properties
     Given any graph
+    And having defined kuzu types: n_in
     When executing query:
       """
-      CREATE (n {id: 12, name: 'foo'})
+      CREATE (n:N {id: 12, name: 'foo'})
       """
     Then the result should be empty
     And the side effects should be:
       | +nodes      | 1 |
       | +properties | 2 |
+      | +relationships | 0 |
 
   Scenario: [10] Create a single node with two properties and return them
     Given any graph
+    And having defined kuzu types: n_in
     When executing query:
       """
-      CREATE (n {id: 12, name: 'foo'})
+      CREATE (n:N {id: 12, name: 'foo'})
       RETURN n.id AS id, n.name AS p
       """
     Then the result should be, in any order:
@@ -143,12 +164,14 @@ Feature: Create1 - Creating nodes
     And the side effects should be:
       | +nodes      | 1 |
       | +properties | 2 |
+      | +relationships | 0 |
 
   Scenario: [11] Create a single node with null properties should not return those properties
     Given any graph
+    And having defined kuzu types: n_in
     When executing query:
       """
-      CREATE (n {id: 12, name: null})
+      CREATE (n:N {id: 12, name: null})
       RETURN n.id AS id, n.name AS p
       """
     Then the result should be, in any order:
@@ -157,9 +180,11 @@ Feature: Create1 - Creating nodes
     And the side effects should be:
       | +nodes      | 1 |
       | +properties | 1 |
+      | +relationships | 0 |
 
   Scenario: [12] CREATE does not lose precision on large integers
     Given an empty graph
+    And having defined kuzu types: t_id
     When executing query:
       """
       CREATE (p:TheLabel {id: 4611686018427387905})
@@ -172,47 +197,55 @@ Feature: Create1 - Creating nodes
       | +nodes      | 1 |
       | +properties | 1 |
       | +labels     | 1 |
+      | +relationships | 0 |
 
   Scenario: [13] Fail when creating a node that is already bound
     Given any graph
+    And having defined kuzu types: n
     When executing query:
       """
       MATCH (a)
-      CREATE (a)
+      CREATE (a:N)
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
   Scenario: [14] Fail when creating a node with properties that is already bound
     Given any graph
+    And having defined kuzu types: n_name
     When executing query:
       """
       MATCH (a)
-      CREATE (a {name: 'foo'})
+      CREATE (a:N {name: 'foo'})
       RETURN a
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
+  @fails @bugVariableBinding #https://github.com/kuzudb/kuzu/issues/5963
   Scenario: [15] Fail when adding a new label predicate on a node that is already bound 1
     Given an empty graph
+    And having defined kuzu types: bfn:t12
     When executing query:
       """
-      CREATE (n:Foo)-[:T1]->(),
-             (n:Bar)-[:T2]->()
+      CREATE (n:Foo)-[:T1]->(:N),
+             (n:Bar)-[:T2]->(:N)
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
   # Consider improve naming of this and the next three scenarios, they seem to test invariant nature of node patterns
   Scenario: [16] Fail when adding new label predicate on a node that is already bound 2
     Given an empty graph
+    And having defined kuzu types: bfn:t12
     When executing query:
       """
-      CREATE ()<-[:T2]-(n:Foo),
-             (n:Bar)<-[:T1]-()
+      CREATE (:N)<-[:T2]-(n:Foo),
+             (n:Bar)<-[:T1]-(:N)
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
+  @fails @bugVariableBinding #https://github.com/kuzudb/kuzu/issues/5963
   Scenario: [17] Fail when adding new label predicate on a node that is already bound 3
     Given an empty graph
+    And having defined kuzu types: bdf:o
     When executing query:
       """
       CREATE (n:Foo)
@@ -220,29 +253,34 @@ Feature: Create1 - Creating nodes
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
+  @fails @bugVariableBinding #https://github.com/kuzudb/kuzu/issues/5963
   Scenario: [18] Fail when adding new label predicate on a node that is already bound 4
     Given an empty graph
+    And having defined kuzu types: bdf:o
     When executing query:
       """
-      CREATE (n {})
+      CREATE (n:Foo {})
       CREATE (n:Bar)-[:OWNS]->(:Dog)
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
+  @fails @bugVariableBinding #https://github.com/kuzudb/kuzu/issues/5963
   Scenario: [19] Fail when adding new label predicate on a node that is already bound 5
     Given an empty graph
+    And having defined kuzu types: bdf:o
     When executing query:
       """
       CREATE (n:Foo)
-      CREATE (n {})-[:OWNS]->(:Dog)
+      CREATE (n:Bar {})-[:OWNS]->(:Dog)
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
   Scenario: [20] Fail when creating a node using undefined variable in pattern
     Given any graph
+    And having defined kuzu types: n_name
     When executing query:
       """
-      CREATE (b {name: missing})
+      CREATE (b:N {name: missing})
       RETURN b
       """
     Then a SyntaxError should be raised at compile time: UndefinedVariable

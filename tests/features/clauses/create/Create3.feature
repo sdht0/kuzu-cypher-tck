@@ -30,76 +30,88 @@
 
 Feature: Create3 - Interoperation with other clauses
 
+  @fails @bugVariableBinding #https://github.com/kuzudb/kuzu/issues/5963
   Scenario: [1] MATCH-CREATE
     Given an empty graph
+    And having defined kuzu types: n
     And having executed:
       """
-      CREATE (), ()
+      CREATE (:N), (:N)
       """
     When executing query:
       """
-      MATCH ()
-      CREATE ()
+      MATCH (n:N)
+      CREATE (n)
       """
     Then the result should be empty
     And the side effects should be:
       | +nodes  | 2 |
+      | +relationships | 0 |
 
+  @note @semanticsWithStarNeedsVarInScope
   Scenario: [2] WITH-CREATE
     Given an empty graph
+    And having defined kuzu types: n
     And having executed:
       """
-      CREATE (), ()
+      CREATE (:N), (:N)
       """
     When executing query:
       """
-      MATCH ()
-      CREATE ()
+      MATCH (n)
+      CREATE (:N)
       WITH *
-      CREATE ()
+      CREATE (:N)
       """
     Then the result should be empty
     And the side effects should be:
       | +nodes | 4 |
+      | +relationships | 0 |
 
   Scenario: [3] MATCH-CREATE-WITH-CREATE
     Given an empty graph
+    And having defined kuzu types: n
     And having executed:
       """
-      CREATE (), ()
+      CREATE (:N), (:N)
       """
     When executing query:
       """
-      MATCH ()
-      CREATE ()
+      MATCH (n)
+      CREATE (:N)
       WITH *
       MATCH ()
-      CREATE ()
+      CREATE (:N)
       """
     Then the result should be empty
     And the side effects should be:
       | +nodes  | 10 |
+      | +relationships | 0 |
 
   Scenario: [4] MATCH-CREATE: Newly-created nodes not visible to preceding MATCH
     Given an empty graph
+    And having defined kuzu types: n
     And having executed:
       """
-      CREATE ()
+      CREATE (:N)
       """
     When executing query:
       """
       MATCH ()
-      CREATE ()
+      CREATE (:N)
       """
     Then the result should be empty
     And the side effects should be:
       | +nodes  | 1 |
+      | +relationships | 0 |
 
+  @fails @bugVariableBinding #https://github.com/kuzudb/kuzu/issues/5963
   Scenario: [5] WITH-CREATE: Nodes are not created when aliases are applied to variable names
     Given an empty graph
+    And having defined kuzu types: n_num:t
     And having executed:
       """
-      CREATE ({num: 1})
+      CREATE (:N {num: 1})
       """
     When executing query:
       """
@@ -113,10 +125,13 @@ Feature: Create3 - Interoperation with other clauses
       | a          | b          |
       | ({num: 1}) | ({num: 1}) |
     And the side effects should be:
+      | +nodes | 0 |
       | +relationships | 1 |
 
+  @fails @bugVariableBinding #https://github.com/kuzudb/kuzu/issues/5963
   Scenario: [6] WITH-CREATE: Only a single node is created when an alias is applied to a variable name
     Given an empty graph
+    And having defined kuzu types: x:t
     And having executed:
       """
       CREATE (:X)
@@ -135,11 +150,13 @@ Feature: Create3 - Interoperation with other clauses
       | +nodes         | 1 |
       | +relationships | 1 |
 
+  @fails @bugVariableBinding #https://github.com/kuzudb/kuzu/issues/5963
   Scenario: [7] WITH-CREATE: Nodes are not created when aliases are applied to variable names multiple times
     Given an empty graph
+    And having defined kuzu types: n_name:t
     And having executed:
       """
-      CREATE ({name: 'A'})
+      CREATE (:N {name: 'A'})
       """
     When executing query:
       """
@@ -155,13 +172,16 @@ Feature: Create3 - Interoperation with other clauses
       | x             | y             |
       | ({name: 'A'}) | ({name: 'A'}) |
     And the side effects should be:
+      | +nodes | 0 |
       | +relationships | 2 |
 
+  @fails @bugVariableBinding #https://github.com/kuzudb/kuzu/issues/5963
   Scenario: [8] WITH-CREATE: Only a single node is created when an alias is applied to a variable name multiple times
     Given an empty graph
+    And having defined kuzu types: n_num:t
     And having executed:
       """
-      CREATE ({num: 5})
+      CREATE (:N {num: 5})
       """
     When executing query:
       """
@@ -181,12 +201,13 @@ Feature: Create3 - Interoperation with other clauses
 
   Scenario: [9] WITH-CREATE: A bound node should be recognized after projection with WITH + WITH
     Given any graph
+    And having defined kuzu types: n:t
     When executing query:
       """
-      CREATE (a)
+      CREATE (a:N)
       WITH a
       WITH *
-      CREATE (b)
+      CREATE (b:N)
       CREATE (a)<-[:T]-(b)
       """
     Then the result should be empty
@@ -196,12 +217,13 @@ Feature: Create3 - Interoperation with other clauses
 
   Scenario: [10] WITH-UNWIND-CREATE: A bound node should be recognized after projection with WITH + UNWIND
     Given any graph
+    And having defined kuzu types: n:t
     When executing query:
       """
-      CREATE (a)
+      CREATE (a:N)
       WITH a
       UNWIND [0] AS i
-      CREATE (b)
+      CREATE (b:N)
       CREATE (a)<-[:T]-(b)
       """
     Then the result should be empty
@@ -211,12 +233,13 @@ Feature: Create3 - Interoperation with other clauses
 
   Scenario: [11] WITH-MERGE-CREATE: A bound node should be recognized after projection with WITH + MERGE node
     Given an empty graph
+    And having defined kuzu types: n:t
     When executing query:
       """
-      CREATE (a)
+      CREATE (a:N)
       WITH a
       MERGE ()
-      CREATE (b)
+      CREATE (b:N)
       CREATE (a)<-[:T]-(b)
       """
     Then the result should be empty
@@ -226,14 +249,15 @@ Feature: Create3 - Interoperation with other clauses
 
   Scenario: [12] WITH-MERGE-CREATE: A bound node should be recognized after projection with WITH + MERGE pattern
     Given an empty graph
+    And having defined kuzu types: n:t
     When executing query:
       """
-      CREATE (a)
+      CREATE (a:N)
       WITH a
       MERGE (x)
       MERGE (y)
       MERGE (x)-[:T]->(y)
-      CREATE (b)
+      CREATE (b:N)
       CREATE (a)<-[:T]-(b)
       """
     Then the result should be empty
@@ -243,6 +267,7 @@ Feature: Create3 - Interoperation with other clauses
 
   Scenario: [13] Merge followed by multiple creates
     Given an empty graph
+    And having defined kuzu types: rt_id:r
     When executing query:
       """
       MERGE (t:T {id: 42})

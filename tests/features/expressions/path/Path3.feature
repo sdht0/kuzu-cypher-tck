@@ -32,6 +32,7 @@ Feature: Path3 - Length of a path
 
   Scenario: [1] Return a var length path of length zero
     Given an empty graph
+    And having defined kuzu types: ab:rel
     And having executed:
       """
       CREATE (a:A)-[:REL]->(b:B)
@@ -50,6 +51,7 @@ Feature: Path3 - Length of a path
 
   Scenario: [2] Failing when using `length()` on a node
     Given any graph
+    And having defined kuzu types: n
     When executing query:
       """
       MATCH (n)
@@ -59,6 +61,7 @@ Feature: Path3 - Length of a path
 
   Scenario: [3] Failing when using `length()` on a relationship
     Given any graph
+    And having defined kuzu types: n:r
     When executing query:
       """
       MATCH ()-[r]->()

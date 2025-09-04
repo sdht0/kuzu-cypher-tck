@@ -144,6 +144,7 @@ Feature: Quantifier2 - Single quantifier
       | ['abc', 'abc', 'abc'] | size(x) = 3 | false  |
       | ['ef', 'ef', 'ef']    | size(x) = 3 | false  |
 
+  @skip @unsupportedMixedTypeLists
   Scenario Outline: [6] Single quantifier on list literal containing lists
     Given any graph
     When executing query:
@@ -167,6 +168,7 @@ Feature: Quantifier2 - Single quantifier
       | [[1, 2, 3], [1, 2, 3], [1, 2, 3]] | size(x) = 3 | false  |
       | [['a'], ['a'], ['a']]             | size(x) = 3 | false  |
 
+  @skip @unsupportedMixedTypeLists
   Scenario Outline: [7] Single quantifier on list literal containing maps
     Given any graph
     When executing query:
@@ -190,6 +192,7 @@ Feature: Quantifier2 - Single quantifier
       | [{a: 2, b: 5}, {a: 2, b: 5}, {a: 2, b: 5}] | x.a = 2   | false  |
       | [{a: 4}, {a: 4}, {a: 4}]                   | x.a = 2   | false  |
 
+  @fails @unsupportedFuncTail #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [8] Single quantifier on list containing nodes
     Given an empty graph
     And having executed:
@@ -236,8 +239,10 @@ Feature: Quantifier2 - Single quantifier
       | [(:B {name: 'b'}), (:B {name: 'b'}), (:B {name: 'b'})] | false  |
     And no side effects
 
+  @fails @unsupportedFuncTail #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [9] Single quantifier on list containing relationships
     Given an empty graph
+    And having defined kuzu types: abr2s2_n:ir2_n
     And having executed:
       """
       CREATE (s1:SRelationships), (s2:SNodes)
@@ -282,6 +287,7 @@ Feature: Quantifier2 - Single quantifier
       | [[:RB {name: 'b'}], [:RB {name: 'b'}], [:RB {name: 'b'}]] | false  |
     And no side effects
 
+  @fails @unsupportedListComprehension #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [10] Single quantifier on lists containing nulls
     Given any graph
     When executing query:
@@ -356,6 +362,7 @@ Feature: Quantifier2 - Single quantifier
       | [null, 123, null, null]  | true   |
       | [null, null, null, null] | false  |
 
+  @skip @unsupportedMixedTypeLists
   Scenario: [13] Single quantifier is false if the predicate is statically false and the list is not empty
     Given any graph
     When executing query:
@@ -367,6 +374,7 @@ Feature: Quantifier2 - Single quantifier
       | false  |
     And no side effects
 
+  @skip @unsupportedMixedTypeLists
   Scenario: [14] Single quantifier is false if the predicate is statically true and the list has more than one element
     Given any graph
     When executing query:

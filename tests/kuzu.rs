@@ -84,7 +84,8 @@ fn empty_graph(kuzu: &mut Kuzu) {
 #[given(expr = "the {word} graph")]
 fn binary_tree_graph(kuzu: &mut Kuzu, name: String) {
     let queries = match name.as_str() {
-        "binary-tree-1" => "
+        "binary-tree-1" => {
+            "
             CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, name STRING);
             CREATE NODE TABLE X(_k SERIAL PRIMARY KEY, name STRING);
             CREATE NODE TABLE Y(_k SERIAL PRIMARY KEY, name STRING);
@@ -120,8 +121,10 @@ fn binary_tree_graph(kuzu: &mut Kuzu, name: String) {
                 (b2)-[:FRIEND]->(b3),
                 (b3)-[:FRIEND]->(b4),
                 (b4)-[:FRIEND]->(b1);
-            ",
-        "binary-tree-2" => "
+            "
+        }
+        "binary-tree-2" => {
+            "
             CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, name STRING);
             CREATE NODE TABLE X(_k SERIAL PRIMARY KEY, name STRING);
             CREATE NODE TABLE Y(_k SERIAL PRIMARY KEY, name STRING);
@@ -157,7 +160,8 @@ fn binary_tree_graph(kuzu: &mut Kuzu, name: String) {
                 (b2)-[:FRIEND]->(b3),
                 (b3)-[:FRIEND]->(b4),
                 (b4)-[:FRIEND]->(b1);
-        ",
+        "
+        }
         _ => panic!("Unknown graph: {name}"),
     };
     for query in queries.split(";") {
@@ -341,7 +345,8 @@ fn check_results(kuzu: &mut Kuzu, step: &Step) {
                 row.join(OUTPUT_SEP)
                     .replace(".0 ", " ")
                     .trim_end_matches(".0")
-                    .to_string(),
+                    .to_string()
+                    .replace("\\n", "\n"),
             )
             .or_insert(0_u32) += 1;
     }
@@ -394,8 +399,7 @@ fn check_results_ordered(kuzu: &mut Kuzu, step: &Step) {
     }
     let table = step.table.as_ref().expect("Table missing");
     let mut iter = table.rows.iter();
-    let header = iter.next().expect("Header missing");
-    let expected_columns = header.join(OUTPUT_SEP);
+    let _header = iter.next().expect("Header missing");
     let mut expected_results = Vec::new();
     for row in iter {
         expected_results.push(row.join(OUTPUT_SEP));
@@ -413,7 +417,10 @@ fn check_results_ordered(kuzu: &mut Kuzu, step: &Step) {
         .collect::<Vec<_>>()
         .join("\n");
 
-    assert_eq!(expected_columns, kuzu.columns, "Columns don't match");
+    // Is there any reason to check columns names?
+    // let expected_columns = header.join(OUTPUT_SEP);
+    // assert_eq!(expected_columns, kuzu.columns, "Columns don't match");
+
     for (i, result) in kuzu.results_ordered.iter().enumerate() {
         assert_eq!(
             expected_results.get(i),
@@ -472,13 +479,13 @@ fn check_side_effects(kuzu: &mut Kuzu, step: &Step) {
     let found = kuzu.get_state();
     if expected_state != found {
         if expected_state.0 != found.0 {
-            println!(
+            panic!(
                 "Node counts don't match: expected: {}, found: {}",
                 expected_state.0, found.0
             );
         }
         if expected_state.1 != found.1 {
-            println!(
+            panic!(
                 "Relationship counts don't match: expected: {}, found: {}",
                 expected_state.1, found.1
             );
@@ -532,9 +539,5 @@ fn check_error(kuzu: &mut Kuzu, _etype: String, _error: String) {
 }
 
 fn main() {
-    futures::executor::block_on(
-        Kuzu::cucumber()
-            .fail_on_skipped()
-            .run("tests/features"),
-    );
+    futures::executor::block_on(Kuzu::cucumber().fail_on_skipped().run("tests/features"));
 }

@@ -30,8 +30,10 @@
 
 Feature: Path1 - Nodes of a path
 
+  @skip @unsupportedSchemaMismatch
   Scenario: [1] `nodes()` on null path
     Given any graph
+    And having defined kuzu types: n:r
     When executing query:
       """
       WITH null AS a

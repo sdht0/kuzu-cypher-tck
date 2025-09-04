@@ -30,6 +30,7 @@
 
 Feature: List2 - List Slicing
 
+  @fails @unsupportedListSlice #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [1] List slice
     Given any graph
     When executing query:
@@ -42,6 +43,7 @@ Feature: List2 - List Slicing
       | [2, 3] |
     And no side effects
 
+  @fails @unsupportedListSlice #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [2] List slice with implicit end
     Given any graph
     When executing query:
@@ -54,6 +56,7 @@ Feature: List2 - List Slicing
       | [2, 3] |
     And no side effects
 
+  @fails @unsupportedListSlice #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [3] List slice with implicit start
     Given any graph
     When executing query:
@@ -66,6 +69,7 @@ Feature: List2 - List Slicing
       | [1, 2] |
     And no side effects
 
+  @fails @unsupportedListSlice #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [4] List slice with singleton range
     Given any graph
     When executing query:
@@ -78,6 +82,7 @@ Feature: List2 - List Slicing
       | [1] |
     And no side effects
 
+  @fails @unsupportedListSlice #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [5] List slice with empty range
     Given any graph
     When executing query:
@@ -90,6 +95,7 @@ Feature: List2 - List Slicing
       | [] |
     And no side effects
 
+  @fails @unsupportedListSlice #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [6] List slice with negative range
     Given any graph
     When executing query:
@@ -102,6 +108,7 @@ Feature: List2 - List Slicing
       | [1, 2] |
     And no side effects
 
+  @fails @unsupportedListSlice #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [7] List slice with invalid range
     Given any graph
     When executing query:
@@ -114,6 +121,7 @@ Feature: List2 - List Slicing
       | [] |
     And no side effects
 
+  @fails @unsupportedListSlice #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [8] List slice with exceeding range
     Given any graph
     When executing query:
@@ -126,6 +134,7 @@ Feature: List2 - List Slicing
       | [1, 2, 3] |
     And no side effects
 
+  @fails @unsupportedListSlice #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [9] List slice with null range
     Given any graph
     When executing query:
@@ -146,6 +155,7 @@ Feature: List2 - List Slicing
       |       | null  |
       | null  |       |
 
+  @fails @unsupportedListSlice #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [10] List slice with parameterised range
     Given any graph
     And parameters are:
@@ -161,6 +171,7 @@ Feature: List2 - List Slicing
       | [2, 3] |
     And no side effects
 
+  @fails @unsupportedListSlice #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [11] List slice with parameterised invalid range
     Given any graph
     And parameters are:

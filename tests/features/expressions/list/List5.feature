@@ -30,52 +30,57 @@
 
 Feature: List5 - List Membership Validation - IN Operator
 
+  @fails @bugListIndexIncorrectTypeInference #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [1] IN should work with nested list subscripting
     Given any graph
     When executing query:
       """
       WITH [[1, 2, 3]] AS list
-      RETURN 3 IN list[0] AS r
+      RETURN 3 IN list[1] AS r
       """
     Then the result should be, in any order:
       | r    |
       | true |
     And no side effects
 
+  @fails @bugListIndexIncorrectTypeInference #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [2] IN should work with nested literal list subscripting
     Given any graph
     When executing query:
       """
-      RETURN 3 IN [[1, 2, 3]][0] AS r
+      RETURN 3 IN [[1, 2, 3]][1] AS r
       """
     Then the result should be, in any order:
       | r    |
       | true |
     And no side effects
 
+  @fails @bugListIndexIncorrectResult #https://github.com/kuzudb/kuzu/issues/6010
   Scenario: [3] IN should work with list slices
     Given any graph
     When executing query:
       """
       WITH [1, 2, 3] AS list
-      RETURN 3 IN list[0..1] AS r
+      RETURN 3 IN list[1:2] AS r
       """
     Then the result should be, in any order:
       | r     |
       | false |
     And no side effects
 
+  @fails @bugListIncorrectSlice #https://github.com/kuzudb/kuzu/issues/6010
   Scenario: [4] IN should work with literal list slices
     Given any graph
     When executing query:
       """
-      RETURN 3 IN [1, 2, 3][0..1] AS r
+      RETURN 3 IN [1, 2, 3][1:1] AS r
       """
     Then the result should be, in any order:
       | r     |
       | false |
     And no side effects
 
+  @skip @unsupportedMixedTypesLists
   Scenario: [5] IN should return false when matching a number with a string
     Given any graph
     When executing query:
@@ -87,6 +92,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | false |
     And no side effects
 
+  @skip @unsupportedMixedTypesLists
   Scenario: [6] IN should return false when matching a number with a string - list version
     Given any graph
     When executing query:
@@ -98,6 +104,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | false |
     And no side effects
 
+  @skip @unsupportedTypeMismatch
   Scenario: [7] IN should return false when types of LHS and RHS don't match - singleton list
     Given any graph
     When executing query:
@@ -109,6 +116,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | false |
     And no side effects
 
+  @skip @unsupportedTypeMismatch
   Scenario: [8] IN should return false when types of LHS and RHS don't match - list
     Given any graph
     When executing query:
@@ -120,50 +128,55 @@ Feature: List5 - List Membership Validation - IN Operator
       | false |
     And no side effects
 
+  @note @fixedListTypes
   Scenario: [9] IN should return true when types of LHS and RHS match - singleton list
     Given any graph
     When executing query:
       """
-      RETURN [1] IN [1, 2, [1]] AS res
+      RETURN [1] IN [[1, 2], [1]] AS res
       """
     Then the result should be, in any order:
       | res  |
       | true |
     And no side effects
 
+  @note @fixedListTypes
   Scenario: [10] IN should return true when types of LHS and RHS match - list
     Given any graph
     When executing query:
       """
-      RETURN [1, 2] IN [1, [1, 2]] AS res
+      RETURN [1, 2] IN [[1], [1, 2]] AS res
       """
     Then the result should be, in any order:
       | res  |
       | true |
     And no side effects
 
+  @note @fixedListTypes
   Scenario: [11] IN should return false when order of elements in LHS list and RHS list don't match
     Given any graph
     When executing query:
       """
-      RETURN [1, 2] IN [1, [2, 1]] AS res
+      RETURN [1, 2] IN [[1], [2, 1]] AS res
       """
     Then the result should be, in any order:
       | res   |
       | false |
     And no side effects
 
+  @note @fixedListTypes
   Scenario: [12] IN with different length lists should return false
     Given any graph
     When executing query:
       """
-      RETURN [1, 2] IN [1, [1, 2, 3]] AS res
+      RETURN [1, 2] IN [[1], [1, 2, 3]] AS res
       """
     Then the result should be, in any order:
       | res   |
       | false |
     And no side effects
 
+  @skip @unsupportedMixedTypesLists
   Scenario: [13] IN should return false when matching a list with a nested list with same elements
     Given any graph
     When executing query:
@@ -175,50 +188,55 @@ Feature: List5 - List Membership Validation - IN Operator
       | false |
     And no side effects
 
+  @note @changedListTypes
   Scenario: [14] IN should return true when both LHS and RHS contain nested lists
     Given any graph
     When executing query:
       """
-      RETURN [[1, 2], [3, 4]] IN [5, [[1, 2], [3, 4]]] AS res
+      RETURN [[1, 2], [3, 4]] IN [[[5]], [[1, 2], [3, 4]]] AS res
       """
     Then the result should be, in any order:
       | res  |
       | true |
     And no side effects
 
+  @note @changedListTypes
   Scenario: [15] IN should return true when both LHS and RHS contain a nested list alongside a scalar element
     Given any graph
     When executing query:
       """
-      RETURN [[1, 2], 3] IN [1, [[1, 2], 3]] AS res
+      RETURN [[1, 2], [3]] IN [[[1]], [[1, 2], [3]]] AS res
       """
     Then the result should be, in any order:
       | res  |
       | true |
     And no side effects
 
+  @note @changedListTypes
   Scenario: [16] IN should return true when LHS and RHS contain a nested list - singleton version
     Given any graph
     When executing query:
       """
-      RETURN [[1]] IN [2, [[1]]] AS res
+      RETURN [[1]] IN [[[2]], [[1]]] AS res
       """
     Then the result should be, in any order:
       | res  |
       | true |
     And no side effects
 
+  @note @changedListTypes
   Scenario: [17] IN should return true when LHS and RHS contain a nested list
     Given any graph
     When executing query:
       """
-      RETURN [[1, 3]] IN [2, [[1, 3]]] AS res
+      RETURN [[1, 3]] IN [[[2]], [[1, 3]]] AS res
       """
     Then the result should be, in any order:
       | res  |
       | true |
     And no side effects
 
+  @skip @unsupportedMixedTypesLists
   Scenario: [18] IN should return false when LHS contains a nested list and type mismatch on RHS - singleton version
     Given any graph
     When executing query:
@@ -230,6 +248,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | false |
     And no side effects
 
+  @skip @unsupportedMixedTypesLists
   Scenario: [19] IN should return false when LHS contains a nested list and type mismatch on RHS
     Given any graph
     When executing query:
@@ -254,6 +273,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | null |
     And no side effects
 
+  @fails @semanticsNullHandling #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [21] IN should return null if LHS and RHS are null - list version
     Given any graph
     When executing query:
@@ -265,6 +285,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | null |
     And no side effects
 
+  @fails @semanticsNullHandling #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [22] IN should return null when LHS and RHS both ultimately contain null, even if LHS and RHS are of different types (nested list and flat list)
     Given any graph
     When executing query:
@@ -298,6 +319,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | true |
     And no side effects
 
+  @fails @semanticsNullHandling #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [25] IN should return null if comparison with null is required
     Given any graph
     When executing query:
@@ -309,6 +331,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | null |
     And no side effects
 
+  @skip @unsupportedMixedTypesLists
   Scenario: [26] IN should return true if correct list found despite other lists having nulls
     Given any graph
     When executing query:
@@ -320,17 +343,19 @@ Feature: List5 - List Membership Validation - IN Operator
       | true |
     And no side effects
 
+  @note @changedListTypes
   Scenario: [27] IN should return true if correct list found despite null being another element within containing list
     Given any graph
     When executing query:
       """
-      RETURN [1, 2] IN [1, [1, 2], null] AS res
+      RETURN [1, 2] IN [[1], [1, 2], [null]] AS res
       """
     Then the result should be, in any order:
       | res  |
       | true |
     And no side effects
 
+  @skip @unsupportedMixedTypesLists
   Scenario: [28] IN should return false if no match can be found, despite nulls
     Given any graph
     When executing query:
@@ -342,6 +367,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | false |
     And no side effects
 
+  @fails @semanticsNullHandling #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [29] IN should return null if comparison with null is required, list version
     Given any graph
     When executing query:
@@ -357,18 +383,19 @@ Feature: List5 - List Membership Validation - IN Operator
     Given any graph
     When executing query:
       """
-      RETURN [1, 2] IN [1, [1, 2, null]] AS res
+      RETURN [1, 2] IN [[1], [1, 2, null]] AS res
       """
     Then the result should be, in any order:
       | res   |
       | false |
     And no side effects
 
+  @fails @semanticsNullHandling #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [31] IN should return null when comparing two so-called identical lists where one element is null
     Given any graph
     When executing query:
       """
-      RETURN [1, 2, null] IN [1, [1, 2, null]] AS res
+      RETURN [1, 2, null] IN [[1], [1, 2, null]] AS res
       """
     Then the result should be, in any order:
       | res  |
@@ -386,17 +413,19 @@ Feature: List5 - List Membership Validation - IN Operator
       | true |
     And no side effects
 
+  @note @changedListTypes
   Scenario: [33] IN should return false if different length lists with nested elements compared, even if the extra element is null
     Given any graph
     When executing query:
       """
-      RETURN [[1, 2], [3, 4]] IN [5, [[1, 2], [3, 4], null]] AS res
+      RETURN [[1, 2], [3, 4]] IN [[[5]], [[1, 2], [3, 4], [null]]] AS res
       """
     Then the result should be, in any order:
       | res   |
       | false |
     And no side effects
 
+  @fails @semanticsNullHandling #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [34] IN should return null if comparison with null is required, list version 2
     Given any graph
     When executing query:
@@ -421,6 +450,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | true |
     And no side effects
 
+  @skip @unsupportedmixedTypes
   Scenario: [36] IN should return false for the empty list if the LHS and RHS types differ
     Given any graph
     When executing query:
@@ -432,17 +462,19 @@ Feature: List5 - List Membership Validation - IN Operator
       | false |
     And no side effects
 
+  @note @changedListTypes
   Scenario: [37] IN should work with an empty list in the presence of other list elements: matching
     Given any graph
     When executing query:
       """
-      RETURN [] IN [1, []] AS res
+      RETURN [] IN [[1], []] AS res
       """
     Then the result should be, in any order:
       | res  |
       | true |
     And no side effects
 
+  @skip @unsupportedMixedTypes
   Scenario: [38] IN should work with an empty list in the presence of other list elements: not matching
     Given any graph
     When executing query:
@@ -454,17 +486,19 @@ Feature: List5 - List Membership Validation - IN Operator
       | false |
     And no side effects
 
+  @note @changedListTypes
   Scenario: [39] IN should work with an empty list when comparing nested lists
     Given any graph
     When executing query:
       """
-      RETURN [[]] IN [1, [[]]] AS res
+      RETURN [[]] IN [[[1]], [[]]] AS res
       """
     Then the result should be, in any order:
       | res  |
       | true |
     And no side effects
 
+  @skip @unsupportedMixedTypes
   Scenario: [40] IN should return null if comparison with null is required for empty list
     Given any graph
     When executing query:
@@ -476,11 +510,12 @@ Feature: List5 - List Membership Validation - IN Operator
       | null |
     And no side effects
 
+  @note @changedListTypes
   Scenario: [41] IN should return true when LHS and RHS contain nested list with multiple empty lists
     Given any graph
     When executing query:
       """
-      RETURN [[], []] IN [1, [[], []]] AS res
+      RETURN [[], []] IN [[[1]], [[], []]] AS res
       """
     Then the result should be, in any order:
       | res  |

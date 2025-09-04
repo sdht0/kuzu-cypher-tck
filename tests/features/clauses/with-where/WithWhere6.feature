@@ -32,14 +32,15 @@ Feature: WithWhere6 - Filter on aggregates
 
   Scenario: [1] Filter a single aggregate
     Given an empty graph
+    And having defined kuzu types: n_name:r
     And having executed:
       """
-      CREATE (a {name: 'A'}),
-             (b {name: 'B'})
-      CREATE (a)-[:REL]->(),
-             (a)-[:REL]->(),
-             (a)-[:REL]->(),
-             (b)-[:REL]->()
+      CREATE (a:N {name: 'A'}),
+             (b:N {name: 'B'})
+      CREATE (a)-[:REL]->(:N),
+             (a)-[:REL]->(:N),
+             (a)-[:REL]->(:N),
+             (b)-[:REL]->(:N)
       """
     When executing query:
       """
@@ -50,5 +51,5 @@ Feature: WithWhere6 - Filter on aggregates
       """
     Then the result should be, in any order:
       | a             |
-      | ({name: 'A'}) |
+      | (:N {name: 'A'}) |
     And no side effects

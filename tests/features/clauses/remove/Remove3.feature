@@ -30,6 +30,7 @@
 
 Feature: Remove3 - Persistence of remove clause side effects
 
+  @skip @unsupportedRemoveProperty
   Scenario: [1] Limiting to zero results after removing a property from nodes affects the result set but not the side effects
     Given an empty graph
     And having executed:
@@ -48,6 +49,7 @@ Feature: Remove3 - Persistence of remove clause side effects
     And the side effects should be:
       | -properties | 1 |
 
+  @skip @unsupportedRemoveProperty
   Scenario: [2] Skipping all results after removing a property from nodes affects the result set but not the side effects
     Given an empty graph
     And having executed:
@@ -66,6 +68,7 @@ Feature: Remove3 - Persistence of remove clause side effects
     And the side effects should be:
       | -properties | 1 |
 
+  @skip @unsupportedRemoveProperty
   Scenario: [3] Skipping and limiting to a few results after removing a property from nodes affects the result set but not the side effects
     Given an empty graph
     And having executed:
@@ -90,6 +93,7 @@ Feature: Remove3 - Persistence of remove clause side effects
     And the side effects should be:
       | -properties | 5 |
 
+  @skip @unsupportedRemoveProperty
   Scenario: [4] Skipping zero results and limiting to all results after removing a property from nodes does not affect the result set nor the side effects
     Given an empty graph
     And having executed:
@@ -117,6 +121,7 @@ Feature: Remove3 - Persistence of remove clause side effects
     And the side effects should be:
       | -properties | 5 |
 
+  @skip @unsupportedRemoveProperty
   Scenario: [5] Filtering after removing a property from nodes affects the result set but not the side effects
     Given an empty graph
     And having executed:
@@ -142,6 +147,7 @@ Feature: Remove3 - Persistence of remove clause side effects
     And the side effects should be:
       | -properties | 5 |
 
+  @skip @unsupportedRemoveProperty
   Scenario: [6] Aggregating in `RETURN` after removing a property from nodes affects the result set but not the side effects
     Given an empty graph
     And having executed:
@@ -164,6 +170,7 @@ Feature: Remove3 - Persistence of remove clause side effects
     And the side effects should be:
       | -properties | 5 |
 
+  @skip @unsupportedRemoveProperty
   Scenario: [7] Aggregating in `WITH` after removing a property from nodes affects the result set but not the side effects
     Given an empty graph
     And having executed:
@@ -187,6 +194,7 @@ Feature: Remove3 - Persistence of remove clause side effects
     And the side effects should be:
       | -properties | 5 |
 
+  @skip @unsupportedRemoveProperty
   Scenario: [8] Limiting to zero results after removing a label from nodes affects the result set but not the side effects
     Given an empty graph
     And having executed:
@@ -205,6 +213,7 @@ Feature: Remove3 - Persistence of remove clause side effects
     And the side effects should be:
       | -labels | 1 |
 
+  @skip @unsupportedRemoveProperty
   Scenario: [9] Skipping all results after removing a label from nodes affects the result set but not the side effects
     Given an empty graph
     And having executed:
@@ -223,6 +232,7 @@ Feature: Remove3 - Persistence of remove clause side effects
     And the side effects should be:
       | -labels | 1 |
 
+  @skip @unsupportedRemoveProperty
   Scenario: [10] Skipping and limiting to a few results after removing a label from nodes affects the result set but not the side effects
     Given an empty graph
     And having executed:
@@ -247,6 +257,7 @@ Feature: Remove3 - Persistence of remove clause side effects
     And the side effects should be:
       | -labels | 1 |
 
+  @skip @unsupportedRemoveProperty
   Scenario: [11] Skipping zero result and limiting to all results after removing a label from nodes does not affect the result set nor the side effects
     Given an empty graph
     And having executed:
@@ -274,6 +285,7 @@ Feature: Remove3 - Persistence of remove clause side effects
     And the side effects should be:
       | -labels | 1 |
 
+  @skip @unsupportedRemoveProperty
   Scenario: [12] Filtering after removing a label from nodes affects the result set but not the side effects
     Given an empty graph
     And having executed:
@@ -299,6 +311,7 @@ Feature: Remove3 - Persistence of remove clause side effects
     And the side effects should be:
       | -labels | 1 |
 
+  @skip @unsupportedRemoveProperty
   Scenario: [13] Aggregating in `RETURN` after removing a label from nodes affects the result set but not the side effects
     Given an empty graph
     And having executed:
@@ -321,6 +334,7 @@ Feature: Remove3 - Persistence of remove clause side effects
     And the side effects should be:
       | -labels | 1 |
 
+  @skip @unsupportedRemoveProperty
   Scenario: [14] Aggregating in `WITH` after removing a label from nodes affects the result set but not the side effects
     Given an empty graph
     And having executed:
@@ -344,6 +358,7 @@ Feature: Remove3 - Persistence of remove clause side effects
     And the side effects should be:
       | -labels | 1 |
 
+  @skip @unsupportedRemoveProperty
   Scenario: [15] Limiting to zero results after removing a property from relationships affects the result set but not the side effects
     Given an empty graph
     And having executed:
@@ -362,6 +377,7 @@ Feature: Remove3 - Persistence of remove clause side effects
     And the side effects should be:
       | -properties | 1 |
 
+  @skip @unsupportedRemoveProperty
   Scenario: [16] Skipping all results after removing a property from relationships affects the result set but not the side effects
     Given an empty graph
     And having executed:
@@ -380,6 +396,7 @@ Feature: Remove3 - Persistence of remove clause side effects
     And the side effects should be:
       | -properties | 1 |
 
+  @skip @unsupportedRemoveProperty
   Scenario: [17] Skipping and limiting to a few results after removing a property from relationships affects the result set but not the side effects
     Given an empty graph
     And having executed:
@@ -404,6 +421,7 @@ Feature: Remove3 - Persistence of remove clause side effects
     And the side effects should be:
       | -properties | 5 |
 
+  @skip @unsupportedRemoveProperty
   Scenario: [18] Skipping zero result and limiting to all results after removing a property from relationships does not affect the result set nor the side effects
     Given an empty graph
     And having executed:
@@ -431,6 +449,7 @@ Feature: Remove3 - Persistence of remove clause side effects
     And the side effects should be:
       | -properties | 5 |
 
+  @skip @unsupportedRemoveProperty
   Scenario: [19] Filtering after removing a property from relationships affects the result set but not the side effects
     Given an empty graph
     And having executed:
@@ -456,6 +475,7 @@ Feature: Remove3 - Persistence of remove clause side effects
     And the side effects should be:
       | -properties | 5 |
 
+  @skip @unsupportedRemoveProperty
   Scenario: [20] Aggregating in `RETURN` after removing a property from relationships affects the result set but not the side effects
     Given an empty graph
     And having executed:
@@ -478,6 +498,7 @@ Feature: Remove3 - Persistence of remove clause side effects
     And the side effects should be:
       | -properties | 5 |
 
+  @skip @unsupportedRemoveProperty
   Scenario: [21] Aggregating in `WITH` after removing a property from relationships affects the result set but not the side effects
     Given an empty graph
     And having executed:

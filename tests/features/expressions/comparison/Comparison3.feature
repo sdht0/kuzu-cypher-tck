@@ -30,12 +30,14 @@
 
 Feature: Comparison3 - Full-Bound Range
 
+  @fails @unsupportedTernaryComparisons #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [1] Handling numerical ranges 1
     Given an empty graph
+    And having defined kuzu types: n_num
     And having executed:
       """
       UNWIND [1, 2, 3] AS i
-      CREATE ({num: i})
+      CREATE (:N {num: i})
       """
     When executing query:
       """
@@ -50,15 +52,16 @@ Feature: Comparison3 - Full-Bound Range
 
   Scenario: [2] Handling numerical ranges 2
     Given an empty graph
+    And having defined kuzu types: n_num
     And having executed:
       """
       UNWIND [1, 2, 3] AS i
-      CREATE ({num: i})
+      CREATE (:N {num: i})
       """
     When executing query:
       """
       MATCH (n)
-      WHERE 1 < n.num <= 3
+      WHERE 1 < n.num AND n.num <= 3
       RETURN n.num
       """
     Then the result should be, in any order:
@@ -69,15 +72,16 @@ Feature: Comparison3 - Full-Bound Range
 
   Scenario: [3] Handling numerical ranges 3
     Given an empty graph
+    And having defined kuzu types: n_num
     And having executed:
       """
       UNWIND [1, 2, 3] AS i
-      CREATE ({num: i})
+      CREATE (:N {num: i})
       """
     When executing query:
       """
       MATCH (n)
-      WHERE 1 <= n.num < 3
+      WHERE 1 <= n.num AND n.num < 3
       RETURN n.num
       """
     Then the result should be, in any order:
@@ -88,15 +92,16 @@ Feature: Comparison3 - Full-Bound Range
 
   Scenario: [4] Handling numerical ranges 4
     Given an empty graph
+    And having defined kuzu types: n_num
     And having executed:
       """
       UNWIND [1, 2, 3] AS i
-      CREATE ({num: i})
+      CREATE (:N {num: i})
       """
     When executing query:
       """
       MATCH (n)
-      WHERE 1 <= n.num <= 3
+      WHERE 1 <= n.num AND n.num <= 3
       RETURN n.num
       """
     Then the result should be, in any order:
@@ -108,15 +113,16 @@ Feature: Comparison3 - Full-Bound Range
 
   Scenario: [5] Handling string ranges 1
     Given an empty graph
+    And having defined kuzu types: n_name
     And having executed:
       """
       UNWIND ['a', 'b', 'c'] AS c
-      CREATE ({name: c})
+      CREATE (:N {name: c})
       """
     When executing query:
       """
       MATCH (n)
-      WHERE 'a' < n.name < 'c'
+      WHERE 'a' < n.name AND n.name < 'c'
       RETURN n.name
       """
     Then the result should be, in any order:
@@ -126,15 +132,16 @@ Feature: Comparison3 - Full-Bound Range
 
   Scenario: [6] Handling string ranges 2
     Given an empty graph
+    And having defined kuzu types: n_name
     And having executed:
       """
       UNWIND ['a', 'b', 'c'] AS c
-      CREATE ({name: c})
+      CREATE (:N {name: c})
       """
     When executing query:
       """
       MATCH (n)
-      WHERE 'a' < n.name <= 'c'
+      WHERE 'a' < n.name AND n.name <= 'c'
       RETURN n.name
       """
     Then the result should be, in any order:
@@ -145,15 +152,16 @@ Feature: Comparison3 - Full-Bound Range
 
   Scenario: [7] Handling string ranges 3
     Given an empty graph
+    And having defined kuzu types: n_name
     And having executed:
       """
       UNWIND ['a', 'b', 'c'] AS c
-      CREATE ({name: c})
+      CREATE (:N {name: c})
       """
     When executing query:
       """
       MATCH (n)
-      WHERE 'a' <= n.name < 'c'
+      WHERE 'a' <= n.name AND n.name < 'c'
       RETURN n.name
       """
     Then the result should be, in any order:
@@ -164,15 +172,16 @@ Feature: Comparison3 - Full-Bound Range
 
   Scenario: [8] Handling string ranges 4
     Given an empty graph
+    And having defined kuzu types: n_name
     And having executed:
       """
       UNWIND ['a', 'b', 'c'] AS c
-      CREATE ({name: c})
+      CREATE (:N {name: c})
       """
     When executing query:
       """
       MATCH (n)
-      WHERE 'a' <= n.name <= 'c'
+      WHERE 'a' <= n.name AND n.name <= 'c'
       RETURN n.name
       """
     Then the result should be, in any order:
@@ -184,14 +193,15 @@ Feature: Comparison3 - Full-Bound Range
 
   Scenario: [9] Handling empty range
     Given an empty graph
+    And having defined kuzu types: n_num
     And having executed:
       """
-      CREATE ({num: 3})
+      CREATE (:N {num: 3})
       """
     When executing query:
       """
       MATCH (n)
-      WHERE 10 < n.num <= 3
+      WHERE 10 < n.num AND n.num <= 3
       RETURN n.num
       """
     Then the result should be, in any order:

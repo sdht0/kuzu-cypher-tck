@@ -30,6 +30,7 @@
 
 Feature: List3 - List Equality
 
+  @skip @semanticsDIfferentTypesComparison
   Scenario: [1] Equality between list and literal should return false
     Given any graph
     When executing query:
@@ -52,6 +53,7 @@ Feature: List3 - List Equality
       | false |
     And no side effects
 
+  @skip @unsupportedMixedTypesLists
   Scenario: [3] Equality between different lists with null should return false
     Given any graph
     When executing query:
@@ -63,6 +65,7 @@ Feature: List3 - List Equality
       | false |
     And no side effects
 
+  @fails @semanticsNullHandling #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [4] Equality between almost equal lists with null should return null
     Given any graph
     When executing query:
@@ -85,6 +88,7 @@ Feature: List3 - List Equality
       | false |
     And no side effects
 
+  @skip @unsupportedMixedTypesLists
   Scenario: [6] Equality between different nested lists with null should return false
     Given any graph
     When executing query:
@@ -96,6 +100,7 @@ Feature: List3 - List Equality
       | false |
     And no side effects
 
+  @skip @unsupportedMixedTypesLists
   Scenario: [7] Equality between almost equal nested lists with null should return null
     Given any graph
     When executing query:

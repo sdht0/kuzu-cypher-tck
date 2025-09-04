@@ -32,9 +32,10 @@ Feature: Return7 - Return all variables
 
   Scenario: [1] Return all variables
     Given an empty graph
+    And having defined kuzu types: ns:t
     And having executed:
       """
-      CREATE (:Start)-[:T]->()
+      CREATE (:Start)-[:T]->(:N)
       """
     When executing query:
       """
@@ -42,15 +43,16 @@ Feature: Return7 - Return all variables
       RETURN *
       """
     Then the result should be, in any order:
-      | a        | b  | p                   |
-      | (:Start) | () | <(:Start)-[:T]->()> |
+      | a        | b    | p      |
+      | (:Start) | (:N) | [[:T]] |
     And no side effects
 
   Scenario: [2] Fail when using RETURN * without variables in scope
     Given any graph
+    And having defined kuzu types: n
     When executing query:
       """
-      MATCH ()
+      MATCH (:N)
       RETURN *
       """
     Then a SyntaxError should be raised at compile time: NoVariablesInScope

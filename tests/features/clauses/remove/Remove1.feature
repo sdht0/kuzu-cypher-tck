@@ -30,8 +30,10 @@
 
 Feature: Remove1 - Remove a Property
 
+  @skip @unsupportedRemoveProperty
   Scenario: [1] Remove a single node property
     Given an empty graph
+    And having defined kuzu types: l_num
     And having executed:
       """
       CREATE (:L {num: 42})
@@ -48,6 +50,7 @@ Feature: Remove1 - Remove a Property
     And the side effects should be:
       | -properties | 1 |
 
+  @skip @unsupportedRemoveProperty
   Scenario: [2] Remove multiple node properties
     Given an empty graph
     And having executed:
@@ -66,6 +69,7 @@ Feature: Remove1 - Remove a Property
     And the side effects should be:
       | -properties | 2 |
 
+  @skip @unsupportedRemoveProperty
   Scenario: [3] Remove a single relationship property
     Given an empty graph
     And having executed:
@@ -84,6 +88,7 @@ Feature: Remove1 - Remove a Property
     And the side effects should be:
       | -properties | 1 |
 
+  @skip @unsupportedRemoveProperty
   Scenario: [4] Remove multiple relationship properties
     Given an empty graph
     And having executed:
@@ -102,6 +107,7 @@ Feature: Remove1 - Remove a Property
     And the side effects should be:
       | -properties | 2 |
 
+  @skip @unsupportedRemoveProperty
   Scenario: [5] Ignore null when removing property from a node
     Given an empty graph
     When executing query:
@@ -115,6 +121,7 @@ Feature: Remove1 - Remove a Property
       | null |
     And no side effects
 
+  @skip @unsupportedRemoveProperty
   Scenario: [6] Ignore null when removing property from a relationship
     Given an empty graph
     And having executed:
@@ -133,6 +140,7 @@ Feature: Remove1 - Remove a Property
       | ({num: 42}) |
     And no side effects
 
+  @skip @unsupportedRemoveProperty
   Scenario: [7] Remove a missing node property
     Given an empty graph
     And having executed:

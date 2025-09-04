@@ -30,45 +30,49 @@
 
 Feature: Precedence3 - On list values
 
+  @note @changedListTypeAndIndex
   Scenario: [1] List element access takes precedence over list appending
     Given an empty graph
     When executing query:
       """
-      RETURN [[1], [2, 3], [4, 5]] + [5, [6, 7], [8, 9], 10][3] AS a,
-             [[1], [2, 3], [4, 5]] + ([5, [6, 7], [8, 9], 10][3]) AS b,
-             ([[1], [2, 3], [4, 5]] + [5, [6, 7], [8, 9], 10])[3] AS c
+      RETURN [[1], [2, 3], [4, 5]] + [[5], [6, 7], [8, 9], [10]][4:4] AS a,
+             [[1], [2, 3], [4, 5]] + ([[5], [6, 7], [8, 9], [10]][4:4]) AS b,
+             ([[1], [2, 3], [4, 5]] + [[5], [6, 7], [8, 9], [10]])[4:4] AS c
       """
     Then the result should be, in any order:
       | a                         | b                         | c |
-      | [[1], [2, 3], [4, 5], 10] | [[1], [2, 3], [4, 5], 10] | 5 |
+      | [[1], [2, 3], [4, 5], [10]] | [[1], [2, 3], [4, 5], [10]] | [[5]] |
     And no side effects
 
+  @note @changedListTypeAndIndex
   Scenario: [2] List element access takes precedence over list concatenation
     Given an empty graph
     When executing query:
       """
-      RETURN [[1], [2, 3], [4, 5]] + [5, [6, 7], [8, 9], 10][2] AS a,
-             [[1], [2, 3], [4, 5]] + ([5, [6, 7], [8, 9], 10][2]) AS b,
-             ([[1], [2, 3], [4, 5]] + [5, [6, 7], [8, 9], 10])[2] AS c
+      RETURN [[1], [2, 3], [4, 5]] + [[5], [6, 7], [8, 9], [10]][3:3] AS a,
+             [[1], [2, 3], [4, 5]] + ([[5], [6, 7], [8, 9], [10]][3:3]) AS b,
+             ([[1], [2, 3], [4, 5]] + [[5], [6, 7], [8, 9], [10]])[3:3] AS c
       """
     Then the result should be, in any order:
       | a                           | b                           | c      |
-      | [[1], [2, 3], [4, 5], 8, 9] | [[1], [2, 3], [4, 5], 8, 9] | [4, 5] |
+      | [[1], [2, 3], [4, 5], [8, 9]] | [[1], [2, 3], [4, 5], [8, 9]] | [[4, 5]] |
     And no side effects
 
+  @note @changedListTypeAndIndex
   Scenario: [3] List slicing takes precedence over list concatenation
     Given an empty graph
     When executing query:
       """
-      RETURN [[1], [2, 3], [4, 5]] + [5, [6, 7], [8, 9], 10][1..3] AS a,
-             [[1], [2, 3], [4, 5]] + ([5, [6, 7], [8, 9], 10][1..3]) AS b,
-             ([[1], [2, 3], [4, 5]] + [5, [6, 7], [8, 9], 10])[1..3] AS c
+      RETURN [[1], [2, 3], [4, 5]] + [[5], [6, 7], [8, 9], [10]][2:3] AS a,
+             [[1], [2, 3], [4, 5]] + ([[5], [6, 7], [8, 9], [10]][2:3]) AS b,
+             ([[1], [2, 3], [4, 5]] + [[5], [6, 7], [8, 9], [10]])[2:3] AS c
       """
     Then the result should be, in any order:
       | a                                     | b                                     | c                |
       | [[1], [2, 3], [4, 5], [6, 7], [8, 9]] | [[1], [2, 3], [4, 5], [6, 7], [8, 9]] | [[2, 3], [4, 5]] |
     And no side effects
 
+  @fails @bugIncorrectPrecedence #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [4] List appending takes precedence over list element containment
     Given an empty graph
     When executing query:
@@ -82,6 +86,7 @@ Feature: Precedence3 - On list values
       | false | false | [1, false, 4] |
     And no side effects
 
+  @fails @bugIncorrectPrecedence #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [5] List concatenation takes precedence over list element containment
     Given an empty graph
     When executing query:
@@ -96,13 +101,14 @@ Feature: Precedence3 - On list values
       | false | false | [false, 4] | [1, false, 4] |
     And no side effects
 
+  @fails @bugIncorrectPrecedence #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [6] List element containment takes precedence over comparison operator
     Given an empty graph
     When executing query:
       """
-      RETURN [1, 2] <comp> [3, 4] IN [[3, 4], false] AS a,
-             [1, 2] <comp> ([3, 4] IN [[3, 4], false]) AS b,
-             ([1, 2] <comp> [3, 4]) IN [[3, 4], false] AS c
+      RETURN [1, 2] <comp> [3, 4] IN [[3, 4]] AS a,
+             [1, 2] <comp> ([3, 4] IN [[3, 4]]) AS b,
+             ([1, 2] <comp> [3, 4]) IN [[3, 4]] AS c
       """
     Then the result should be, in any order:
       | a       | b       | c       |

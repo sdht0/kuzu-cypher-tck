@@ -80,6 +80,7 @@ Feature: Union1 - Union
 
   Scenario: [4] Should be able to create text output from union queries
     Given an empty graph
+    And having defined kuzu types: ab
     And having executed:
       """
       CREATE (:A), (:B)
@@ -98,6 +99,7 @@ Feature: Union1 - Union
       | (:B) |
     And no side effects
 
+  @fails @semanticsColumnNamesInUnion #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [5] Failing when UNION has different columns
     Given any graph
     When executing query:

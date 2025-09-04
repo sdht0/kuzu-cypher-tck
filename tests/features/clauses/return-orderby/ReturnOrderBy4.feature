@@ -30,11 +30,12 @@
 
 Feature: ReturnOrderBy4 - Order by in combination with projection
 
+  @note @1basedListIndex
   Scenario: [1] ORDER BY of a column introduced in RETURN should return salient results in ascending order
     Given an empty graph
     When executing query:
       """
-      WITH [0, 1] AS prows, [[2], [3, 4]] AS qrows
+      WITH [1, 2] AS prows, [[2], [3, 4]] AS qrows
       UNWIND prows AS p
       UNWIND qrows[p] AS q
       WITH p, count(q) AS rng
@@ -43,12 +44,13 @@ Feature: ReturnOrderBy4 - Order by in combination with projection
       """
     Then the result should be, in order:
       | p |
-      | 0 |
       | 1 |
+      | 2 |
     And no side effects
 
   Scenario: [2] Handle projections with ORDER BY
     Given an empty graph
+    And having defined kuzu types: c_nr
     And having executed:
       """
       CREATE (c1:Crew {name: 'Neo', rank: 1}),

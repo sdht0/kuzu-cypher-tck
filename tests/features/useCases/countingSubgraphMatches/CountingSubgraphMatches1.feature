@@ -30,8 +30,10 @@
 
 Feature: CountingSubgraphMatches1 - Matching subgraph patterns and count the number of matches
 
+  @fails @semanticsUndirTraversal #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [1] Undirected match in self-relationship graph, count
     Given an empty graph
+    And having defined kuzu types: a:l
     And having executed:
       """
       CREATE (a:A)-[:LOOP]->(a)
@@ -46,8 +48,10 @@ Feature: CountingSubgraphMatches1 - Matching subgraph patterns and count the num
       | 1        |
     And no side effects
 
+  @fails @semanticsUndirTraversal #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [2] Undirected match of self-relationship in self-relationship graph, count
     Given an empty graph
+    And having defined kuzu types: a:l
     And having executed:
       """
       CREATE (a:A)-[:LOOP]->(a)
@@ -62,8 +66,10 @@ Feature: CountingSubgraphMatches1 - Matching subgraph patterns and count the num
       | 1        |
     And no side effects
 
+  @fails @semanticsUndirTraversal #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [3] Undirected match on simple relationship graph, count
     Given an empty graph
+    And having defined kuzu types: a:l
     And having executed:
       """
       CREATE (:A)-[:LOOP]->(:B)
@@ -80,6 +86,7 @@ Feature: CountingSubgraphMatches1 - Matching subgraph patterns and count the num
 
   Scenario: [4] Directed match on self-relationship graph, count
     Given an empty graph
+    And having defined kuzu types: a:l
     And having executed:
       """
       CREATE (a:A)-[:LOOP]->(a)
@@ -96,6 +103,7 @@ Feature: CountingSubgraphMatches1 - Matching subgraph patterns and count the num
 
   Scenario: [5] Directed match of self-relationship on self-relationship graph, count
     Given an empty graph
+    And having defined kuzu types: a:l
     And having executed:
       """
       CREATE (a:A)-[:LOOP]->(a)
@@ -110,8 +118,10 @@ Feature: CountingSubgraphMatches1 - Matching subgraph patterns and count the num
       | 1        |
     And no side effects
 
+  @fails @semanticsUndirTraversal #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [6] Counting undirected self-relationships in self-relationship graph
     Given an empty graph
+    And having defined kuzu types: a:l
     And having executed:
       """
       CREATE (a:A)-[:LOOP]->(a)
@@ -128,6 +138,7 @@ Feature: CountingSubgraphMatches1 - Matching subgraph patterns and count the num
 
   Scenario: [7] Counting distinct undirected self-relationships in self-relationship graph
     Given an empty graph
+    And having defined kuzu types: a:l
     And having executed:
       """
       CREATE (a:A)-[:LOOP]->(a)
@@ -144,6 +155,7 @@ Feature: CountingSubgraphMatches1 - Matching subgraph patterns and count the num
 
   Scenario: [8] Directed match of a simple relationship, count
     Given an empty graph
+    And having defined kuzu types: ab:l
     And having executed:
       """
       CREATE (:A)-[:LOOP]->(:B)
@@ -160,10 +172,11 @@ Feature: CountingSubgraphMatches1 - Matching subgraph patterns and count the num
 
   Scenario: [9] Counting directed self-relationships
     Given an empty graph
+    And having defined kuzu types: ab:lt
     And having executed:
       """
       CREATE (a:A)-[:LOOP]->(a),
-             ()-[:T]->()
+             (:B)-[:T]->(:B)
       """
     When executing query:
       """
@@ -175,8 +188,10 @@ Feature: CountingSubgraphMatches1 - Matching subgraph patterns and count the num
       | 1        |
     And no side effects
 
+  @fails @semanticsUndirTraversal #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [10] Mixing directed and undirected pattern parts with self-relationship, count
     Given an empty graph
+    And having defined kuzu types: abl:t12l
     And having executed:
       """
       CREATE (:A)-[:T1]->(l:Looper),
@@ -193,8 +208,10 @@ Feature: CountingSubgraphMatches1 - Matching subgraph patterns and count the num
       | 2        |
     And no side effects
 
+  @fails @semanticsUndirTraversal #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [11] Mixing directed and undirected pattern parts with self-relationship, undirected count
     Given an empty graph
+    And having defined kuzu types: abl:t12l
     And having executed:
       """
       CREATE (:A)-[:T1]->(l:Looper),

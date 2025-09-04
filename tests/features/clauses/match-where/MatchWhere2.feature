@@ -32,6 +32,7 @@ Feature: MatchWhere2 - Filter multiple variables
 
   Scenario: [1] Filter nodes with conjunctive two-part property predicate on multi variables with multiple bindings
     Given an empty graph
+    And having defined kuzu types: abcd_id:t
     And having executed:
       """
       CREATE (a:A), (b:B {id: 1}), (c:C {id: 2}), (d:D)
@@ -57,13 +58,14 @@ Feature: MatchWhere2 - Filter multiple variables
 
   Scenario: [2] Filter node with conjunctive multi-part property predicates on multi variables with multiple bindings
     Given an empty graph
+    And having defined kuzu types: aptv_in:3
     And having executed:
       """
-      CREATE (advertiser {name: 'advertiser1', id: 0}),
-             (thing {name: 'Color', id: 1}),
-             (red {name: 'red'}),
-             (p1 {name: 'product1'}),
-             (p2 {name: 'product4'})
+      CREATE (advertiser:A {name: 'advertiser1', id: 0}),
+             (thing:T {name: 'Color', id: 1}),
+             (red:V {name: 'red'}),
+             (p1:P {name: 'product1'}),
+             (p2:P {name: 'product4'})
       CREATE (advertiser)-[:ADV_HAS_PRODUCT]->(p1),
              (advertiser)-[:ADV_HAS_PRODUCT]->(p2),
              (thing)-[:AA_HAS_VALUE]->(red),

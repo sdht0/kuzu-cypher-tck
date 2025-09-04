@@ -32,6 +32,7 @@ Feature: Create6 - Persistence of create clause side effects
 
   Scenario: [1] Limiting to zero results after creating nodes affects the result set but not the side effects
     Given an empty graph
+    And having defined kuzu types: n_num
     When executing query:
       """
       CREATE (n:N {num: 42})
@@ -44,9 +45,11 @@ Feature: Create6 - Persistence of create clause side effects
       | +nodes         | 1 |
       | +labels        | 1 |
       | +properties    | 1 |
+      | +relationships | 0 |
 
   Scenario: [2] Skipping all results after creating nodes affects the result set but not the side effects
     Given an empty graph
+    And having defined kuzu types: n_num
     When executing query:
       """
       CREATE (n:N {num: 42})
@@ -59,9 +62,11 @@ Feature: Create6 - Persistence of create clause side effects
       | +nodes         | 1 |
       | +labels        | 1 |
       | +properties    | 1 |
+      | +relationships | 0 |
 
   Scenario: [3] Skipping and limiting to a few results after creating nodes does not affect the result set nor the side effects
     Given an empty graph
+    And having defined kuzu types: n_num
     When executing query:
       """
       UNWIND [42, 42, 42, 42, 42] AS x
@@ -77,9 +82,11 @@ Feature: Create6 - Persistence of create clause side effects
       | +nodes         | 5 |
       | +labels        | 1 |
       | +properties    | 5 |
+      | +relationships | 0 |
 
   Scenario: [4] Skipping zero result and limiting to all results after creating nodes does not affect the result set nor the side effects
     Given an empty graph
+    And having defined kuzu types: n_num
     When executing query:
       """
       UNWIND [42, 42, 42, 42, 42] AS x
@@ -98,9 +105,11 @@ Feature: Create6 - Persistence of create clause side effects
       | +nodes         | 5 |
       | +labels        | 1 |
       | +properties    | 5 |
+      | +relationships | 0 |
 
   Scenario: [5] Filtering after creating nodes affects the result set but not the side effects
     Given an empty graph
+    And having defined kuzu types: n_num
     When executing query:
       """
       UNWIND [1, 2, 3, 4, 5] AS x
@@ -117,9 +126,11 @@ Feature: Create6 - Persistence of create clause side effects
       | +nodes         | 5 |
       | +labels        | 1 |
       | +properties    | 5 |
+      | +relationships | 0 |
 
   Scenario: [6] Aggregating in `RETURN` after creating nodes affects the result set but not the side effects
     Given an empty graph
+    And having defined kuzu types: n_num
     When executing query:
       """
       UNWIND [1, 2, 3, 4, 5] AS x
@@ -133,9 +144,11 @@ Feature: Create6 - Persistence of create clause side effects
       | +nodes         | 5 |
       | +labels        | 1 |
       | +properties    | 5 |
+      | +relationships | 0 |
 
   Scenario: [7] Aggregating in `WITH` after creating nodes affects the result set but not the side effects
     Given an empty graph
+    And having defined kuzu types: n_num
     When executing query:
       """
       UNWIND [1, 2, 3, 4, 5] AS x
@@ -150,12 +163,14 @@ Feature: Create6 - Persistence of create clause side effects
       | +nodes         | 5 |
       | +labels        | 1 |
       | +properties    | 5 |
+      | +relationships | 0 |
 
   Scenario: [8] Limiting to zero results after creating relationships affects the result set but not the side effects
     Given an empty graph
+    And having defined kuzu types: n:r_num
     When executing query:
       """
-      CREATE ()-[r:R {num: 42}]->()
+      CREATE (:N)-[r:R {num: 42}]->(:N)
       RETURN r
       LIMIT 0
       """
@@ -168,9 +183,10 @@ Feature: Create6 - Persistence of create clause side effects
 
   Scenario: [9] Skipping all results after creating relationships affects the result set but not the side effects
     Given an empty graph
+    And having defined kuzu types: n:r_num
     When executing query:
       """
-      CREATE ()-[r:R {num: 42}]->()
+      CREATE (:N)-[r:R {num: 42}]->(:N)
       RETURN r
       SKIP 1
       """
@@ -183,10 +199,11 @@ Feature: Create6 - Persistence of create clause side effects
 
   Scenario: [10] Skipping and limiting to a few results after creating relationships does not affect the result set nor the side effects
     Given an empty graph
+    And having defined kuzu types: n:r_num
     When executing query:
       """
       UNWIND [42, 42, 42, 42, 42] AS x
-      CREATE ()-[r:R {num: x}]->()
+      CREATE (:N)-[r:R {num: x}]->(:N)
       RETURN r.num AS num
       SKIP 2 LIMIT 2
       """
@@ -201,10 +218,11 @@ Feature: Create6 - Persistence of create clause side effects
 
   Scenario: [11] Skipping zero result and limiting to all results after creating relationships does not affect the result set nor the side effects
     Given an empty graph
+    And having defined kuzu types: n:r_num
     When executing query:
       """
       UNWIND [42, 42, 42, 42, 42] AS x
-      CREATE ()-[r:R {num: x}]->()
+      CREATE (:N)-[r:R {num: x}]->(:N)
       RETURN r.num AS num
       SKIP 0 LIMIT 5
       """
@@ -222,10 +240,11 @@ Feature: Create6 - Persistence of create clause side effects
 
   Scenario: [12] Filtering after creating relationships affects the result set but not the side effects
     Given an empty graph
+    And having defined kuzu types: n:r_num
     When executing query:
       """
       UNWIND [1, 2, 3, 4, 5] AS x
-      CREATE ()-[r:R {num: x}]->()
+      CREATE (:N)-[r:R {num: x}]->(:N)
       WITH r
       WHERE r.num % 2 = 0
       RETURN r.num AS num
@@ -241,10 +260,11 @@ Feature: Create6 - Persistence of create clause side effects
 
   Scenario: [13] Aggregating in `RETURN` after creating relationships affects the result set but not the side effects
     Given an empty graph
+    And having defined kuzu types: n:r_num
     When executing query:
       """
       UNWIND [1, 2, 3, 4, 5] AS x
-      CREATE ()-[r:R {num: x}]->()
+      CREATE (:N)-[r:R {num: x}]->(:N)
       RETURN sum(r.num) AS sum
       """
     Then the result should be, in any order:
@@ -257,10 +277,11 @@ Feature: Create6 - Persistence of create clause side effects
 
   Scenario: [14] Aggregating in `WITH` after creating relationships affects the result set but not the side effects
     Given an empty graph
+    And having defined kuzu types: n:r_num
     When executing query:
       """
       UNWIND [1, 2, 3, 4, 5] AS x
-      CREATE ()-[r:R {num: x}]->()
+      CREATE (:N)-[r:R {num: x}]->(:N)
       WITH sum(r.num) AS sum
       RETURN sum
       """

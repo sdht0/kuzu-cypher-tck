@@ -32,6 +32,7 @@ Feature: String11 - Combining Exact String Search
 
   Scenario: [1] Combining prefix and suffix search
     Given an empty graph
+    And having defined kuzu types: t2_name
     And having executed:
       """
       CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
@@ -52,6 +53,7 @@ Feature: String11 - Combining Exact String Search
 
   Scenario: [2] Combining prefix, suffix, and substring search
     Given an empty graph
+    And having defined kuzu types: t2_name
     And having executed:
       """
       CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),

@@ -74,6 +74,7 @@ Feature: Literals7 - List
       | [1]     |
     And no side effects
 
+  @fails @unsupportedHexadecimal #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [5] Return a list containing a hexadecimal integer
     Given any graph
     When executing query:
@@ -85,6 +86,7 @@ Feature: Literals7 - List
       | [-372036854] |
     And no side effects
 
+  @fails @unsupportedOctal #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [6] Return a list containing a octal integer
     Given any graph
     When executing query:
@@ -162,6 +164,7 @@ Feature: Literals7 - List
       | [[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]] |
     And no side effects
 
+  @fails @unsupportedEmptyMap #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [13] Return a list containing an empty map
     Given any graph
     When executing query:
@@ -173,6 +176,7 @@ Feature: Literals7 - List
       | [{}]    |
     And no side effects
 
+  @fails @unsupportedMultiTypeList #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [14] Return a list containing multiple integer
     Given any graph
     When executing query:
@@ -196,6 +200,7 @@ Feature: Literals7 - List
 #      | ['abc, as#?lßdj ', '', '\'', ',', '[a', ']'] |
 #    And no side effects
 
+  @fails @unsupportedMultiTypeList #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [16] Return a list containing multiple mixed values
     Given any graph
     When executing query:
@@ -207,6 +212,7 @@ Feature: Literals7 - List
       | [0.2, ', as#?lßdj ', null, 71034856, false] |
     And no side effects
 
+  @fails @unsupportedMultiTypeList #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [17] Return a list containing real and fake nested lists
     Given any graph
     When executing query:

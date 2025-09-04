@@ -32,9 +32,10 @@ Feature: Return3 - Return multiple expressions (if column order correct)
 
   Scenario: [1] Returning multiple expressions
     Given an empty graph
+    And having defined kuzu types: n_id
     And having executed:
       """
-      CREATE ()
+      CREATE (:N)
       """
     When executing query:
       """
@@ -48,9 +49,10 @@ Feature: Return3 - Return multiple expressions (if column order correct)
 
   Scenario: [2] Returning multiple node property values
     Given an empty graph
+    And having defined kuzu types: n_3
     And having executed:
       """
-      CREATE ({name: 'Philip J. Fry', age: 2046, seasons: [1, 2, 3, 4, 5, 6, 7]})
+      CREATE (:N {name: 'Philip J. Fry', age: 2046, seasons: [1, 2, 3, 4, 5, 6, 7]})
       """
     When executing query:
       """
@@ -64,6 +66,7 @@ Feature: Return3 - Return multiple expressions (if column order correct)
 
   Scenario: [3] Projecting nodes and relationships
     Given an empty graph
+    And having defined kuzu types: ab:t
     And having executed:
       """
       CREATE (a:A), (b:B)

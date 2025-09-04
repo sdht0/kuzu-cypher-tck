@@ -43,6 +43,7 @@ Feature: List6 - List size
 
   Scenario: [2] Setting and returning the size of a list property
     Given an empty graph
+    And having defined kuzu types: t_numbers
     And having executed:
       """
       CREATE (:TheLabel)
@@ -91,8 +92,10 @@ Feature: List6 - List size
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
-  Scenario Outline: [6] Fail for `size()` on pattern predicates
+  @fails @bugCastToString #https://github.com/kuzudb/kuzu/issues/5841
+  Scenario Outline: [6] Fail for `size()` on pattern predicates: <pattern>
     Given any graph
+    And having defined kuzu types: abc_num:r
     When executing query:
       """
       MATCH (a), (b), (c)
@@ -111,6 +114,7 @@ Feature: List6 - List size
       | (a)-[:REL]->(:C)<-[:REL]-(a {num: 5})      |
       | ()-[:REL*0..2]->()<-[:REL]-(:A {num: 5})   |
 
+  @fails @unsupportedListComprehension #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [7] Using size of pattern comprehension to test existence
     Given an empty graph
     And having executed:
@@ -129,6 +133,7 @@ Feature: List6 - List size
       | (:X {num: 43}) | false |
     And no side effects
 
+  @fails @unsupportedListComprehension #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [8] Get node degree via size of pattern comprehension
     Given an empty graph
     And having executed:
@@ -148,6 +153,7 @@ Feature: List6 - List size
       | 3      |
     And no side effects
 
+  @fails @unsupportedListComprehension #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [9] Get node degree via size of pattern comprehension that specifies a relationship type
     Given an empty graph
     And having executed:
@@ -168,15 +174,17 @@ Feature: List6 - List size
       | 3      |
     And no side effects
 
+  @fails @unsupportedListComprehension #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [10] Get node degree via size of pattern comprehension that specifies multiple relationship types
     Given an empty graph
+    And having defined kuzu types: nx:ot
     And having executed:
       """
       CREATE (x:X),
-        (x)-[:T]->(),
-        (x)-[:T]->(),
-        (x)-[:T]->(),
-        (x)-[:OTHER]->()
+        (x)-[:T]->(:N),
+        (x)-[:T]->(:N),
+        (x)-[:T]->(:N),
+        (x)-[:OTHER]->(:N)
       """
     When executing query:
       """
