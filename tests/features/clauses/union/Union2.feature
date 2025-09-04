@@ -83,7 +83,6 @@ Feature: Union2 - Union All
 
   Scenario: [4] Should be able to create text output from union all queries
     Given an empty graph
-    And having defined kuzu types: ab
     And having executed:
       """
       CREATE (:A), (:B)
@@ -102,7 +101,6 @@ Feature: Union2 - Union All
       | (:B) |
     And no side effects
 
-  @fails @unionDifferentColumns
   Scenario: [5] Failing when UNION ALL has different columns
     Given any graph
     When executing query:

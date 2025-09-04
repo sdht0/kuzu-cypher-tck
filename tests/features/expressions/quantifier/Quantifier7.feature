@@ -52,7 +52,6 @@ Feature: Quantifier7 - Any quantifier interop
       | all(y IN x WHERE y = 'abc')    | true   |
       | all(y IN x WHERE y = 'def')    | false  |
 
-  @fails @bugFailedVarBinding
   Scenario Outline: [2] Any quantifier can nest itself and other quantifiers on the same list
     Given any graph
     When executing query:
@@ -115,7 +114,6 @@ Feature: Quantifier7 - Any quantifier interop
       | x < 7     |
       | x >= 3    |
 
-  @fails @unsupportedListComprehension
   Scenario Outline: [5] Any quantifier is equal the boolean negative of the all quantifier on the boolean negative of the predicate
     Given any graph
     When executing query:
@@ -135,7 +133,6 @@ Feature: Quantifier7 - Any quantifier interop
       | x < 7     |
       | x >= 3    |
 
-  @fails @unsupportedListComprehension
   Scenario Outline: [6] Any quantifier is equal whether the size of the list filtered with same the predicate is grater zero
     Given any graph
     When executing query:

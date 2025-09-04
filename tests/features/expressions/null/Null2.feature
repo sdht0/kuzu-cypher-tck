@@ -30,7 +30,6 @@
 
 Feature: Null2 - IS NOT NULL validation
 
-  @skip @wellDefinedSchema
   Scenario: [1] Property not null check on non-null node
     Given an empty graph
     And having executed:
@@ -48,7 +47,6 @@ Feature: Null2 - IS NOT NULL validation
       | false                 | true                 |
     And no side effects
 
-  @skip @wellDefinedSchema
   Scenario: [2] Property not null check on optional non-null node
     Given an empty graph
     And having executed:
@@ -66,7 +64,6 @@ Feature: Null2 - IS NOT NULL validation
       | false                 | true                 |
     And no side effects
 
-  @skip @wellDefinedSchema
   Scenario: [3] Property not null check on null node
     Given an empty graph
     When executing query:
@@ -90,7 +87,6 @@ Feature: Null2 - IS NOT NULL validation
       | false |
     And no side effects
 
-  @skip @wellDefinedSchema
   Scenario Outline: [5] IS NOT NULL on a map
     Given any graph
     When executing query:
@@ -121,7 +117,6 @@ Feature: Null2 - IS NOT NULL validation
   @skipStyleCheck
   Scenario: [6] IS NOT NULL is case insensitive
     Given an empty graph
-    And having defined kuzu types: x_p
     And having executed:
       """
       CREATE (a:X {prop: 42}), (:X)

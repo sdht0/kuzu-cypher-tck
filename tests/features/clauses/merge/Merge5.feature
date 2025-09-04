@@ -32,7 +32,6 @@ Feature: Merge5 - Merge relationships
 
   Scenario: [1] Creating a relationship
     Given an empty graph
-    And having defined kuzu types: ab:t-2
     And having executed:
       """
       CREATE (:A), (:B)
@@ -51,7 +50,6 @@ Feature: Merge5 - Merge relationships
 
   Scenario: [2] Matching a relationship
     Given an empty graph
-    And having defined kuzu types: ab:t-2
     And having executed:
       """
       CREATE (a:A), (b:B)
@@ -61,16 +59,15 @@ Feature: Merge5 - Merge relationships
       """
       MATCH (a:A), (b:B)
       MERGE (a)-[r:TYPE]->(b)
-      RETURN count(r) as count
+      RETURN count(r)
       """
     Then the result should be, in any order:
-      | count |
-      | 1     |
+      | count(r) |
+      | 1        |
     And no side effects
 
   Scenario: [3] Matching two relationships
     Given an empty graph
-    And having defined kuzu types: ab:t-2
     And having executed:
       """
       CREATE (a:A), (b:B)
@@ -81,32 +78,30 @@ Feature: Merge5 - Merge relationships
       """
       MATCH (a:A), (b:B)
       MERGE (a)-[r:TYPE]->(b)
-      RETURN count(r) as count
+      RETURN count(r)
       """
     Then the result should be, in any order:
-      | count |
-      | 2     |
+      | count(r) |
+      | 2        |
     And no side effects
 
   Scenario: [4] Using bound variables from other updating clause
     Given an empty graph
-    And having defined kuzu types: n:x
     When executing query:
       """
-      CREATE (a:N), (b:N)
+      CREATE (a), (b)
       MERGE (a)-[:X]->(b)
-      RETURN count(a) as count
+      RETURN count(a)
       """
     Then the result should be, in any order:
-      | count |
-      | 1     |
+      | count(a) |
+      | 1        |
     And the side effects should be:
       | +nodes         | 2 |
       | +relationships | 1 |
 
   Scenario: [5] Filtering relationships
     Given an empty graph
-    And having defined kuzu types: ab:t_name-2
     And having executed:
       """
       CREATE (a:A), (b:B)
@@ -117,16 +112,15 @@ Feature: Merge5 - Merge relationships
       """
       MATCH (a:A), (b:B)
       MERGE (a)-[r:TYPE {name: 'r2'}]->(b)
-      RETURN count(r) as count
+      RETURN count(r)
       """
     Then the result should be, in any order:
-      | count |
-      | 1     |
+      | count(r) |
+      | 1        |
     And no side effects
 
   Scenario: [6] Creating relationship when all matches filtered out
     Given an empty graph
-    And having defined kuzu types: ab:t_name-2
     And having executed:
       """
       CREATE (a:A), (b:B)
@@ -136,18 +130,17 @@ Feature: Merge5 - Merge relationships
       """
       MATCH (a:A), (b:B)
       MERGE (a)-[r:TYPE {name: 'r2'}]->(b)
-      RETURN count(r) as count
+      RETURN count(r)
       """
     Then the result should be, in any order:
-      | count |
-      | 1     |
+      | count(r) |
+      | 1        |
     And the side effects should be:
       | +relationships | 1 |
       | +properties    | 1 |
 
   Scenario: [7] Matching incoming relationship
     Given an empty graph
-    And having defined kuzu types: ab:t-2
     And having executed:
       """
       CREATE (a:A), (b:B)
@@ -158,16 +151,15 @@ Feature: Merge5 - Merge relationships
       """
       MATCH (a:A), (b:B)
       MERGE (a)<-[r:TYPE]-(b)
-      RETURN count(r) as count
+      RETURN count(r)
       """
     Then the result should be, in any order:
-      | count |
-      | 1     |
+      | count(r) |
+      | 1        |
     And no side effects
 
   Scenario: [8] Creating relationship with property
     Given an empty graph
-    And having defined kuzu types: ab:t_name-2
     And having executed:
       """
       CREATE (a:A), (b:B)
@@ -176,18 +168,17 @@ Feature: Merge5 - Merge relationships
       """
       MATCH (a:A), (b:B)
       MERGE (a)-[r:TYPE {name: 'Lola'}]->(b)
-      RETURN count(r) as count
+      RETURN count(r)
       """
     Then the result should be, in any order:
-      | count |
-      | 1     |
+      | count(r) |
+      | 1        |
     And the side effects should be:
       | +relationships | 1 |
       | +properties    | 1 |
 
   Scenario: [9] Creating relationship using merged nodes
     Given an empty graph
-    And having defined kuzu types: ab:f
     And having executed:
       """
       CREATE (a:A), (b:B)
@@ -204,29 +195,26 @@ Feature: Merge5 - Merge relationships
 
   Scenario: [10] Merge should bind a path
     Given an empty graph
-    And having defined kuzu types: n_num:r
     When executing query:
       """
-      MERGE (a:N {num: 1})
-      MERGE (b:N {num: 2})
+      MERGE (a {num: 1})
+      MERGE (b {num: 2})
       MERGE p = (a)-[:R]->(b)
       RETURN p
       """
     Then the result should be, in any order:
-      | p      |
-      | [[:R]] |
+      | p                             |
+      | <({num: 1})-[:R]->({num: 2})> |
     And the side effects should be:
       | +nodes         | 2 |
       | +relationships | 1 |
       | +properties    | 2 |
 
-  @fails @unsupportedUndirectedMerge
   Scenario: [11] Use outgoing direction when unspecified
     Given an empty graph
-    And having defined kuzu types: n_id:k
     When executing query:
       """
-      CREATE (a:N {id: 2}), (b:N {id: 1})
+      CREATE (a {id: 2}), (b {id: 1})
       MERGE (a)-[r:KNOWS]-(b)
       RETURN startNode(r).id AS s, endNode(r).id AS e
       """
@@ -238,13 +226,11 @@ Feature: Merge5 - Merge relationships
       | +relationships | 1 |
       | +properties    | 2 |
 
-  @fails @unsupportedUndirectedMerge
   Scenario: [12] Match outgoing relationship when direction unspecified
     Given an empty graph
-    And having defined kuzu types: n_id:k
     And having executed:
       """
-      CREATE (a:N {id: 1}), (b:N {id: 2})
+      CREATE (a {id: 1}), (b {id: 2})
       CREATE (a)-[:KNOWS]->(b)
       """
     When executing query:
@@ -258,13 +244,11 @@ Feature: Merge5 - Merge relationships
       | [:KNOWS] |
     And no side effects
 
-  @fails @unsupportedUndirectedMerge
   Scenario: [13] Match both incoming and outgoing relationships when direction unspecified
     Given an empty graph
-    And having defined kuzu types: n_id:k_name
     And having executed:
       """
-      CREATE (a:N {id: 2}), (b:N {id: 1}), (c:N {id: 1}), (d:N {id: 2})
+      CREATE (a {id: 2}), (b {id: 1}), (c {id: 1}), (d {id: 2})
       CREATE (a)-[:KNOWS {name: 'ab'}]->(b)
       CREATE (c)-[:KNOWS {name: 'cd'}]->(d)
       """
@@ -280,16 +264,14 @@ Feature: Merge5 - Merge relationships
       | [:KNOWS {name: 'cd'}] |
     And no side effects
 
-  @splitFunction
   Scenario: [14] Using list properties via variable
     Given an empty graph
-    And having defined kuzu types: bf:f_f
     When executing query:
       """
       CREATE (a:Foo), (b:Bar)
       WITH a, b
       UNWIND ['a,b', 'a,b'] AS str
-      WITH a, b, string_split(str, ',') AS roles
+      WITH a, b, split(str, ',') AS roles
       MERGE (a)-[r:FB {foobar: roles}]->(b)
       RETURN count(*)
       """
@@ -304,7 +286,6 @@ Feature: Merge5 - Merge relationships
 
   Scenario: [15] Matching using list property
     Given an empty graph
-    And having defined kuzu types: ab:t_numbers
     And having executed:
       """
       CREATE (a:A), (b:B)
@@ -321,13 +302,11 @@ Feature: Merge5 - Merge relationships
       | 1        |
     And no side effects
 
-  @fails @bugVarAlias
   Scenario: [16] Aliasing of existing nodes 1
     Given an empty graph
-    And having defined kuzu types: n_id:t
     And having executed:
       """
-      CREATE (:N {id: 0})
+      CREATE ({id: 0})
       """
     When executing query:
       """
@@ -343,13 +322,11 @@ Feature: Merge5 - Merge relationships
     And the side effects should be:
       | +relationships | 1 |
 
-  @fails @bugVarAlias
   Scenario: [17] Aliasing of existing nodes 2
     Given an empty graph
-    And having defined kuzu types: n_id:t
     And having executed:
       """
-      CREATE (:N {id: 0})
+      CREATE ({id: 0})
       """
     When executing query:
       """
@@ -364,13 +341,11 @@ Feature: Merge5 - Merge relationships
     And the side effects should be:
       | +relationships | 1 |
 
-  @fails @bugVarAlias
   Scenario: [18] Double aliasing of existing nodes 1
     Given an empty graph
-    And having defined kuzu types: n_id:t
     And having executed:
       """
-      CREATE (:N {id: 0})
+      CREATE ({id: 0})
       """
     When executing query:
       """
@@ -390,13 +365,11 @@ Feature: Merge5 - Merge relationships
     And the side effects should be:
       | +relationships | 1 |
 
-  @fails @bugVarAlias
   Scenario: [19] Double aliasing of existing nodes 2
     Given an empty graph
-    And having defined kuzu types: n_id:t
     And having executed:
       """
-      CREATE (:N {id: 0})
+      CREATE ({id: 0})
       """
     When executing query:
       """
@@ -417,7 +390,6 @@ Feature: Merge5 - Merge relationships
 
   Scenario: [20] Do not match on deleted entities
     Given an empty graph
-    And having defined kuzu types: abc_num:r
     And having executed:
       """
       CREATE (a:A)
@@ -448,7 +420,6 @@ Feature: Merge5 - Merge relationships
 
   Scenario: [21] Do not match on deleted relationships
     Given an empty graph
-    And having defined kuzu types: ab:t_name
     And having executed:
       """
       CREATE (a:A), (b:B)
@@ -472,10 +443,8 @@ Feature: Merge5 - Merge relationships
       | +properties    | 1 |
       | -properties    | 2 |
 
-  @fails @bugVarMultipleBinding
   Scenario: [22] Fail when imposing new predicates on a variable that is already bound
     Given any graph
-    And having defined kuzu types: bf:k
     When executing query:
       """
       CREATE (a:Foo)
@@ -485,38 +454,33 @@ Feature: Merge5 - Merge relationships
 
   Scenario: [23] Fail when merging relationship without type
     Given any graph
-    And having defined kuzu types: n
     When executing query:
       """
-      CREATE (a:N), (b:N)
+      CREATE (a), (b)
       MERGE (a)-->(b)
       """
     Then a SyntaxError should be raised at compile time: NoSingleRelationshipType
 
-  @fails @unsupportedTypeInference
   Scenario: [24] Fail when merging relationship without type, no colon
     Given any graph
-    And having defined kuzu types: n:n-2
     When executing query:
       """
-      MATCH (a:N), (b:N)
+      MATCH (a), (b)
       MERGE (a)-[NO_COLON]->(b)
       """
     Then a SyntaxError should be raised at compile time: NoSingleRelationshipType
 
   Scenario: [25] Fail when merging relationship with more than one type
     Given any graph
-    And having defined kuzu types: n:ab
     When executing query:
       """
-      CREATE (a:N), (b:N)
+      CREATE (a), (b)
       MERGE (a)-[:A|:B]->(b)
       """
     Then a SyntaxError should be raised at compile time: NoSingleRelationshipType
 
   Scenario: [26] Fail when merging relationship that is already bound
     Given any graph
-    And having defined kuzu types: n:r
     When executing query:
       """
       MATCH (a)-[r]->(b)
@@ -526,11 +490,10 @@ Feature: Merge5 - Merge relationships
 
   Scenario: [27] Fail when using parameter as relationship predicate in MERGE
     Given any graph
-    And having defined kuzu types: n:f
     When executing query:
       """
-      MERGE (a:N)
-      MERGE (b:N)
+      MERGE (a)
+      MERGE (b)
       MERGE (a)-[r:FOO $param]->(b)
       RETURN r
       """
@@ -538,22 +501,19 @@ Feature: Merge5 - Merge relationships
 
   Scenario: [28] Fail when using variable length relationship in MERGE
     Given any graph
-    And having defined kuzu types: n:f
     When executing query:
       """
-      MERGE (a:N)
-      MERGE (b:N)
+      MERGE (a)
+      MERGE (b)
       MERGE (a)-[:FOO*2]->(b)
       """
     Then a SyntaxError should be raised at compile time: CreatingVarLength
 
-  @fails @unknownError
   Scenario: [29] Fail on merging relationship with null property
     Given any graph
-    And having defined kuzu types: n:x_3
     When executing query:
       """
-      CREATE (a:N), (b:N)
+      CREATE (a), (b)
       MERGE (a)-[r:X {num: null}]->(b)
       """
     Then a SemanticError should be raised at runtime: MergeReadOwnWrites

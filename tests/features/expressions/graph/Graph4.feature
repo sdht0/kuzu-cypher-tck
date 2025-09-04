@@ -30,7 +30,6 @@
 
 Feature: Graph4 - Edge relationship type
 
-  @fails @missingTypeFunc
   Scenario: [1] `type()`
     Given an empty graph
     And having executed:
@@ -47,7 +46,6 @@ Feature: Graph4 - Edge relationship type
       | 'T'     |
     And no side effects
 
-  @fails @missingTypeFunc
   Scenario: [2] `type()` on two relationships
     Given an empty graph
     And having executed:
@@ -64,7 +62,6 @@ Feature: Graph4 - Edge relationship type
       | 'T1'     | 'T2'     |
     And no side effects
 
-  @fails @missingTypeFunc
   Scenario: [3] `type()` on null relationship
     Given an empty graph
     And having executed:
@@ -82,7 +79,6 @@ Feature: Graph4 - Edge relationship type
       | null    | null       |
     And no side effects
 
-  @fails @missingTypeFunc
   Scenario: [4] `type()` on mixed null and non-null relationships
     Given an empty graph
     And having executed:
@@ -101,7 +97,6 @@ Feature: Graph4 - Edge relationship type
       | null    |
     And no side effects
 
-  @fails @missingTypeFunc
   Scenario: [5] `type()` handling Any type
     Given an empty graph
     And having executed:
@@ -119,7 +114,6 @@ Feature: Graph4 - Edge relationship type
       | 'T'           |
     And no side effects
 
-  @fails @missingTypeFunc
   Scenario Outline: [6] `type()` failing on invalid arguments
     Given an empty graph
     And having executed:
@@ -141,7 +135,6 @@ Feature: Graph4 - Edge relationship type
       | ''      |
       | []      |
 
-  @fails @missingTypeFunc
   Scenario: [7] Failing when using `type()` on a node
     Given any graph
     When executing query:

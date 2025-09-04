@@ -32,7 +32,6 @@ Feature: Path2 - Relationships of a path
 
   Scenario: [1] Return relationships by fetching them from the path
     Given an empty graph
-    And having defined kuzu types: bcs:r_n
     And having executed:
       """
       CREATE (s:Start)-[:REL {num: 1}]->(b:B)-[:REL {num: 2}]->(c:C)
@@ -50,14 +49,13 @@ Feature: Path2 - Relationships of a path
 
   Scenario: [2] Return relationships by fetching them from the path - starting from the end
     Given an empty graph
-    And having defined kuzu types: abe:r_n
     And having executed:
       """
-      CREATE (a:A)-[:REL {num: 1}]->(b:B)-[:REL {num: 2}]->(e:`End`)
+      CREATE (a:A)-[:REL {num: 1}]->(b:B)-[:REL {num: 2}]->(e:End)
       """
     When executing query:
       """
-      MATCH p = (a)-[:REL*2..2]->(b:`End`)
+      MATCH p = (a)-[:REL*2..2]->(b:End)
       RETURN relationships(p)
       """
     Then the result should be, in any order:
@@ -65,7 +63,6 @@ Feature: Path2 - Relationships of a path
       | [[:REL {num: 1}], [:REL {num: 2}]] |
     And no side effects
 
-  @skip @wellDefinedSchema
   Scenario: [3] `relationships()` on null path
     Given any graph
     When executing query:

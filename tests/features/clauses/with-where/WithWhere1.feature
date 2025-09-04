@@ -32,12 +32,11 @@ Feature: WithWhere1 - Filter single variable
 
   Scenario: [1] Filter node with property predicate on a single variable with multiple bindings
     Given an empty graph
-    And having defined kuzu types: n_name
     And having executed:
       """
-      CREATE (:N {name: 'A'}),
-             (:N {name: 'B'}),
-             (:N {name: 'C'})
+      CREATE ({name: 'A'}),
+             ({name: 'B'}),
+             ({name: 'C'})
       """
     When executing query:
       """
@@ -48,18 +47,16 @@ Feature: WithWhere1 - Filter single variable
       """
     Then the result should be, in any order:
       | a             |
-      | (:N {name: 'B'}) |
+      | ({name: 'B'}) |
     And no side effects
 
-  @fails @withVarBinding
   Scenario: [2] Filter node with property predicate on a single variable with multiple distinct bindings
     Given an empty graph
-    And having defined kuzu types: n_name2
     And having executed:
       """
-      CREATE (:N {name2: 'A'}),
-             (:N {name2: 'A'}),
-             (:N {name2: 'B'})
+      CREATE ({name2: 'A'}),
+             ({name2: 'A'}),
+             ({name2: 'B'})
       """
     When executing query:
       """
@@ -73,10 +70,8 @@ Feature: WithWhere1 - Filter single variable
       | 'B'  |
     And no side effects
 
-  @fails @withVarBinding
   Scenario: [3] Filter for an unbound relationship variable
     Given an empty graph
-    And having defined kuzu types: ab_id:t
     And having executed:
       """
       CREATE (a:A), (b:B {id: 1}), (:B {id: 2})
@@ -94,10 +89,8 @@ Feature: WithWhere1 - Filter single variable
       | (:B {id: 2}) |
     And no side effects
 
-  @fails @withVarBinding
   Scenario: [4] Filter for an unbound node variable
     Given an empty graph
-    And having defined kuzu types: ab_id:t
     And having executed:
       """
       CREATE (a:A), (b:B {id: 1}), (:B {id: 2})

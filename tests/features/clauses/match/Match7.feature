@@ -45,10 +45,9 @@ Feature: Match7 - Optional match
 
   Scenario: [2] OPTIONAL MATCH with previously bound nodes
     Given an empty graph
-    And having defined kuzu types: n:n
     And having executed:
       """
-      CREATE (:N)
+      CREATE ()
       """
     When executing query:
       """
@@ -57,18 +56,15 @@ Feature: Match7 - Optional match
       RETURN n, x
       """
     Then the result should be, in any order:
-      | n    | x    |
-      | (:N) | null |
+      | n  | x    |
+      | () | null |
     And no side effects
 
-  @keywordClash
-  # Cannot create table Single in Kuzu.
   Scenario: [3] OPTIONAL MATCH and bound nodes
     Given an empty graph
-    And having defined kuzu types: abcs:lr
     And having executed:
       """
-      CREATE (s:Singlee), (a:A {num: 42}),
+      CREATE (s:Single), (a:A {num: 42}),
              (b:B {num: 46}), (c:C)
       CREATE (s)-[:REL]->(a),
              (s)-[:REL]->(b),
@@ -86,11 +82,8 @@ Feature: Match7 - Optional match
       | (:A {num: 42}) |
     And no side effects
 
-  @fails @bugFailedVarBinding
-  # Binder exception: Bind relationship r to relationship with same name is not supported.
   Scenario: [4] Optionally matching relationship with bound nodes in reverse direction
     Given an empty graph
-    And having defined kuzu types: ab:t
     And having executed:
       """
       CREATE (:A)-[:T]->(:B)
@@ -108,11 +101,8 @@ Feature: Match7 - Optional match
       | (:A) | [:T] | null |
     And no side effects
 
-  @fails @bugFailedVarBinding
-  # Binder exception: Bind relationship r to relationship with same name is not supported.
   Scenario: [5] Optionally matching relationship with a relationship that is already bound
     Given an empty graph
-    And having defined kuzu types: ab:t
     And having executed:
       """
       CREATE (:A)-[:T]->(:B)
@@ -130,11 +120,8 @@ Feature: Match7 - Optional match
       | (:A) | [:T] | (:B) |
     And no side effects
 
-  @fails @bugFailedVarBinding
-  # Binder exception: Bind relationship r to relationship with same name is not supported.
   Scenario: [6] Optionally matching relationship with a relationship and node that are both already bound
     Given an empty graph
-    And having defined kuzu types: ab:t
     And having executed:
       """
       CREATE (:A)-[:T]->(:B)
@@ -154,10 +141,9 @@ Feature: Match7 - Optional match
 
   Scenario: [7] MATCH with OPTIONAL MATCH in longer pattern
     Given an empty graph
-    And having defined kuzu types: n_name:k
     And having executed:
       """
-      CREATE (a:N {name: 'A'}), (b:N {name: 'B'}), (c:N {name: 'C'})
+      CREATE (a {name: 'A'}), (b {name: 'B'}), (c {name: 'C'})
       CREATE (a)-[:KNOWS]->(b),
              (b)-[:KNOWS]->(c)
       """
@@ -168,18 +154,15 @@ Feature: Match7 - Optional match
       RETURN foo
       """
     Then the result should be, in any order:
-      | foo              |
-      | (:N {name: 'C'}) |
+      | foo           |
+      | ({name: 'C'}) |
     And no side effects
 
-  @keywordClash @outputModified
-  # Cannot create table Single in Kuzu.
   Scenario: [8] Longer pattern with bound nodes without matches
     Given an empty graph
-    And having defined kuzu types: abcs:lr
     And having executed:
       """
-      CREATE (s:Singlee), (a:A {num: 42}),
+      CREATE (s:Single), (a:A {num: 42}),
              (b:B {num: 46}), (c:C)
       CREATE (s)-[:REL]->(a),
              (s)-[:REL]->(b),
@@ -197,14 +180,11 @@ Feature: Match7 - Optional match
       | null |
     And no side effects
 
-  @keywordClash
-  # Cannot create table Single in Kuzu.
   Scenario: [9] Longer pattern with bound nodes
     Given an empty graph
-    And having defined kuzu types: abcs:lr
     And having executed:
       """
-      CREATE (s:Singlee), (a:A {num: 42}),
+      CREATE (s:Single), (a:A {num: 42}),
              (b:B {num: 46}), (c:C)
       CREATE (s)-[:REL]->(a),
              (s)-[:REL]->(b),
@@ -213,7 +193,7 @@ Feature: Match7 - Optional match
       """
     When executing query:
       """
-      MATCH (a:Singlee), (c:C)
+      MATCH (a:Single), (c:C)
       OPTIONAL MATCH (a)-->(b)-->(c)
       RETURN b
       """
@@ -238,7 +218,6 @@ Feature: Match7 - Optional match
 
   Scenario: [11] Return two subgraphs with bound undirected relationship and optional relationship
     Given an empty graph
-    And having defined kuzu types: abc_num:r_name
     And having executed:
       """
       CREATE (a:A {num: 1})-[:REL {name: 'r1'}]->(b:B {num: 2})-[:REL {name: 'r2'}]->(c:C {num: 3})
@@ -256,14 +235,11 @@ Feature: Match7 - Optional match
       | (:B {num: 2}) | (:A {num: 1}) | null          |
     And no side effects
 
-  @keywordClash @fails @bugUnexpectedOutput
-  # Should not produce (:C {num: 46}) when C does not have property. Glob over self loop is unspecified?
   Scenario: [12] Variable length optional relationships
     Given an empty graph
-    And having defined kuzu types: abcs:lr
     And having executed:
       """
-      CREATE (s:Singlee), (a:A {num: 42}),
+      CREATE (s:Single), (a:A {num: 42}),
              (b:B {num: 46}), (c:C)
       CREATE (s)-[:REL]->(a),
              (s)-[:REL]->(b),
@@ -272,7 +248,7 @@ Feature: Match7 - Optional match
       """
     When executing query:
       """
-      MATCH (a:Singlee)
+      MATCH (a:Single)
       OPTIONAL MATCH (a)-[*]->(b)
       RETURN b
       """
@@ -284,13 +260,11 @@ Feature: Match7 - Optional match
       | (:C)           |
     And no side effects
 
-  @mmodified
   Scenario: [13] Variable length optional relationships with bound nodes
     Given an empty graph
-    And having defined kuzu types: abcs:lr
     And having executed:
       """
-      CREATE (s:Singlee), (a:A {num: 42}),
+      CREATE (s:Single), (a:A {num: 42}),
              (b:B {num: 46}), (c:C)
       CREATE (s)-[:REL]->(a),
              (s)-[:REL]->(b),
@@ -299,7 +273,7 @@ Feature: Match7 - Optional match
       """
     When executing query:
       """
-      MATCH (a:Singlee), (x:C)
+      MATCH (a:Single), (x:C)
       OPTIONAL MATCH (a)-[*]->(x)
       RETURN x
       """
@@ -308,14 +282,11 @@ Feature: Match7 - Optional match
       | (:C) |
     And no side effects
 
-  @keywordClash @fails @bugOptionalGlob
-  # Glob over self loop is unspecified?
   Scenario: [14] Variable length optional relationships with length predicates
     Given an empty graph
-    And having defined kuzu types: abcs:lr
     And having executed:
       """
-      CREATE (s:Singlee), (a:A {num: 42}),
+      CREATE (s:Single), (a:A {num: 42}),
              (b:B {num: 46}), (c:C)
       CREATE (s)-[:REL]->(a),
              (s)-[:REL]->(b),
@@ -324,7 +295,7 @@ Feature: Match7 - Optional match
       """
     When executing query:
       """
-      MATCH (a:Singlee)
+      MATCH (a:Single)
       OPTIONAL MATCH (a)-[*3..]-(b)
       RETURN b
       """
@@ -335,7 +306,6 @@ Feature: Match7 - Optional match
 
   Scenario: [15] Variable length patterns and nulls
     Given an empty graph
-    And having defined kuzu types: ab:bf
     And having executed:
       """
       CREATE (a:A), (b:B)
@@ -352,14 +322,11 @@ Feature: Match7 - Optional match
       | (:A) | null | null |
     And no side effects
 
-  @keywordClash @fails @bugInternalError
-  # Internal error: entered unreachable code (cannot reproduce in CLI)
   Scenario: [16] Optionally matching named paths - null result
     Given an empty graph
-    And having defined kuzu types: abcs:lrx
     And having executed:
       """
-      CREATE (s:Singlee), (a:A {num: 42}),
+      CREATE (s:Single), (a:A {num: 42}),
              (b:B {num: 46}), (c:C)
       CREATE (s)-[:REL]->(a),
              (s)-[:REL]->(b),
@@ -377,14 +344,11 @@ Feature: Match7 - Optional match
       | null |
     And no side effects
 
-  @fails @bugUnexpectedOutput
-  # empty path still fills in lambda (from prev row?)
   Scenario: [17] Optionally matching named paths - existing result
     Given an empty graph
-    And having defined kuzu types: n_name:x
     And having executed:
       """
-      CREATE (a:N {name: 'A'}), (b:N {name: 'B'}), (c:N {name: 'C'})
+      CREATE (a {name: 'A'}), (b {name: 'B'}), (c {name: 'C'})
       CREATE (a)-[:X]->(b)
       """
     When executing query:
@@ -395,19 +359,16 @@ Feature: Match7 - Optional match
       RETURN x, p
       """
     Then the result should be, in any order:
-      | x                | p      |
-      | (:N {name: 'B'}) | [[:X]] |
-      | (:N {name: 'C'}) | null   |
+      | x             | p                                   |
+      | ({name: 'B'}) | <({name: 'A'})-[:X]->({name: 'B'})> |
+      | ({name: 'C'}) | null                                |
     And no side effects
 
-  @keywordClash @fails @bugUnexpectedOutput
-  # Running in CLI produces empty results, in cucumber produces an output.
   Scenario: [18] Named paths inside optional matches with node predicates
     Given an empty graph
-    And having defined kuzu types: abcs:lrx
     And having executed:
       """
-      CREATE (s:Singlee), (a:A {num: 42}),
+      CREATE (s:Single), (a:A {num: 42}),
              (b:B {num: 46}), (c:C)
       CREATE (s)-[:REL]->(a),
              (s)-[:REL]->(b),
@@ -425,14 +386,11 @@ Feature: Match7 - Optional match
       | null |
     And no side effects
 
-  @fails @bugInternalError
-  # Internal error: entered unreachable code (cannot reproduce in CLI)
   Scenario: [19] Optionally matching named paths with single and variable length patterns
     Given an empty graph
-    And having defined kuzu types: n_name:x
     And having executed:
       """
-      CREATE (a:N {name: 'A'}), (b:N {name: 'B'})
+      CREATE (a {name: 'A'}), (b {name: 'B'})
       CREATE (a)-[:X]->(b)
       """
     When executing query:
@@ -448,10 +406,9 @@ Feature: Match7 - Optional match
 
   Scenario: [20] Variable length optional relationships with bound nodes, no matches
     Given an empty graph
-    And having defined kuzu types: abcs:lr
     And having executed:
       """
-      CREATE (s:Singlee), (a:A {num: 42}),
+      CREATE (s:Single), (a:A {num: 42}),
              (b:B {num: 46}), (c:C)
       CREATE (s)-[:REL]->(a),
              (s)-[:REL]->(b),
@@ -465,16 +422,15 @@ Feature: Match7 - Optional match
       RETURN p
       """
     Then the result should be, in any order:
-      | p  |
-      | [] |
+      | p    |
+      | null |
     And no side effects
 
   Scenario: [21] Handling optional matches between nulls
     Given an empty graph
-    And having defined kuzu types: abcns_num:lnr
     And having executed:
       """
-      CREATE (s:Singlee), (a:A {num: 42}),
+      CREATE (s:Single), (a:A {num: 42}),
              (b:B {num: 46}), (c:C)
       CREATE (s)-[:REL]->(a),
              (s)-[:REL]->(b),
@@ -494,14 +450,11 @@ Feature: Match7 - Optional match
       | null | null | null |
     And no side effects
 
-  @fails @bugFailedVarBinding
-  # Query execution failed: Binder exception: Cannot bind x as node pattern.
   Scenario: [22] MATCH after OPTIONAL MATCH
     Given an empty graph
-    And having defined kuzu types: abcns_num:lr
     And having executed:
       """
-      CREATE (s:Singlee), (a:A {num: 42}),
+      CREATE (s:Single), (a:A {num: 42}),
              (b:B {num: 46}), (c:C)
       CREATE (s)-[:REL]->(a),
              (s)-[:REL]->(b),
@@ -510,7 +463,7 @@ Feature: Match7 - Optional match
       """
     When executing query:
       """
-      MATCH (a:Singlee)
+      MATCH (a:Single)
       OPTIONAL MATCH (a)-->(b:NonExistent)
       OPTIONAL MATCH (a)-->(c:NonExistent)
       WITH coalesce(b, c) AS x
@@ -521,14 +474,11 @@ Feature: Match7 - Optional match
       | d |
     And no side effects
 
-  @fails @bugUnexpectedOutput
-  # Does not produce (:YZ) or null, produces (:Y)x2.
   Scenario: [23] OPTIONAL MATCH with labels on the optional end node
     Given an empty graph
-    And having defined kuzu types: xyy:r
     And having executed:
       """
-      CREATE (:X), (x:X), (y1:Y), (y2:YZ)
+      CREATE (:X), (x:X), (y1:Y), (y2:Y:Z)
       CREATE (x)-[:REL]->(y1),
              (x)-[:REL]->(y2)
       """
@@ -545,13 +495,11 @@ Feature: Match7 - Optional match
       | (:Y:Z) |
     And no side effects
 
-  @testbug @fails @extraOutputUndirected
   Scenario: [24] Optionally matching self-loops
     Given an empty graph
-    And having defined kuzu types: abcs:lr
     And having executed:
       """
-      CREATE (s:Singlee), (a:A {num: 42}),
+      CREATE (s:Single), (a:A {num: 42}),
              (b:B {num: 46}), (c:C)
       CREATE (s)-[:REL]->(a),
              (s)-[:REL]->(b),
@@ -569,14 +517,11 @@ Feature: Match7 - Optional match
       | [:LOOP] |
     And no side effects
 
-  @keywordClash @fails @parserErrorOptionalMatch
-  # Query execution failed: Parser exception: Invalid input <MATCH (a) WHERE NOT (a:B) OPTIONAL>: expected rule oC_SingleQuery (line: 3, offset: 0)
   Scenario: [25] Optionally matching self-loops without matches
     Given an empty graph
-    And having defined kuzu types: abcs:lr
     And having executed:
       """
-      CREATE (s:Singlee), (a:A {num: 42}),
+      CREATE (s:Single), (a:A {num: 42}),
              (b:B {num: 46}), (c:C)
       CREATE (s)-[:REL]->(a),
              (s)-[:REL]->(b),
@@ -599,10 +544,9 @@ Feature: Match7 - Optional match
 
   Scenario: [26] Handling correlated optional matches; first does not match implies second does not match
     Given an empty graph
-    And having defined kuzu types: abcs:lr
     And having executed:
       """
-      CREATE (s:Singlee), (a:A {num: 42}),
+      CREATE (s:Single), (a:A {num: 42}),
              (b:B {num: 46}), (c:C)
       CREATE (s)-[:REL]->(a),
              (s)-[:REL]->(b),
@@ -623,10 +567,9 @@ Feature: Match7 - Optional match
 
   Scenario: [27] Handling optional matches between optionally matched entities
     Given an empty graph
-    And having defined kuzu types: abcns_num:lnr
     And having executed:
       """
-      CREATE (s:Singlee), (a:A {num: 42}),
+      CREATE (s:Single), (a:A {num: 42}),
              (b:B {num: 46}), (c:C)
       CREATE (s)-[:REL]->(a),
              (s)-[:REL]->(b),
@@ -649,10 +592,9 @@ Feature: Match7 - Optional match
 
   Scenario: [28] Handling optional matches with inline label predicate
     Given an empty graph
-    And having defined kuzu types: abcns_num:lr
     And having executed:
       """
-      CREATE (s:Singlee), (a:A {num: 42}),
+      CREATE (s:Single), (a:A {num: 42}),
              (b:B {num: 46}), (c:C)
       CREATE (s)-[:REL]->(a),
              (s)-[:REL]->(b),
@@ -661,7 +603,7 @@ Feature: Match7 - Optional match
       """
     When executing query:
       """
-      MATCH (n:Singlee)
+      MATCH (n:Single)
       OPTIONAL MATCH (n)-[r]-(m:NonExistent)
       RETURN r
       """
@@ -672,7 +614,6 @@ Feature: Match7 - Optional match
 
   Scenario: [29] Satisfies the open world assumption, relationships between same nodes
     Given an empty graph
-    And having defined kuzu types: pt:ps
     And having executed:
       """
       CREATE (a:Player), (b:Team)
@@ -692,7 +633,6 @@ Feature: Match7 - Optional match
 
   Scenario: [30] Satisfies the open world assumption, single relationship
     Given an empty graph
-    And having defined kuzu types: pt:ps
     And having executed:
       """
       CREATE (a:Player), (b:Team)
@@ -711,7 +651,6 @@ Feature: Match7 - Optional match
 
   Scenario: [31] Satisfies the open world assumption, relationships between different nodes
     Given an empty graph
-    And having defined kuzu types: pt:ps
     And having executed:
       """
       CREATE (a:Player), (b:Team), (c:Team)

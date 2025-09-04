@@ -32,7 +32,6 @@ Feature: WithWhere4 - Non-Equi-Joins on variables
 
   Scenario: [1] Join nodes on inequality
     Given an empty graph
-    And having defined kuzu types: ab
     And having executed:
       """
       CREATE (:A), (:B)
@@ -50,10 +49,8 @@ Feature: WithWhere4 - Non-Equi-Joins on variables
       | (:B) | (:A) |
     And no side effects
 
-  @fails @bugIncorrectBinding
   Scenario: [2] Join with disjunctive multi-part predicates including patterns
     Given an empty graph
-    And having defined kuzu types: mt_id:t
     And having executed:
       """
       CREATE (a:TheLabel {id: 0}), (b:TheLabel {id: 1}), (c:TheLabel {id: 2})

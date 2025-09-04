@@ -158,26 +158,24 @@ Feature: WithOrderBy1 - Order by a single variable
       | '.*'    |
     And no side effects
 
-  @fails @orderByList
   Scenario: [9] Sort lists in ascending order
     Given an empty graph
     When executing query:
       """
-      UNWIND [[], ['a'], ['a', '1'], ['1'], ['1', 'a'], ['1', null], [null, '1'], [null, '2']] AS lists
+      UNWIND [[], ['a'], ['a', 1], [1], [1, 'a'], [1, null], [null, 1], [null, 2]] AS lists
       WITH lists
         ORDER BY lists
         LIMIT 4
       RETURN lists
       """
     Then the result should be, in order:
-      | lists      |
-      | []         |
-      | ['a']      |
-      | ['a', '1'] |
-      | ['1']      |
+      | lists     |
+      | []        |
+      | ['a']     |
+      | ['a', 1]  |
+      | [1]       |
     And no side effects
 
-  @fails @orderByList
   Scenario: [10] Sort lists in descending order
     Given an empty graph
     When executing query:
@@ -196,7 +194,6 @@ Feature: WithOrderBy1 - Order by a single variable
       | [1, 'a']  |
     And no side effects
 
-  @fails @datetimeFunc
   Scenario: [11] Sort dates in ascending order
     Given an empty graph
     When executing query:
@@ -218,7 +215,6 @@ Feature: WithOrderBy1 - Order by a single variable
       | '1980-10-24' |
     And no side effects
 
-  @fails @datetimeFunc
   Scenario: [12] Sort dates in descending order
     Given an empty graph
     When executing query:
@@ -240,7 +236,6 @@ Feature: WithOrderBy1 - Order by a single variable
       | '1984-10-12' |
     And no side effects
 
-  @fails @datetimeFunc
   Scenario: [13] Sort local times in ascending order
     Given an empty graph
     When executing query:
@@ -262,7 +257,6 @@ Feature: WithOrderBy1 - Order by a single variable
       | '12:31:14.645876123' |
     And no side effects
 
-  @fails @datetimeFunc
   Scenario: [14] Sort local times in descending order
     Given an empty graph
     When executing query:
@@ -284,7 +278,6 @@ Feature: WithOrderBy1 - Order by a single variable
       | '12:31:14.645876123' |
     And no side effects
 
-  @fails @datetimeFunc
   Scenario: [15] Sort times in ascending order
     Given an empty graph
     When executing query:
@@ -306,7 +299,6 @@ Feature: WithOrderBy1 - Order by a single variable
       | '12:31:14.645876123+01:00' |
     And no side effects
 
-  @fails @datetimeFunc
   Scenario: [16] Sort times in descending order
     Given an empty graph
     When executing query:
@@ -328,7 +320,6 @@ Feature: WithOrderBy1 - Order by a single variable
       | '12:31:14.645876123+01:00' |
     And no side effects
 
-  @fails @datetimeFunc
   Scenario: [17] Sort local date times in ascending order
     Given an empty graph
     When executing query:
@@ -350,7 +341,6 @@ Feature: WithOrderBy1 - Order by a single variable
       | '1984-10-11T12:30:14.000000012' |
     And no side effects
 
-  @fails @datetimeFunc
   Scenario: [18] Sort local date times in descending order
     Given an empty graph
     When executing query:
@@ -372,7 +362,6 @@ Feature: WithOrderBy1 - Order by a single variable
       | '1984-10-11T12:30:14.000000012' |
     And no side effects
 
-  @fails @datetimeFunc
   Scenario: [19] Sort date times in ascending order
     Given an empty graph
     When executing query:
@@ -394,7 +383,6 @@ Feature: WithOrderBy1 - Order by a single variable
       | '1984-10-11T12:31:14.645876123+00:17' |
     And no side effects
 
-  @fails @datetimeFunc
   Scenario: [20] Sort date times in descending order
     Given an empty graph
     When executing query:
@@ -416,13 +404,11 @@ Feature: WithOrderBy1 - Order by a single variable
       | '1984-10-11T12:31:14.645876123+00:17' |
     And no side effects
 
-  @fails @mixedList
   Scenario: [21] Sort distinct types in ascending order
     Given an empty graph
-    And having defined kuzu types: n:rel
     And having executed:
       """
-      CREATE (:N)-[:REL]->(:N)
+      CREATE (:N)-[:REL]->()
       """
     When executing query:
       """
@@ -442,7 +428,6 @@ Feature: WithOrderBy1 - Order by a single variable
       | <(:N)-[:REL]->()> |
     And no side effects
 
-  @fails @mixedList
   Scenario: [22] Sort distinct types in descending order
     Given an empty graph
     And having executed:
@@ -459,17 +444,16 @@ Feature: WithOrderBy1 - Order by a single variable
       RETURN types
       """
     Then the result should be, in any order:
-      | types  |
-      | null   |
-      | NaN    |
-      | 1.5    |
-      | false  |
-      | 'text' |
+      | types             |
+      | null              |
+      | NaN               |
+      | 1.5               |
+      | false             |
+      | 'text'            |
     And no side effects
 
   Scenario Outline: [23] Sort by a boolean variable projected from a node property in ascending order
     Given an empty graph
-    And having defined kuzu types: abcde_bool
     And having executed:
       """
       CREATE (:A {bool: true}),
@@ -502,7 +486,6 @@ Feature: WithOrderBy1 - Order by a single variable
 
   Scenario Outline: [24] Sort by a boolean variable projected from a node property in descending order
     Given an empty graph
-    And having defined kuzu types: abcde_bool
     And having executed:
       """
       CREATE (:A {bool: true}),
@@ -533,7 +516,6 @@ Feature: WithOrderBy1 - Order by a single variable
 
   Scenario Outline: [25] Sort by an integer variable projected from a node property in ascending order
     Given an empty graph
-    And having defined kuzu types: abcde_num
     And having executed:
       """
       CREATE (:A {num: 9}),
@@ -566,7 +548,6 @@ Feature: WithOrderBy1 - Order by a single variable
 
   Scenario Outline: [26] Sort by an integer variable projected from a node property in descending order
     Given an empty graph
-    And having defined kuzu types: abcde_num
     And having executed:
       """
       CREATE (:A {num: 9}),
@@ -598,7 +579,6 @@ Feature: WithOrderBy1 - Order by a single variable
 
   Scenario Outline: [27] Sort by a float variable projected from a node property in ascending order
     Given an empty graph
-    And having defined kuzu types: abcde_num
     And having executed:
       """
       CREATE (:A {num: 5.025648}),
@@ -631,7 +611,6 @@ Feature: WithOrderBy1 - Order by a single variable
 
   Scenario Outline: [28] Sort by a float variable projected from a node property in descending order
     Given an empty graph
-    And having defined kuzu types: abcde_num
     And having executed:
       """
       CREATE (:A {num: 5.025648}),
@@ -663,7 +642,6 @@ Feature: WithOrderBy1 - Order by a single variable
 
   Scenario Outline: [29] Sort by a string variable projected from a node property in ascending order
     Given an empty graph
-    And having defined kuzu types: abcde_name
     And having executed:
       """
       CREATE (:A {name: 'lorem'}),
@@ -696,7 +674,6 @@ Feature: WithOrderBy1 - Order by a single variable
 
   Scenario Outline: [30] Sort by a string variable projected from a node property in descending order
     Given an empty graph
-    And having defined kuzu types: abcde_name
     And having executed:
       """
       CREATE (:A {name: 'lorem'}),
@@ -726,10 +703,8 @@ Feature: WithOrderBy1 - Order by a single variable
       | name DESC       |
       | name DESCENDING |
 
-  @fails @sortLists
   Scenario Outline: [31] Sort by a list variable projected from a node property in ascending order
     Given an empty graph
-    And having defined kuzu types: abcde_list
     And having executed:
       """
       CREATE (:A {list: [2, -2]}),
@@ -748,10 +723,10 @@ Feature: WithOrderBy1 - Order by a single variable
       RETURN a, list
       """
     Then the result should be, in any order:
-      | a                     | list     |
-      | (:B {list: [1, 2]})   | [1, 2]   |
-      | (:D {list: [1, -20]}) | [1, -20] |
-      | (:A {list: [2, -2]})  | [2, -2]  |
+      | a                      | list      |
+      | (:B {list: [1, 2]})    | [1, 2]    |
+      | (:D {list: [1, -20]})  | [1, -20]  |
+      | (:A {list: [2, -2]})   | [2, -2]   |
     And no side effects
 
     Examples:
@@ -760,10 +735,8 @@ Feature: WithOrderBy1 - Order by a single variable
       | list ASC       |
       | list ASCENDING |
 
-  @fails @sortLists
   Scenario Outline: [32] Sort by a list variable projected from a node property in descending order
     Given an empty graph
-    And having defined kuzu types: abcde_list
     And having executed:
       """
       CREATE (:A {list: [2, -2]}),
@@ -793,10 +766,8 @@ Feature: WithOrderBy1 - Order by a single variable
       | list DESC       |
       | list DESCENDING |
 
-  @fails @dateInitialization
   Scenario Outline: [33] Sort by a date variable projected from a node property in ascending order
     Given an empty graph
-    And having defined kuzu types: abcdef_date
     And having executed:
       """
       CREATE (:A {date: date({year: 1910, month: 5, day: 6})}),
@@ -827,10 +798,8 @@ Feature: WithOrderBy1 - Order by a single variable
       | date ASC       |
       | date ASCENDING |
 
-  @fails @dateInitialization
   Scenario Outline: [34] Sort by a date variable projected from a node property in descending order
     Given an empty graph
-    And having defined kuzu types: abcdef_date
     And having executed:
       """
       CREATE (:A {date: date({year: 1910, month: 5, day: 6})}),
@@ -860,10 +829,8 @@ Feature: WithOrderBy1 - Order by a single variable
       | date DESC       |
       | date DESCENDING |
 
-  @fails @localtime
   Scenario Outline: [35] Sort by a local time variable projected from a node property in ascending order
     Given an empty graph
-    And having defined kuzu types: abcde_time
     And having executed:
       """
       CREATE (:A {time: localtime({hour: 10, minute: 35})}),
@@ -894,10 +861,8 @@ Feature: WithOrderBy1 - Order by a single variable
       | time ASC       |
       | time ASCENDING |
 
-  @fails @localtime
   Scenario Outline: [36] Sort by a local time variable projected from a node property in descending order
     Given an empty graph
-    And having defined kuzu types: abcde_time
     And having executed:
       """
       CREATE (:A {time: localtime({hour: 10, minute: 35})}),
@@ -927,10 +892,8 @@ Feature: WithOrderBy1 - Order by a single variable
       | time DESC       |
       | time DESCENDING |
 
-  @fails @time
   Scenario Outline: [37] Sort by a time variable projected from a node property in ascending order
     Given an empty graph
-    And having defined kuzu types: abcde_time
     And having executed:
       """
       CREATE (:A {time: time({hour: 10, minute: 35, timezone: '-08:00'})}),
@@ -961,10 +924,8 @@ Feature: WithOrderBy1 - Order by a single variable
       | time ASC       |
       | time ASCENDING |
 
-  @fails @time
   Scenario Outline: [38] Sort by a time variable projected from a node property in descending order
     Given an empty graph
-    And having defined kuzu types: abcde_time
     And having executed:
       """
       CREATE (:A {time: time({hour: 10, minute: 35, timezone: '-08:00'})}),
@@ -994,10 +955,8 @@ Feature: WithOrderBy1 - Order by a single variable
       | time DESC       |
       | time DESCENDING |
 
-  @fails @localdatetime
   Scenario Outline: [39] Sort by a local date time variable projected from a node property in ascending order
     Given an empty graph
-    And having defined kuzu types: abcde_datetime
     And having executed:
       """
       CREATE (:A {datetime: localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 30, second: 14, nanosecond: 12})}),
@@ -1028,10 +987,8 @@ Feature: WithOrderBy1 - Order by a single variable
       | datetime ASC       |
       | datetime ASCENDING |
 
-  @fails @localdatetime
   Scenario Outline: [40] Sort by a local date time variable projected from a node property in descending order
     Given an empty graph
-    And having defined kuzu types: abcde_datetime
     And having executed:
       """
       CREATE (:A {datetime: localdatetime({year: 1984, month: 10, day: 11, hour: 12, minute: 30, second: 14, nanosecond: 12})}),
@@ -1061,10 +1018,8 @@ Feature: WithOrderBy1 - Order by a single variable
       | datetime DESC       |
       | datetime DESCENDING |
 
-  @fails @datetime
   Scenario Outline: [41] Sort by a date time variable projected from a node property in ascending order
     Given an empty graph
-    And having defined kuzu types: abcde_datetime
     And having executed:
       """
       CREATE (:A {datetime: datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 30, second: 14, nanosecond: 12, timezone: '+00:15'})}),
@@ -1095,10 +1050,8 @@ Feature: WithOrderBy1 - Order by a single variable
       | datetime ASC       |
       | datetime ASCENDING |
 
-  @fails @datetime
   Scenario Outline: [42] Sort by a date time variable projected from a node property in descending order
     Given an empty graph
-    And having defined kuzu types: abcde_datetime
     And having executed:
       """
       CREATE (:A {datetime: datetime({year: 1984, month: 10, day: 11, hour: 12, minute: 30, second: 14, nanosecond: 12, timezone: '+00:15'})}),
@@ -1169,7 +1122,6 @@ Feature: WithOrderBy1 - Order by a single variable
       | ASC  | 0 |
       | DESC | 2 |
 
-  @fails @listCreation
   Scenario Outline: [45] Sort order should be consistent with comparisons where comparisons are defined #Example: <exampleName>
     Given an empty graph
     When executing query:
@@ -1202,7 +1154,6 @@ Feature: WithOrderBy1 - Order by a single variable
 
   Scenario Outline: [46] Fail on sorting by an undefined variable #Example: <exampleName>
     Given an empty graph
-    And having defined kuzu types: abc
     And having executed:
       """
       CREATE (:A), (:A), (:B), (:B), (:C)

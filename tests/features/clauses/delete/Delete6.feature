@@ -32,7 +32,6 @@ Feature: Delete6 - Persistence of delete clause side effects
 
   Scenario: [1] Limiting to zero results after deleting nodes affects the result set but not the side effects
     Given an empty graph
-    And having defined kuzu types: n_num
     And having executed:
       """
       CREATE (:N {num: 42})
@@ -53,7 +52,6 @@ Feature: Delete6 - Persistence of delete clause side effects
 
   Scenario: [2] Skipping all results after deleting nodes affects the result set but not the side effects
     Given an empty graph
-    And having defined kuzu types: n_num
     And having executed:
       """
       CREATE (:N {num: 42})
@@ -74,7 +72,6 @@ Feature: Delete6 - Persistence of delete clause side effects
 
   Scenario: [3] Skipping and limiting to a few results after deleting nodes affects the result set but not the side effects
     Given an empty graph
-    And having defined kuzu types: n_num
     And having executed:
       """
       CREATE (:N {num: 1})
@@ -101,7 +98,6 @@ Feature: Delete6 - Persistence of delete clause side effects
 
   Scenario: [4] Skipping zero results and limiting to all results after deleting nodes does not affect the result set nor the side effects
     Given an empty graph
-    And having defined kuzu types: n_num
     And having executed:
       """
       CREATE (:N {num: 1})
@@ -131,7 +127,6 @@ Feature: Delete6 - Persistence of delete clause side effects
 
   Scenario: [5] Filtering after deleting nodes affects the result set but not the side effects
     Given an empty graph
-    And having defined kuzu types: n_num
     And having executed:
       """
       CREATE (:N {num: 1})
@@ -160,7 +155,6 @@ Feature: Delete6 - Persistence of delete clause side effects
 
   Scenario: [6] Aggregating in `RETURN` after deleting nodes affects the result set but not the side effects
     Given an empty graph
-    And having defined kuzu types: n_num
     And having executed:
       """
       CREATE (:N {num: 1})
@@ -186,7 +180,6 @@ Feature: Delete6 - Persistence of delete clause side effects
 
   Scenario: [7] Aggregating in `WITH` after deleting nodes affects the result set but not the side effects
     Given an empty graph
-    And having defined kuzu types: n_num
     And having executed:
       """
       CREATE (:N {num: 1})
@@ -213,7 +206,6 @@ Feature: Delete6 - Persistence of delete clause side effects
 
   Scenario: [8] Limiting to zero results after deleting relationships affects the result set but not the side effects
     Given an empty graph
-    And having defined kuzu types: n:r_num
     And having executed:
       """
       CREATE ()-[r:R {num: 42}]->()
@@ -233,7 +225,6 @@ Feature: Delete6 - Persistence of delete clause side effects
 
   Scenario: [9] Skipping all results after deleting relationships affects the result set but not the side effects
     Given an empty graph
-    And having defined kuzu types: n:r_num
     And having executed:
       """
       CREATE ()-[r:R {num: 42}]->()
@@ -253,7 +244,6 @@ Feature: Delete6 - Persistence of delete clause side effects
 
   Scenario: [10] Skipping and limiting to a few results after deleting relationships affects the result set but not the side effects
     Given an empty graph
-    And having defined kuzu types: n:r_num
     And having executed:
       """
       CREATE ()-[:R {num: 1}]->()
@@ -279,7 +269,6 @@ Feature: Delete6 - Persistence of delete clause side effects
 
   Scenario: [11] Skipping zero result and limiting to all results after deleting relationships does not affect the result set nor the side effects
     Given an empty graph
-    And having defined kuzu types: n:r_num
     And having executed:
       """
       CREATE ()-[:R {num: 1}]->()
@@ -308,7 +297,6 @@ Feature: Delete6 - Persistence of delete clause side effects
 
   Scenario: [12] Filtering after deleting relationships affects the result set but not the side effects
     Given an empty graph
-    And having defined kuzu types: n:r_num
     And having executed:
       """
       CREATE ()-[:R {num: 1}]->()
@@ -336,7 +324,6 @@ Feature: Delete6 - Persistence of delete clause side effects
 
   Scenario: [13] Aggregating in `RETURN` after deleting relationships affects the result set but not the side effects
     Given an empty graph
-    And having defined kuzu types: n:r_num
     And having executed:
       """
       CREATE ()-[:R {num: 1}]->()
@@ -361,7 +348,6 @@ Feature: Delete6 - Persistence of delete clause side effects
 
   Scenario: [14] Aggregating in `WITH` after deleting relationships affects the result set but not the side effects
     Given an empty graph
-    And having defined kuzu types: n:r_num
     And having executed:
       """
       CREATE ()-[:R {num: 1}]->()

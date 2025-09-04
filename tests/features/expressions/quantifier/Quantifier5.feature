@@ -52,7 +52,6 @@ Feature: Quantifier5 - None quantifier interop
       | all(y IN x WHERE y = 'def')    | true   |
       | all(y IN x WHERE y = 'abc')    | false  |
 
-  @fails @unsupportedListComprehension
   Scenario Outline: [2] None quantifier can nest itself and other quantifiers on the same list
     Given any graph
     When executing query:
@@ -76,7 +75,6 @@ Feature: Quantifier5 - None quantifier interop
       | all(y IN list WHERE x < y)             | true   |
       | all(y IN list WHERE x <= y)            | false  |
 
-  @fails @unsupportedListComprehension
   Scenario Outline: [3] None quantifier is equal the boolean negative of the any quantifier
     Given any graph
     When executing query:
@@ -96,7 +94,6 @@ Feature: Quantifier5 - None quantifier interop
       | x < 7     |
       | x >= 3    |
 
-  @fails @unsupportedListComprehension
   Scenario Outline: [4] None quantifier is equal the all quantifier on the boolean negative of the predicate
     Given any graph
     When executing query:
@@ -116,7 +113,6 @@ Feature: Quantifier5 - None quantifier interop
       | x < 7     |
       | x >= 3    |
 
-  @fails @unsupportedListComprehension
   Scenario Outline: [5] None quantifier is equal whether the size of the list filtered with same the predicate is zero
     Given any graph
     When executing query:

@@ -30,7 +30,6 @@
 
 Feature: Literals4 - Octal integer
 
-  @fails @unsupportedOctal
   Scenario: [1] Return a short positive octal integer
     Given any graph
     When executing query:
@@ -42,7 +41,6 @@ Feature: Literals4 - Octal integer
       | 1       |
     And no side effects
 
-  @fails @unsupportedOctal
   Scenario: [2] Return a long positive octal integer
     Given any graph
     When executing query:
@@ -54,7 +52,6 @@ Feature: Literals4 - Octal integer
       | 372036854  |
     And no side effects
 
-  @fails @unsupportedOctal
   Scenario: [3] Return the largest octal integer
     Given any graph
     When executing query:
@@ -66,7 +63,6 @@ Feature: Literals4 - Octal integer
       | 9223372036854775807  |
     And no side effects
 
-  @fails @unsupportedOctal
   Scenario: [4] Return a positive octal zero
     Given any graph
     When executing query:
@@ -78,7 +74,6 @@ Feature: Literals4 - Octal integer
       | 0       |
     And no side effects
 
-  @fails @unsupportedOctal
   Scenario: [5] Return a negative octal zero
     Given any graph
     When executing query:
@@ -90,7 +85,6 @@ Feature: Literals4 - Octal integer
       | 0       |
     And no side effects
 
-  @fails @unsupportedOctal
   Scenario: [6] Return a short negative octal integer
     Given any graph
     When executing query:
@@ -102,7 +96,6 @@ Feature: Literals4 - Octal integer
       | -1      |
     And no side effects
 
-  @fails @unsupportedOctal
   Scenario: [7] Return a long negative octal integer
     Given any graph
     When executing query:
@@ -114,7 +107,6 @@ Feature: Literals4 - Octal integer
       | -372036854 |
     And no side effects
 
-  @fails @unsupportedOctal
   Scenario: [8] Return the smallest octal integer
     Given any graph
     When executing query:
@@ -126,7 +118,6 @@ Feature: Literals4 - Octal integer
       | -9223372036854775808 |
     And no side effects
 
-  @fails @unsupportedOctal
   Scenario: [9] Fail on a too large octal integer
     Given any graph
     When executing query:
@@ -135,7 +126,6 @@ Feature: Literals4 - Octal integer
       """
     Then a SyntaxError should be raised at compile time: IntegerOverflow
 
-  @fails @unsupportedOctal
   Scenario: [10] Fail on a too small octal integer
     Given any graph
     When executing query:

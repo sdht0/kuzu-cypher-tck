@@ -30,7 +30,6 @@
 
 Feature: Quantifier11 - Any quantifier invariants
 
-  @fails @unsupportedListComprehension
   Scenario: [1] Any quantifier is always false if the predicate is statically false and the list is not empty
     Given any graph
     When executing query:
@@ -54,7 +53,6 @@ Feature: Quantifier11 - Any quantifier invariants
       | false  |
     And no side effects
 
-  @fails @unsupportedListComprehension
   Scenario: [2] Any quantifier is always true if the predicate is statically true and the list is not empty
     Given any graph
     When executing query:
@@ -78,7 +76,6 @@ Feature: Quantifier11 - Any quantifier invariants
       | true   |
     And no side effects
 
-  @fails @unsupportedListComprehension
   Scenario Outline: [3] Any quantifier is always true if the single or the all quantifier is true
     Given any graph
     When executing query:
@@ -115,7 +112,6 @@ Feature: Quantifier11 - Any quantifier invariants
       | x IN list WHERE x < 7     |
       | x IN list WHERE x >= 3    |
 
-  @fails @unsupportedListComprehension
   Scenario Outline: [4] Any quantifier is always equal the boolean negative of the none quantifier
     Given any graph
     When executing query:
@@ -146,7 +142,6 @@ Feature: Quantifier11 - Any quantifier invariants
       | x < 7     |
       | x >= 3    |
 
-  @fails @unsupportedListComprehension
   Scenario Outline: [5] Any quantifier is always equal the boolean negative of the all quantifier on the boolean negative of the predicate
     Given any graph
     When executing query:
@@ -177,7 +172,6 @@ Feature: Quantifier11 - Any quantifier invariants
       | x < 7     |
       | x >= 3    |
 
-  @fails @unsupportedListComprehension
   Scenario Outline: [6] Any quantifier is always equal whether the size of the list filtered with same the predicate is grater zero
     Given any graph
     When executing query:

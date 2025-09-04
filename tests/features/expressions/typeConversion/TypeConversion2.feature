@@ -30,33 +30,30 @@
 
 Feature: TypeConversion2 - To Integer
 
-  @fails @castRounding
   Scenario: [1] `toInteger()` on float
     Given any graph
     When executing query:
       """
       WITH 82.9 AS weight
-      RETURN cast(weight as int64)
+      RETURN toInteger(weight)
       """
     Then the result should be, in any order:
       | toInteger(weight) |
       | 82                |
     And no side effects
 
-  @fails @castFailuresAsNull
   Scenario: [2] `toInteger()` returning null on non-numerical string
     Given any graph
     When executing query:
       """
       WITH 'foo' AS foo_string, '' AS empty_string
-      RETURN CAST(foo_string AS int64) AS foo, CAST(empty_string AS int64) AS empty
+      RETURN toInteger(foo_string) AS foo, toInteger(empty_string) AS empty
       """
     Then the result should be, in any order:
       | foo  | empty |
       | null | null  |
     And no side effects
 
-  @fails @unsupportedListComprehension
   Scenario: [3] `toInteger()` handling mixed number types
     Given any graph
     When executing query:
@@ -69,7 +66,6 @@ Feature: TypeConversion2 - To Integer
       | [2, 2]      |
     And no side effects
 
-  @fails @unsupportedListComprehension
   Scenario: [4] `toInteger()` handling Any type
     Given any graph
     When executing query:
@@ -82,7 +78,6 @@ Feature: TypeConversion2 - To Integer
       | [2, 2, 1]   |
     And no side effects
 
-  @fails @unsupportedListComprehension
   Scenario: [5] `toInteger()` on a list of strings
     Given any graph
     When executing query:
@@ -101,7 +96,7 @@ Feature: TypeConversion2 - To Integer
       | param | 1 |
     When executing query:
       """
-      RETURN cast(1 - $param AS int64) AS result
+      RETURN toInteger(1 - $param) AS result
       """
     Then the result should be, in any order:
       | result |
@@ -110,7 +105,6 @@ Feature: TypeConversion2 - To Integer
 
   Scenario: [7] `toInteger()` on node property
     Given an empty graph
-    And having defined kuzu types: p_name
     And having executed:
       """
       CREATE (:Person {name: '42'})
@@ -120,14 +114,13 @@ Feature: TypeConversion2 - To Integer
       MATCH (p:Person { name: '42' })
       WITH *
       MATCH (n)
-      RETURN cast(n.name AS int64) AS name
+      RETURN toInteger(n.name) AS name
       """
     Then the result should be, in any order:
       | name |
       | 42   |
     And no side effects
 
-  @fails @unsupportedListComprehension
   Scenario Outline: [8] Fail `toInteger()` on invalid types #Example: <exampleName>
     Given an empty graph
     And having executed:

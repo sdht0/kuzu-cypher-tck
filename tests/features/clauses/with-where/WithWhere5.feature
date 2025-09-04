@@ -32,7 +32,6 @@ Feature: WithWhere5 - Filter on predicate resulting in null
 
   Scenario: [1] Filter out on null
     Given an empty graph
-    And having defined kuzu types: irt_2:t
     And having executed:
       """
       CREATE (root:Root {name: 'x'}),
@@ -53,10 +52,8 @@ Feature: WithWhere5 - Filter on predicate resulting in null
       | (:TextNode {var: 'text'}) |
     And no side effects
 
-  @fails @whereWithLabel
   Scenario: [2] Filter out on null if the AND'd predicate evaluates to false
     Given an empty graph
-    And having defined kuzu types: irt_2:t
     And having executed:
       """
       CREATE (root:Root {name: 'x'}),
@@ -79,7 +76,6 @@ Feature: WithWhere5 - Filter on predicate resulting in null
 
   Scenario: [3] Filter out on null if the AND'd predicate evaluates to true
     Given an empty graph
-    And having defined kuzu types: irt_2:t
     And having executed:
       """
       CREATE (root:Root {name: 'x'}),
@@ -100,10 +96,8 @@ Feature: WithWhere5 - Filter on predicate resulting in null
       | (:TextNode {var: 'text'}) |
     And no side effects
 
-  @returnDifferentTypes
   Scenario: [4] Do not filter out on null if the OR'd predicate evaluates to true
     Given an empty graph
-    And having defined kuzu types: irt_2:t
     And having executed:
       """
       CREATE (root:Root {name: 'x'}),
@@ -122,6 +116,6 @@ Feature: WithWhere5 - Filter on predicate resulting in null
     Then the result should be, in any order:
       | i                         |
       | (:TextNode {var: 'text'}) |
-      | (:IntNode {var: '0'})     |
+      | (:IntNode {var: 0})       |
     And no side effects
 

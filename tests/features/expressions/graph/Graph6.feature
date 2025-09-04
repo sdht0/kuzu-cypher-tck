@@ -31,7 +31,6 @@
 Feature: Graph6 - Static property access
   # Accessing a property of a node or edge by using a symbolic name as the key.
 
-  @skip @unsupportedUndeclaredProperty
   Scenario: [1] Statically access a property of a non-null node
     Given an empty graph
     And having executed:
@@ -48,7 +47,6 @@ Feature: Graph6 - Static property access
       | null      | null         | 42         |
     And no side effects
 
-  @skip @unsupportedUndeclaredProperty
   Scenario: [2] Statically access a property of a optional non-null node
     Given an empty graph
     And having executed:
@@ -65,7 +63,6 @@ Feature: Graph6 - Static property access
       | null      | null         | 42         |
     And no side effects
 
-  @skip @unsupportedUndeclaredProperty
   Scenario: [3] Statically access a property of a null node
     Given an empty graph
     When executing query:
@@ -78,7 +75,6 @@ Feature: Graph6 - Static property access
       | null      |
     And no side effects
 
-  @skip @unsupportedMixedTypeLists
   Scenario: [4] Statically access a property of a node resulting from an expression
     Given an empty graph
     And having executed:
@@ -96,13 +92,11 @@ Feature: Graph6 - Static property access
       | null              | null                 | 42                 |
     And no side effects
 
-  @skip @unsupportedUndeclaredProperty
   Scenario: [5] Statically access a property of a non-null relationship
     Given an empty graph
-    And having defined kuzu types: n:r_em
     And having executed:
       """
-      CREATE (:N)-[:REL {existing: 42, missing: null}]->(:N)
+      CREATE ()-[:REL {existing: 42, missing: null}]->()
       """
     When executing query:
       """
@@ -114,13 +108,11 @@ Feature: Graph6 - Static property access
       | null      | null         | 42         |
     And no side effects
 
-  @skip @unsupportedUndeclaredProperty
   Scenario: [6] Statically access a property of a optional non-null relationship
     Given an empty graph
-    And having defined kuzu types: n:r_em
     And having executed:
       """
-      CREATE (:N)-[:REL {existing: 42, missing: null}]->(:N)
+      CREATE ()-[:REL {existing: 42, missing: null}]->()
       """
     When executing query:
       """
@@ -132,7 +124,6 @@ Feature: Graph6 - Static property access
       | null      | null         | 42         |
     And no side effects
 
-  @skip @unsupportedUndeclaredProperty
   Scenario: [7] Statically access a property of a null relationship
     Given an empty graph
     When executing query:
@@ -145,13 +136,11 @@ Feature: Graph6 - Static property access
       | null      |
     And no side effects
 
-  @skip @unsupportedMixedTypeLists
   Scenario: [8] Statically access a property of a relationship resulting from an expression
     Given an empty graph
-    And having defined kuzu types: n:r_em
     And having executed:
       """
-      CREATE (:N)-[:REL {existing: 42, missing: null}]->(:N)
+      CREATE ()-[:REL {existing: 42, missing: null}]->()
       """
     When executing query:
       """

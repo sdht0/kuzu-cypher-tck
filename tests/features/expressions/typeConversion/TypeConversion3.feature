@@ -34,16 +34,14 @@ Feature: TypeConversion3 - To Float
     Given any graph
     When executing query:
       """
-      UNWIND [3.4, 3] AS n
-      RETURN CAST(n AS float) AS float_numbers
+      WITH [3.4, 3] AS numbers
+      RETURN [n IN numbers | toFloat(n)] AS float_numbers
       """
     Then the result should be, in any order:
       | float_numbers |
-      | 3.4           |
-      | 3.0           |
+      | [3.4, 3.0]    |
     And no side effects
 
-  @fails @castFailuresAsNull
   Scenario: [2] `toFloat()` returning null on non-numerical string
     Given any graph
     When executing query:
@@ -56,7 +54,6 @@ Feature: TypeConversion3 - To Float
       | null | null  |
     And no side effects
 
-  @fails @unsupportedMixedTypesLists
   Scenario: [3] `toFloat()` handling Any type
     Given any graph
     When executing query:
@@ -69,7 +66,6 @@ Feature: TypeConversion3 - To Float
       | [3.4, 3.0, 5.0] |
     And no side effects
 
-  @fails @castFailuresAsNull
   Scenario: [4] `toFloat()` on a list of strings
     Given any graph
     When executing query:
@@ -84,7 +80,6 @@ Feature: TypeConversion3 - To Float
 
   Scenario: [5] `toFloat()` on node property
     Given an empty graph
-    And having defined kuzu types: m_r
     And having executed:
       """
       CREATE (:Movie {rating: 4})
@@ -94,20 +89,18 @@ Feature: TypeConversion3 - To Float
       MATCH (m:Movie { rating: 4 })
       WITH *
       MATCH (n)
-      RETURN CAST(n.rating AS float) AS float
+      RETURN toFloat(n.rating) AS float
       """
     Then the result should be, in any order:
       | float |
       | 4.0   |
     And no side effects
 
-  @skip @unsupportedMixedTypesLists
   Scenario Outline: [6] Fail `toFloat()` on invalid types #Example: <exampleName>
     Given an empty graph
-    And having defined kuzu types: n:t
     And having executed:
       """
-      CREATE (:N)-[:T]->(:N)
+      CREATE ()-[:T]->()
       """
     When executing query:
       """

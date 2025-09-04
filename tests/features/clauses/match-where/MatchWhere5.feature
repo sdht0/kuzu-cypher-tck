@@ -30,10 +30,8 @@
 
 Feature: MatchWhere5 - Filter on predicate resulting in null
 
-  @fails @conflictPropertyTypes
   Scenario: [1] Filter out on null
     Given an empty graph
-    And having defined kuzu types: irt_2:t
     And having executed:
       """
       CREATE (root:Root {name: 'x'}),
@@ -46,17 +44,15 @@ Feature: MatchWhere5 - Filter on predicate resulting in null
       """
       MATCH (:Root {name: 'x'})-->(i:TextNode)
       WHERE i.var > 'te'
-      RETURN i.var as i
+      RETURN i
       """
     Then the result should be, in any order:
-      | i    |
-      | text |
+      | i                         |
+      | (:TextNode {var: 'text'}) |
     And no side effects
 
-  @fails @conflictPropertyTypes
   Scenario: [2] Filter out on null if the AND'd predicate evaluates to false
     Given an empty graph
-    And having defined kuzu types: irt_2:t
     And having executed:
       """
       CREATE (root:Root {name: 'x'}),
@@ -69,17 +65,15 @@ Feature: MatchWhere5 - Filter on predicate resulting in null
       """
       MATCH (:Root {name: 'x'})-->(i:TextNode)
       WHERE i.var > 'te' AND i:TextNode
-      RETURN i.var as i
+      RETURN i
       """
     Then the result should be, in any order:
-      | i    |
-      | text |
+      | i                         |
+      | (:TextNode {var: 'text'}) |
     And no side effects
 
-  @fails @conflictPropertyTypes
   Scenario: [3] Filter out on null if the AND'd predicate evaluates to true
     Given an empty graph
-    And having defined kuzu types: irt_2:t
     And having executed:
       """
       CREATE (root:Root {name: 'x'}),
@@ -92,17 +86,15 @@ Feature: MatchWhere5 - Filter on predicate resulting in null
       """
       MATCH (:Root {name: 'x'})-->(i:TextNode)
       WHERE i.var > 'te' AND i.var IS NOT NULL
-      RETURN i.var as i
+      RETURN i
       """
     Then the result should be, in any order:
-      | i    |
-      | text |
+      | i                         |
+      | (:TextNode {var: 'text'}) |
     And no side effects
 
-  @fails @conflictPropertyTypes
   Scenario: [4] Do not filter out on null if the OR'd predicate evaluates to true
     Given an empty graph
-    And having defined kuzu types: irt_2:t
     And having executed:
       """
       CREATE (root:Root {name: 'x'}),
@@ -115,10 +107,10 @@ Feature: MatchWhere5 - Filter on predicate resulting in null
       """
       MATCH (:Root {name: 'x'})-->(i)
       WHERE i.var > 'te' OR i.var IS NOT NULL
-      RETURN i.var as i
+      RETURN i
       """
     Then the result should be, in any order:
-      | i    |
-      | text |
-      | 0    |
+      | i                         |
+      | (:TextNode {var: 'text'}) |
+      | (:IntNode {var: 0})       |
     And no side effects

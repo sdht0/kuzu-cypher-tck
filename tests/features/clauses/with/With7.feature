@@ -30,10 +30,8 @@
 
 Feature: With7 - WITH on WITH
 
-  @fails @varBinding
   Scenario: [1] A simple pattern with one bound endpoint
     Given an empty graph
-    And having defined kuzu types: ab:rel
     And having executed:
       """
       CREATE (:A)-[:REL]->(:B)
@@ -54,13 +52,12 @@ Feature: With7 - WITH on WITH
 
   Scenario: [2] Multiple WITHs using a predicate and aggregation
     Given an empty graph
-    And having defined kuzu types: n_name:r
     And having executed:
       """
-      CREATE (a:N {name: 'David'}),
-             (b:N {name: 'Other'}),
-             (c:N {name: 'NotOther'}),
-             (d:N {name: 'NotOther2'}),
+      CREATE (a {name: 'David'}),
+             (b {name: 'Other'}),
+             (c {name: 'NotOther'}),
+             (d {name: 'NotOther2'}),
              (a)-[:REL]->(b),
              (a)-[:REL]->(c),
              (a)-[:REL]->(d),
@@ -77,9 +74,9 @@ Feature: With7 - WITH on WITH
       WHERE foaf > 1
       WITH otherPerson
       WHERE otherPerson.name <> 'NotOther'
-      RETURN count(*) as count
+      RETURN count(*)
       """
     Then the result should be, in any order:
-      | count |
-      | 1     |
+      | count(*) |
+      | 1        |
     And no side effects

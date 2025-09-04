@@ -32,7 +32,6 @@ Feature: Merge9 - Merge clause interoperation with other clauses
 
   Scenario: [1] UNWIND with one MERGE
     Given an empty graph
-    And having defined kuzu types: n_id
     When executing query:
       """
       UNWIND [1, 2, 3, 4] AS int
@@ -48,7 +47,6 @@ Feature: Merge9 - Merge clause interoperation with other clauses
 
   Scenario: [2] UNWIND with multiple MERGE
     Given an empty graph
-    And having defined kuzu types: mp_name:a
     When executing query:
       """
       UNWIND ['Keanu Reeves', 'Hugo Weaving', 'Carrie-Anne Moss', 'Laurence Fishburne'] AS actor
@@ -65,7 +63,6 @@ Feature: Merge9 - Merge clause interoperation with other clauses
 
   Scenario: [3] Mixing MERGE with CREATE
     Given an empty graph
-    And having defined kuzu types: abc:k
     When executing query:
       """
       CREATE (a:A), (b:B)
@@ -83,7 +80,6 @@ Feature: Merge9 - Merge clause interoperation with other clauses
 
   Scenario: [4] MERGE after WITH with predicate and WITH with aggregation
     Given an empty graph
-    And having defined kuzu types: a_num
     And having executed:
       """
       CREATE (:A {num: 42})

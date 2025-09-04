@@ -31,12 +31,11 @@
 Feature: List1 - Dynamic Element Access
 # Dynamic element access refers to the bracket-operator – <expression resulting in a list>[<expression resulting in an integer>] – irrespectively of whether the list index – i.e. <expression resulting in an integer> – could be evaluated statically in a given scenario.
 
-  @mismatch @0index
   Scenario: [1] Indexing into literal list
     Given any graph
     When executing query:
       """
-      RETURN [1, 2, 3][1] AS value
+      RETURN [1, 2, 3][0] AS value
       """
     Then the result should be, in any order:
       | value |
@@ -47,18 +46,18 @@ Feature: List1 - Dynamic Element Access
     Given any graph
     When executing query:
       """
-      RETURN [[1]][1][1] AS value
+      RETURN [[1]][0][0]
       """
     Then the result should be, in any order:
-      | value |
-      | 1     |
+      | [[1]][0][0] |
+      | 1           |
     And no side effects
 
   Scenario: [3] Use list lookup based on parameters when there is no type information
     Given any graph
     And parameters are:
-      | expr:list1 | ['Apa'] |
-      | idx        | 1       |
+      | expr | ['Apa'] |
+      | idx  | 0       |
     When executing query:
       """
       WITH $expr AS expr, $idx AS idx
@@ -72,7 +71,7 @@ Feature: List1 - Dynamic Element Access
   Scenario: [4] Use list lookup based on parameters when there is lhs type information
     Given any graph
     And parameters are:
-      | idx | 1 |
+      | idx | 0 |
     When executing query:
       """
       WITH ['Apa'] AS expr
@@ -86,19 +85,18 @@ Feature: List1 - Dynamic Element Access
   Scenario: [5] Use list lookup based on parameters when there is rhs type information
     Given any graph
     And parameters are:
-      | expr:list1 | ['Apa'] |
-      | idx        | 1       |
+      | expr | ['Apa'] |
+      | idx  | 0       |
     When executing query:
       """
       WITH $expr AS expr, $idx AS idx
-      RETURN expr[cast(idx AS INT64)] AS value
+      RETURN expr[toInteger(idx)] AS value
       """
     Then the result should be, in any order:
       | value |
       | 'Apa' |
     And no side effects
 
-  @fails @incorrectCast
   Scenario Outline: [6] Fail when indexing a non-list #Example: <exampleName>
     Given any graph
     When executing query:
@@ -115,7 +113,6 @@ Feature: List1 - Dynamic Element Access
       | 4.7    | float        |
       | '1'    | string       |
 
-  @fails @incorrectCast
   Scenario Outline: [7] Fail when indexing a non-list given by a parameter #Example: <exampleName>
     Given any graph
     And parameters are:
@@ -152,12 +149,11 @@ Feature: List1 - Dynamic Element Access
       | [1]    | list         |
       | {x: 3} | map          |
 
-  @fails @incorrectCast
   Scenario Outline: [9] Fail when indexing with a non-integer given by a parameter #Example: <exampleName>
     Given any graph
     And parameters are:
-      | expr:list1 | ['Apa'] |
-      | idx        | <idx>   |
+      | expr | ['Apa'] |
+      | idx  | <idx>   |
     When executing query:
       """
       WITH $expr AS list, $idx AS idx

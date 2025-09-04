@@ -43,10 +43,9 @@ Feature: Match1 - Match nodes
 
   Scenario: [2] Matching all nodes
     Given an empty graph
-    And having defined kuzu types: abc_name
     And having executed:
       """
-      CREATE (:A), (:B {name: 'b'}), (:C {name: 'c'});
+      CREATE (:A), (:B {name: 'b'}), ({name: 'c'})
       """
     When executing query:
       """
@@ -57,10 +56,9 @@ Feature: Match1 - Match nodes
       | n                |
       | (:A)             |
       | (:B {name: 'b'}) |
-      | (:C {name: 'c'}) |
+      | ({name: 'c'})    |
     And no side effects
 
-  @fails @unsupportedMultipleLabels
   Scenario: [3] Matching nodes using multiple labels
     Given an empty graph
     And having executed:
@@ -82,10 +80,9 @@ Feature: Match1 - Match nodes
 
   Scenario: [4] Simple node inline property predicate
     Given an empty graph
-    And having defined kuzu types: n_name
     And having executed:
       """
-      CREATE (:N {name: 'bar'}), (:N {name: 'monkey'}), (:N {name: 'baz'});
+      CREATE ({name: 'bar'}), ({name: 'monkey'}), ({firstname: 'bar'})
       """
     When executing query:
       """
@@ -93,18 +90,17 @@ Feature: Match1 - Match nodes
       RETURN n
       """
     Then the result should be, in any order:
-      | n                  |
-      | (:N {name: 'bar'}) |
+      | n               |
+      | ({name: 'bar'}) |
     And no side effects
 
   Scenario: [5] Use multiple MATCH clauses to do a Cartesian product
     Given an empty graph
-    And having defined kuzu types: n_num
     And having executed:
       """
-      CREATE (:N {num: 1}),
-        (:N {num: 2}),
-        (:N {num: 3})
+      CREATE ({num: 1}),
+        ({num: 2}),
+        ({num: 3})
       """
     When executing query:
       """
@@ -196,32 +192,32 @@ Feature: Match1 - Match nodes
     Then a SyntaxError should be raised at compile time: VariableTypeConflict
 
     Examples:
-      | pattern                                    |
-      | ()-[r]-(r)                                 |
-      | ()-[r]->(r)                                |
-      | ()<-[r]-(r)                                |
-      | ()-[r]-()-[]-(r)                           |
-      | ()-[r*]-()-[]-(r)                          |
-      | ()-[r]-(), (r)                             |
-      | ()-[r]->(), (r)                            |
-      | ()<-[r]-(), (r)                            |
-      | ()-[r]-(), (r)-[]-()                       |
-      | ()-[r]-(), ()-[]-(r)                       |
-      | (s)-[r]-(t), (r)-[]-(t)                    |
-      | (s)-[r]-(t), (s)-[]-(r)                    |
-      | (), ()-[r]-(), (r)                         |
-      | ()-[r]-(), (), (r)                         |
-      | ()-[r]-(), (r), ()                         |
-      | ()-[]-(), ()-[r]-(), (r)                   |
-      | ()-[]-()-[r]-(), ()-[]-(r)                 |
-      | ()-[]-()-[]-(), ()-[r]-(), (r)             |
-      | ()-[]-()-[r]-(), (r), ()-[]-()             |
-      | ()-[]-()-[r]-(), (), (r)-[]-()             |
-      | ()-[]-()-[r*]-(), (r), ()-[]-()            |
-      | ()-[*]-()-[r]-(), (), (r)-[]-()            |
-      | ()-[*]-()-[r]-(), (), (r)-[*]-()           |
-      | ()-[*]-()-[r]-(), (), ()-[*]-(r)           |
-      | (x), (a)-[r]-(b), (s), (s)-[]->(r)<-[]-(b) |
+      | pattern                                         |
+      | ()-[r]-(r)                                      |
+      | ()-[r]->(r)                                     |
+      | ()<-[r]-(r)                                     |
+      | ()-[r]-()-[]-(r)                                |
+      | ()-[r*]-()-[]-(r)                               |
+      | ()-[r]-(), (r)                                  |
+      | ()-[r]->(), (r)                                 |
+      | ()<-[r]-(), (r)                                 |
+      | ()-[r]-(), (r)-[]-()                            |
+      | ()-[r]-(), ()-[]-(r)                            |
+      | (s)-[r]-(t), (r)-[]-(t)                         |
+      | (s)-[r]-(t), (s)-[]-(r)                         |
+      | (), ()-[r]-(), (r)                              |
+      | ()-[r]-(), (), (r)                              |
+      | ()-[r]-(), (r), ()                              |
+      | ()-[]-(), ()-[r]-(), (r)                        |
+      | ()-[]-()-[r]-(), ()-[]-(r)                      |
+      | ()-[]-()-[]-(), ()-[r]-(), (r)                  |
+      | ()-[]-()-[r]-(), (r), ()-[]-()                  |
+      | ()-[]-()-[r]-(), (), (r)-[]-()                  |
+      | ()-[]-()-[r*]-(), (r), ()-[]-()                 |
+      | ()-[*]-()-[r]-(), (), (r)-[]-()                 |
+      | ()-[*]-()-[r]-(), (), (r)-[*]-()                |
+      | ()-[*]-()-[r]-(), (), ()-[*]-(r)                |
+      | (x), (a)-[r]-(b), (s), (s)-[]->(r)<-[]-(b)      |
 
   Scenario Outline: [10] Fail when a path has the same variable in the same pattern
     Given any graph

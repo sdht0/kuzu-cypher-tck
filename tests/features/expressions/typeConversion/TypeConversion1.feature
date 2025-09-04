@@ -35,7 +35,7 @@ Feature: TypeConversion1 - To Boolean
     When executing query:
       """
       UNWIND [true, false] AS b
-      RETURN cast(b AS boolean) AS b
+      RETURN toBoolean(b) AS b
       """
     Then the result should be, in any order:
       | b     |
@@ -47,7 +47,7 @@ Feature: TypeConversion1 - To Boolean
     Given any graph
     When executing query:
       """
-      RETURN cast('true' AS boolean) AS b
+      RETURN toBoolean('true') AS b
       """
     Then the result should be, in any order:
       | b    |
@@ -59,7 +59,7 @@ Feature: TypeConversion1 - To Boolean
     When executing query:
       """
       UNWIND ['true', 'false'] AS s
-      RETURN cast(s AS boolean) AS b
+      RETURN toBoolean(s) AS b
       """
     Then the result should be, in any order:
       | b     |
@@ -67,13 +67,12 @@ Feature: TypeConversion1 - To Boolean
       | false |
     And no side effects
 
-  @fails @unsupportedEmptyStringToBoolean
   Scenario: [4] `toBoolean()` on invalid strings
     Given any graph
     When executing query:
       """
       UNWIND [null, '', ' tru ', 'f alse'] AS things
-      RETURN cast(things AS boolean) AS b
+      RETURN toBoolean(things) AS b
       """
     Then the result should be, in any order:
       | b    |
@@ -83,7 +82,6 @@ Feature: TypeConversion1 - To Boolean
       | null |
     And no side effects
 
-  @fails @unsupportedListComprehension
   Scenario Outline: [5] Fail `toBoolean()` on invalid types #Example: <exampleName>
     Given an empty graph
     And having executed:

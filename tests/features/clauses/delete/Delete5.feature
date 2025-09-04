@@ -30,17 +30,15 @@
 
 Feature: Delete5 - Delete clause interoperation with built-in data types
 
-  @fails @deleteParams
   Scenario: [1] Delete node from a list
     Given an empty graph
-    And having defined kuzu types: nu:f
     And having executed:
       """
       CREATE (u:User)
-      CREATE (u)-[:FRIEND]->(:N)
-      CREATE (u)-[:FRIEND]->(:N)
-      CREATE (u)-[:FRIEND]->(:N)
-      CREATE (u)-[:FRIEND]->(:N)
+      CREATE (u)-[:FRIEND]->()
+      CREATE (u)-[:FRIEND]->()
+      CREATE (u)-[:FRIEND]->()
+      CREATE (u)-[:FRIEND]->()
       """
     And parameters are:
       | friendIndex | 1 |
@@ -55,17 +53,15 @@ Feature: Delete5 - Delete clause interoperation with built-in data types
       | -nodes         | 1 |
       | -relationships | 1 |
 
-  @fails @deleteParams
   Scenario: [2] Delete relationship from a list
     Given an empty graph
-    And having defined kuzu types: nu:f
     And having executed:
       """
       CREATE (u:User)
-      CREATE (u)-[:FRIEND]->(:N)
-      CREATE (u)-[:FRIEND]->(:N)
-      CREATE (u)-[:FRIEND]->(:N)
-      CREATE (u)-[:FRIEND]->(:N)
+      CREATE (u)-[:FRIEND]->()
+      CREATE (u)-[:FRIEND]->()
+      CREATE (u)-[:FRIEND]->()
+      CREATE (u)-[:FRIEND]->()
       """
     And parameters are:
       | friendIndex | 1 |
@@ -79,10 +75,8 @@ Feature: Delete5 - Delete clause interoperation with built-in data types
     And the side effects should be:
       | -relationships | 1 |
 
-  @fails @deleteStruct
   Scenario: [3] Delete nodes from a map
     Given an empty graph
-    And having defined kuzu types: u
     And having executed:
       """
       CREATE (:User), (:User)
@@ -98,10 +92,8 @@ Feature: Delete5 - Delete clause interoperation with built-in data types
       | -nodes  | 2 |
       | -labels | 1 |
 
-  @fails @deleteStruct
   Scenario: [4] Delete relationships from a map
     Given an empty graph
-    And having defined kuzu types: u:r
     And having executed:
       """
       CREATE (a:User), (b:User)
@@ -118,10 +110,8 @@ Feature: Delete5 - Delete clause interoperation with built-in data types
     And the side effects should be:
       | -relationships | 2 |
 
-  @fails @deleteStruct
   Scenario: [5] Detach delete nodes from nested map/list
     Given an empty graph
-    And having defined kuzu types: u:r
     And having executed:
       """
       CREATE (a:User), (b:User)
@@ -139,10 +129,8 @@ Feature: Delete5 - Delete clause interoperation with built-in data types
       | -nodes         | 1 |
       | -relationships | 2 |
 
-  @fails @deleteStruct
   Scenario: [6] Delete relationships from nested map/list
     Given an empty graph
-    And having defined kuzu types: u:r
     And having executed:
       """
       CREATE (a:User), (b:User)
@@ -159,10 +147,8 @@ Feature: Delete5 - Delete clause interoperation with built-in data types
     And the side effects should be:
       | -relationships | 1 |
 
-  @fails @deleteStruct
   Scenario: [7] Delete paths from nested map/list
     Given an empty graph
-    And having defined kuzu types: u:r
     And having executed:
       """
       CREATE (a:User), (b:User)

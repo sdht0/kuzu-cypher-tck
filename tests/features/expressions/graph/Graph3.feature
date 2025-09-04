@@ -31,7 +31,6 @@
 Feature: Graph3 - Node labels
 
     # similar to Create1.[1] => rename to make clear labels() is tested
-  @skip @unsupportEmptyLabels
   Scenario: [1] Creating node without label
     Given an empty graph
     When executing query:
@@ -46,7 +45,6 @@ Feature: Graph3 - Node labels
       | +nodes | 1 |
 
   # similar to Create1.[3]/[4] => rename to make clear labels() is tested
-  @skip @unsupportedMultipleLabels
   Scenario: [2] Creating node with two labels
     Given an empty graph
     When executing query:
@@ -63,7 +61,6 @@ Feature: Graph3 - Node labels
       | +properties | 1 |
 
   # consider adding to Create1
-  @skip @unsupportedMultipleLabels
   Scenario: [3] Ignore space when creating node with labels
     Given an empty graph
     When executing query:
@@ -81,7 +78,6 @@ Feature: Graph3 - Node labels
   # consider adding to Create1
   Scenario: [4] Create node with label in pattern
     Given an empty graph
-    And having defined kuzu types: dp:o
     When executing query:
       """
       CREATE (n:Person)-[:OWNS]->(:Dog)
@@ -89,19 +85,17 @@ Feature: Graph3 - Node labels
       """
     Then the result should be, in any order:
       | labels(n)  |
-      | 'Person' |
+      | ['Person'] |
     And the side effects should be:
       | +nodes         | 2 |
       | +relationships | 1 |
       | +labels        | 2 |
 
-  @skip @unsupportEmptyLabels
   Scenario: [5] Using `labels()` in return clauses
     Given an empty graph
-    And having defined kuzu types: n
     And having executed:
       """
-      CREATE (:N)
+      CREATE ()
       """
     When executing query:
       """
@@ -113,7 +107,6 @@ Feature: Graph3 - Node labels
       | []        |
     And no side effects
 
-  @skip @unsupportedMultipleLabels
   Scenario: [6] `labels()` should accept type Any
     Given an empty graph
     And having executed:
@@ -132,10 +125,8 @@ Feature: Graph3 - Node labels
       | ['Foo', 'Bar'] |
     And no side effects
 
-  @fails @bugSigsev
   Scenario: [7] `labels()` on null node
     Given an empty graph
-    And having defined kuzu types: d
     When executing query:
       """
       OPTIONAL MATCH (n:DoesNotExist)
@@ -146,7 +137,6 @@ Feature: Graph3 - Node labels
       | null      | null         |
     And no side effects
 
-  @skip @unsupportedMultipleLabels
   Scenario: [8] `labels()` failing on a path
     Given an empty graph
     And having executed:
@@ -160,7 +150,6 @@ Feature: Graph3 - Node labels
       """
     Then a SyntaxError should be raised at compile time: InvalidArgumentType
 
-  @skip @unsupportedMultipleLabels
   Scenario: [9] `labels()` failing on invalid arguments
     Given an empty graph
     And having executed:

@@ -32,10 +32,9 @@ Feature: Match6 - Match named paths scenarios
 
   Scenario: [1] Zero-length named path
     Given an empty graph
-    And having defined kuzu types: n_name
     And having executed:
       """
-      CREATE (:N {name: 'N'})
+      CREATE ()
       """
     When executing query:
       """
@@ -43,13 +42,12 @@ Feature: Match6 - Match named paths scenarios
       RETURN p
       """
     Then the result should be, in any order:
-      | p  |
-      | [] |
+      | p    |
+      | <()> |
     And no side effects
 
   Scenario: [2] Return a simple path
     Given an empty graph
-    And having defined kuzu types: ab_name:k
     And having executed:
       """
       CREATE (a:A {name: 'A'})-[:KNOWS]->(b:B {name: 'B'})
@@ -57,16 +55,16 @@ Feature: Match6 - Match named paths scenarios
     When executing query:
       """
       MATCH p = (a {name: 'A'})-->(b)
-      RETURN properties(nodes(p), 'name') as p
+      RETURN p
       """
     Then the result should be, in any order:
-      | p          |
-      | ['A', 'B'] |
+      | p                                             |
+      | <(:A {name: 'A'})-[:KNOWS]->(:B {name: 'B'})> |
     And no side effects
+
 
   Scenario: [3] Return a three node path
     Given an empty graph
-    And having defined kuzu types: abc_name:k
     And having executed:
       """
       CREATE (a:A {name: 'A'})-[:KNOWS]->(b:B {name: 'B'})-[:KNOWS]->(c:C {name: 'C'})
@@ -74,19 +72,18 @@ Feature: Match6 - Match named paths scenarios
     When executing query:
       """
       MATCH p = (a {name: 'A'})-[rel1]->(b)-[rel2]->(c)
-      RETURN properties(nodes(p), 'name') as p
+      RETURN p
       """
     Then the result should be, in any order:
-      | p               |
-      | ['A', 'B', 'C'] |
+      | p                                                                        |
+      | <(:A {name: 'A'})-[:KNOWS]->(:B {name: 'B'})-[:KNOWS]->(:C {name: 'C'})> |
     And no side effects
 
   Scenario: [4] Respecting direction when matching non-existent path
     Given an empty graph
-    And having defined kuzu types: n_name:t
     And having executed:
       """
-      CREATE (a:N {name: 'a'}), (b:N {name: 'b'})
+      CREATE (a {name: 'a'}), (b {name: 'b'})
       CREATE (a)-[:T]->(b)
       """
     When executing query:
@@ -100,124 +97,109 @@ Feature: Match6 - Match named paths scenarios
 
   Scenario: [5] Path query should return results in written order
     Given an empty graph
-    And having defined kuzu types: l12_name:t
     And having executed:
       """
-      CREATE (:Label1 {name: 'Label1'})<-[:TYPE]-(:Label2 {name: 'Label2'})
+      CREATE (:Label1)<-[:TYPE]-(:Label2)
       """
     When executing query:
       """
       MATCH p = (a:Label1)<--(:Label2)
-      RETURN properties(nodes(p), 'name') as p
+      RETURN p
       """
     Then the result should be, in any order:
-      | p                    |
-      | ['Label1', 'Label2'] |
+      | p                              |
+      | <(:Label1)<-[:TYPE]-(:Label2)> |
     And no side effects
 
   Scenario: [6] Handling direction of named paths
     Given an empty graph
-    And having defined kuzu types: ab_name:t
     And having executed:
       """
-      CREATE (a:A {name: 'A'})-[:T]->(b:B {name: 'B'})
+      CREATE (a:A)-[:T]->(b:B)
       """
     When executing query:
       """
       MATCH p = (b)<--(a)
-      RETURN properties(nodes(p), 'name') as p
+      RETURN p
       """
     Then the result should be, in any order:
-      | p          |
-      | ['B', 'A'] |
+      | p                 |
+      | <(:B)<-[:T]-(:A)> |
     And no side effects
 
   Scenario: [7] Respecting direction when matching existing path
     Given an empty graph
-    And having defined kuzu types: n_name:t
     And having executed:
       """
-      CREATE (a:N {name: 'a'}), (b:N {name: 'b'})
+      CREATE (a {name: 'a'}), (b {name: 'b'})
       CREATE (a)-[:T]->(b)
       """
     When executing query:
       """
       MATCH p = ({name: 'a'})-->({name: 'b'})
-      RETURN properties(nodes(p), 'name') as p
+      RETURN p
       """
     Then the result should be, in any order:
-      | p          |
-      | ['a', 'b'] |
+      | p                                   |
+      | <({name: 'a'})-[:T]->({name: 'b'})> |
     And no side effects
 
-  @fails @bugFailedVarBinding
-  # Binder exception: Variable n already exists.
   Scenario: [8] Respecting direction when matching non-existent path with multiple directions
     Given an empty graph
-    And having defined kuzu types: n_name:t
     And having executed:
       """
-      CREATE (a:N), (b:N)
+      CREATE (a), (b)
       CREATE (a)-[:T]->(b),
              (b)-[:T]->(a)
       """
     When executing query:
       """
       MATCH p = (n)-->(k)<--(n)
-      RETURN properties(nodes(p), 'name') as p
+      RETURN p
       """
     Then the result should be, in any order:
       | p |
     And no side effects
 
-  @fails @extraOutputUndirected @testbug
-  # Not all undirected paths traversed in test output.
   Scenario: [9] Longer path query should return results in written order
     Given an empty graph
-    And having defined kuzu types: l13_name:t12
     And having executed:
       """
-      CREATE (:Label1 {name: 'Label1'})<-[:T1]-(:Label2 {name: 'Label2'})-[:T2]->(:Label3 {name: 'Label3'})
+      CREATE (:Label1)<-[:T1]-(:Label2)-[:T2]->(:Label3)
       """
     When executing query:
       """
       MATCH p = (a:Label1)<--(:Label2)--()
-      RETURN properties(nodes(p), 'name') as p
+      RETURN p
       """
     Then the result should be, in any order:
-      | p                              |
-      | ['Label1', 'Label2', 'Label3'] |
+      | p                                             |
+      | <(:Label1)<-[:T1]-(:Label2)-[:T2]->(:Label3)> |
     And no side effects
 
-  @fails @extraOutputUndirected @testbug
-  # Not all undirected paths traversed in test output.
   Scenario: [10] Named path with alternating directed/undirected relationships
     Given an empty graph
-    And having defined kuzu types: abc_name:t
     And having executed:
       """
-      CREATE (a:A {name: "A"}), (b:B {name: "B"}), (c:C {name: "C"})
+      CREATE (a:A), (b:B), (c:C)
       CREATE (b)-[:T]->(a),
              (c)-[:T]->(b)
       """
     When executing query:
       """
       MATCH p = (n)-->(m)--(o)
-      RETURN properties(nodes(p), 'name') as p
+      RETURN p
       """
     Then the result should be, in any order:
-      | p               |
-      | ['C', 'B', 'A'] |
+      | p                            |
+      | <(:C)-[:T]->(:B)-[:T]->(:A)> |
     And no side effects
 
-  @fails @extraOutputUndirected @testbug
-  # Not all undirected paths traversed in test output.
   Scenario: [11] Named path with multiple alternating directed/undirected relationships
     Given an empty graph
-    And having defined kuzu types: abcd_name:t
     And having executed:
       """
-      CREATE (a:A {name: "A"}), (b:B {name: "B"}), (c:C {name: "C"}), (d:D {name: "D"})
+      CREATE (a:A), (b:B), (c:C), (d:D)
       CREATE (b)-[:T]->(a),
              (c)-[:T]->(b),
              (d)-[:T]->(c)
@@ -225,68 +207,58 @@ Feature: Match6 - Match named paths scenarios
     When executing query:
       """
       MATCH path = (n)-->(m)--(o)--(p)
-      RETURN properties(nodes(path), 'name') as path
+      RETURN path
       """
     Then the result should be, in any order:
-      | path                 |
-      | ['D', 'C', 'B', 'A'] |
+      | path                                    |
+      | <(:D)-[:T]->(:C)-[:T]->(:B)-[:T]->(:A)> |
     And no side effects
 
-  @fails @parserErrorDoubleArrow
-  # Parser exception: Invalid input <MATCH p=(n)<-->>: expected rule oC_SingleQuery (line: 1, offset: 14)
   Scenario: [12] Matching path with multiple bidirectional relationships
     Given an empty graph
-    And having defined kuzu types: ab:t14
     And having executed:
       """
-      CREATE (a:A {name: "A"}), (b:B {name: "B"})
+      CREATE (a:A), (b:B)
       CREATE (a)-[:T1]->(b),
              (b)-[:T2]->(a)
       """
     When executing query:
       """
       MATCH p=(n)<-->(k)<-->(n)
-      RETURN properties(nodes(p), 'name') as p
+      RETURN p
       """
     Then the result should be, in any order:
-      | p               |
-      | ['A', 'B', 'A'] |
-      | ['A', 'B', 'A'] |
-      | ['B', 'A', 'B'] |
-      | ['B', 'A', 'B'] |
+      | p                              |
+      | <(:A)<-[:T2]-(:B)<-[:T1]-(:A)> |
+      | <(:A)-[:T1]->(:B)-[:T2]->(:A)> |
+      | <(:B)<-[:T1]-(:A)<-[:T2]-(:B)> |
+      | <(:B)-[:T2]->(:A)-[:T1]->(:B)> |
     And no side effects
 
-  @fails @parserErrorDoubleArrow
-  # Parser exception: Invalid input <MATCH p = (n)<-->>: expected rule oC_SingleQuery (line: 1, offset: 16)
   Scenario: [13] Matching path with both directions should respect other directions
     Given an empty graph
-    And having defined kuzu types: ab:t14
     And having executed:
       """
-      CREATE (a:A {name: "A"}), (b:B {name: "B"})
+      CREATE (a:A), (b:B)
       CREATE (a)-[:T1]->(b),
              (b)-[:T2]->(a)
       """
     When executing query:
       """
       MATCH p = (n)<-->(k)<--(n)
-      RETURN properties(nodes(p), 'name') as p
+      RETURN p
       """
     Then the result should be, in any order:
-      | p               |
-      | ['A', 'B', 'A'] |
-      | ['B', 'A', 'B'] |
+      | p                              |
+      | <(:A)<-[:T2]-(:B)<-[:T1]-(:A)> |
+      | <(:B)<-[:T1]-(:A)<-[:T2]-(:B)> |
     And no side effects
 
-  @fails @extraOutputUndirected @keywordClash
-  # Not all undirected paths traversed in test output. Cannot create table END in Kuzu.
   Scenario: [14] Named path with undirected fixed variable length pattern
     Given an empty graph
-    And having defined kuzu types: ens_name:c
     And having executed:
       """
-      CREATE (db1:Start {name: "Start"}), (db2:Eend {name: "End"}),
-             (mid:N {name: "Mid"}), (other:N {name: "Other"})
+      CREATE (db1:Start), (db2:End), (mid), (other)
       CREATE (mid)-[:CONNECTED_TO]->(db1),
              (mid)-[:CONNECTED_TO]->(db2),
              (mid)-[:CONNECTED_TO]->(db2),
@@ -295,36 +267,35 @@ Feature: Match6 - Match named paths scenarios
       """
     When executing query:
       """
-      MATCH topRoute = (:Start)<-[:CONNECTED_TO]-()-[:CONNECTED_TO*3..3]-(:Eend)
-      RETURN properties(nodes(topRoute), 'name') as topRoute
+      MATCH topRoute = (:Start)<-[:CONNECTED_TO]-()-[:CONNECTED_TO*3..3]-(:End)
+      RETURN topRoute
       """
     Then the result should be, in any order:
-      | topRoute                                |
-      | ['Start', 'Mid', 'Other', 'Mid', 'End'] |
-      | ['Start', 'Mid', 'End', 'Mid', 'End']   |
-      | ['Start', 'Mid', 'Start', 'Mid', 'End'] |
-      | ['Start', 'Mid', 'Start', 'Mid', 'End'] |
+      | topRoute                                                                                       |
+      | <(:Start)<-[:CONNECTED_TO]-()-[:CONNECTED_TO]->()<-[:CONNECTED_TO]-()-[:CONNECTED_TO]->(:End)> |
+      | <(:Start)<-[:CONNECTED_TO]-()-[:CONNECTED_TO]->()<-[:CONNECTED_TO]-()-[:CONNECTED_TO]->(:End)> |
+      | <(:Start)<-[:CONNECTED_TO]-()-[:CONNECTED_TO]->()<-[:CONNECTED_TO]-()-[:CONNECTED_TO]->(:End)> |
+      | <(:Start)<-[:CONNECTED_TO]-()-[:CONNECTED_TO]->()<-[:CONNECTED_TO]-()-[:CONNECTED_TO]->(:End)> |
     And no side effects
 
   Scenario: [15] Variable-length named path
     Given an empty graph
-    And having defined kuzu types: n_name
     And having executed:
       """
-      CREATE (:N {name: 'N'})
+      CREATE ()
       """
     When executing query:
       """
       MATCH p = ()-[*0..]->()
-      RETURN list_transform(properties(nodes(p), 'name'), n->concat('\'', n, '\'')) as p
+      RETURN p
       """
     Then the result should be, in any order:
-      | p |
+      | p    |
+      | <()> |
     And no side effects
 
   Scenario: [16] Return a var length path
     Given an empty graph
-    And having defined kuzu types: abc_name:k_num
     And having executed:
       """
       CREATE (a:A {name: 'A'})-[:KNOWS {num: 1}]->(b:B {name: 'B'})-[:KNOWS {num: 2}]->(c:C {name: 'C'})
@@ -332,19 +303,16 @@ Feature: Match6 - Match named paths scenarios
     When executing query:
       """
       MATCH p = (n {name: 'A'})-[:KNOWS*1..2]->(x)
-      RETURN properties(nodes(p), 'name') as p
+      RETURN p
       """
     Then the result should be, in any order:
-      | p               |
-      | ['A', 'B']      |
-      | ['A', 'B', 'C'] |
+      | p                                                                                          |
+      | <(:A {name: 'A'})-[:KNOWS {num: 1}]->(:B {name: 'B'})>                                     |
+      | <(:A {name: 'A'})-[:KNOWS {num: 1}]->(:B {name: 'B'})-[:KNOWS {num: 2}]->(:C {name: 'C'})> |
     And no side effects
 
-  @fails @bugUnexpectedOutput
-  # Kuzu does not return ['A']. nodes(p) is not distinct.
   Scenario: [17] Return a named var length path of length zero
     Given an empty graph
-    And having defined kuzu types: abc_name:kf
     And having executed:
       """
       CREATE (a:A {name: 'A'})-[:KNOWS]->(b:B {name: 'B'})-[:FRIEND]->(c:C {name: 'C'})
@@ -352,78 +320,73 @@ Feature: Match6 - Match named paths scenarios
     When executing query:
       """
       MATCH p = (a {name: 'A'})-[:KNOWS*0..1]->(b)-[:FRIEND*0..1]->(c)
-      RETURN properties(list_distinct(nodes(p)), 'name') as p
+      RETURN p
       """
     Then the result should be, in any order:
-      | p               |
-      | ['A']           |
-      | ['A', 'B']      |
-      | ['A', 'B', 'C'] |
+      | p                                                                         |
+      | <(:A {name: 'A'})>                                                        |
+      | <(:A {name: 'A'})-[:KNOWS]->(:B {name: 'B'})>                             |
+      | <(:A {name: 'A'})-[:KNOWS]->(:B {name: 'B'})-[:FRIEND]->(:C {name: 'C'})> |
     And no side effects
 
   Scenario: [18] Undirected named path
     Given an empty graph
-    And having defined kuzu types: mn_name:t
     And having executed:
       """
-      CREATE (a:Movie {name: 'a'}), (b:N {name: 'b'})
+      CREATE (a:Movie), (b)
       CREATE (b)-[:T]->(a)
       """
     When executing query:
       """
       MATCH p = (n:Movie)--(m)
-      RETURN properties(list_distinct(nodes(p)), 'name') as p
+      RETURN p
         LIMIT 1
       """
     Then the result should be, in any order:
-      | p          |
-      | ['a', 'b'] |
+      | p                   |
+      | <(:Movie)<-[:T]-()> |
     And no side effects
 
   Scenario: [19] Variable length relationship without lower bound
     Given an empty graph
-    And having defined kuzu types: n_name:k
     And having executed:
       """
-      CREATE (a:N {name: 'A'}), (b:N {name: 'B'}),
-             (c:N {name: 'C'})
+      CREATE (a {name: 'A'}), (b {name: 'B'}),
+             (c {name: 'C'})
       CREATE (a)-[:KNOWS]->(b),
              (b)-[:KNOWS]->(c)
       """
     When executing query:
       """
       MATCH p = ({name: 'A'})-[:KNOWS*..2]->()
-      RETURN properties(list_distinct(nodes(p)), 'name') as p
+      RETURN p
       """
     Then the result should be, in any order:
-      | p               |
-      | ['A', 'B']      |
-      | ['A', 'B', 'C'] |
+      | p                                                               |
+      | <({name: 'A'})-[:KNOWS]->({name: 'B'})>                         |
+      | <({name: 'A'})-[:KNOWS]->({name: 'B'})-[:KNOWS]->({name: 'C'})> |
     And no side effects
 
   Scenario: [20] Variable length relationship without bounds
     Given an empty graph
-    And having defined kuzu types: n_name:k
     And having executed:
       """
-      CREATE (a:N {name: 'A'}), (b:N {name: 'B'}),
-             (c:N {name: 'C'})
+      CREATE (a {name: 'A'}), (b {name: 'B'}),
+             (c {name: 'C'})
       CREATE (a)-[:KNOWS]->(b),
              (b)-[:KNOWS]->(c)
       """
     When executing query:
       """
       MATCH p = ({name: 'A'})-[:KNOWS*..]->()
-      RETURN properties(list_distinct(nodes(p)), 'name') as p
+      RETURN p
       """
     Then the result should be, in any order:
-      | p               |
-      | ['A', 'B']      |
-      | ['A', 'B', 'C'] |
+      | p                                                               |
+      | <({name: 'A'})-[:KNOWS]->({name: 'B'})>                         |
+      | <({name: 'A'})-[:KNOWS]->({name: 'B'})-[:KNOWS]->({name: 'C'})> |
     And no side effects
 
-  @fails @bugVarShadowing
-  # VariableAlreadyBound error does not occur. Kuzu ignores the path variable instead.
   Scenario Outline: [21] Fail when a node has the same variable in a preceding MATCH
     Given any graph
     When executing query:
@@ -451,8 +414,6 @@ Feature: Match6 - Match named paths scenarios
       | (a)-[r*]-(s)-[]-(b), (p), (t)-[]-(b)  |
       | (a)-[r]-(p)<-[*]-(b), (t), (t)-[]-(b) |
 
-  @fails @bugVarShadowing
-  # VariableAlreadyBound error does not occur. Kuzu ignores the path variable instead.
   Scenario Outline: [22] Fail when a relationship has the same variable in a preceding MATCH
     Given any graph
     When executing query:
@@ -481,8 +442,6 @@ Feature: Match6 - Match named paths scenarios
       | (a)-[r*]-(s)-[p]-(b), (t), (t)-[]-(b) |
       | (a)-[r]-(s)<-[p]-(b), (t), (t)-[]-(b) |
 
-  @fails @bugVarShadowing
-  # VariableAlreadyBound error does not occur. Kuzu ignores the path variable instead.
   Scenario Outline: [23] Fail when a node has the same variable in the same pattern
     Given any graph
     When executing query:
@@ -515,8 +474,6 @@ Feature: Match6 - Match named paths scenarios
       | (a)-[r]-(p)-[]-(b), p = (s)-[]-(t), (t), (t)-[]-(b)   |
       | (a)-[r]-(p)<-[*]-(b), p = (s)-[]-(t), (t), (t)-[]-(b) |
 
-  @fails @bugVarShadowing
-  # VariableAlreadyBound error does not occur. Kuzu ignores the path variable instead.
   Scenario Outline: [24] Fail when a relationship has the same variable in the same pattern
     Given any graph
     When executing query:
@@ -549,8 +506,6 @@ Feature: Match6 - Match named paths scenarios
       | (a)-[r]-(s)-[p]-(b), p = (s)-[]-(t), (t), (t)-[]-(b)   |
       | (a)-[r]-(s)<-[p*]-(b), p = (s)-[]-(t), (t), (t)-[]-(b) |
 
-  @fails @bugVarShadowing
-  # VariableAlreadyBound error does not occur. Kuzu ignores the path variable instead.
   Scenario Outline: [25] Fail when matching a path variable bound to a value
     Given any graph
     When executing query:

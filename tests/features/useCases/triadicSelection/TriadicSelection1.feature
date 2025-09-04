@@ -53,7 +53,7 @@ Feature: TriadicSelection1 - Query three related nodes on binary-tree graphs
       """
       MATCH (a:A)-[:KNOWS]->(b)-->(c)
       OPTIONAL MATCH (a)-[r:KNOWS]->(c)
-      WITH c,r WHERE r IS NULL
+      WITH c WHERE r IS NULL
       RETURN c.name
       """
     Then the result should be, in any order:
@@ -71,7 +71,7 @@ Feature: TriadicSelection1 - Query three related nodes on binary-tree graphs
       """
       MATCH (a:A)-[:KNOWS]->(b)-->(c)
       OPTIONAL MATCH (a)-[r:FOLLOWS]->(c)
-      WITH c,r WHERE r IS NULL
+      WITH c WHERE r IS NULL
       RETURN c.name
       """
     Then the result should be, in any order:
@@ -89,7 +89,7 @@ Feature: TriadicSelection1 - Query three related nodes on binary-tree graphs
       """
       MATCH (a:A)-[:KNOWS]->(b)-->(c)
       OPTIONAL MATCH (a)-[r]->(c)
-      WITH c,r WHERE r IS NULL
+      WITH c WHERE r IS NULL
       RETURN c.name
       """
     Then the result should be, in any order:
@@ -106,7 +106,7 @@ Feature: TriadicSelection1 - Query three related nodes on binary-tree graphs
       """
       MATCH (a:A)-->(b)-->(c)
       OPTIONAL MATCH (a)-[r:KNOWS]->(c)
-      WITH c,r WHERE r IS NULL
+      WITH c WHERE r IS NULL
       RETURN c.name
       """
     Then the result should be, in any order:
@@ -129,7 +129,7 @@ Feature: TriadicSelection1 - Query three related nodes on binary-tree graphs
       """
       MATCH (a:A)-[:KNOWS|FOLLOWS]->(b)-->(c)
       OPTIONAL MATCH (a)-[r:KNOWS]->(c)
-      WITH c,r WHERE r IS NULL
+      WITH c WHERE r IS NULL
       RETURN c.name
       """
     Then the result should be, in any order:
@@ -152,7 +152,7 @@ Feature: TriadicSelection1 - Query three related nodes on binary-tree graphs
       """
       MATCH (a:A)-[:KNOWS]->(b:X)-->(c:X)
       OPTIONAL MATCH (a)-[r:KNOWS]->(c)
-      WITH c,r WHERE r IS NULL
+      WITH c WHERE r IS NULL
       RETURN c.name
       """
     Then the result should be, in any order:
@@ -162,14 +162,13 @@ Feature: TriadicSelection1 - Query three related nodes on binary-tree graphs
       | 'c21'  |
     And no side effects
 
-  @fails @bugOptionalMatch
   Scenario: [8] Handling triadic friend of a friend that is not a friend with different labels
     Given the binary-tree-2 graph
     When executing query:
       """
       MATCH (a:A)-[:KNOWS]->(b:X)-->(c:Y)
       OPTIONAL MATCH (a)-[r:KNOWS]->(c)
-      WITH c,r WHERE r IS NULL
+      WITH c WHERE r IS NULL
       RETURN c.name
       """
     Then the result should be, in any order:
@@ -184,7 +183,7 @@ Feature: TriadicSelection1 - Query three related nodes on binary-tree graphs
       """
       MATCH (a:A)-[:KNOWS]->(b)-->(c:X)
       OPTIONAL MATCH (a)-[r:KNOWS]->(c)
-      WITH c,r WHERE r IS NULL
+      WITH c WHERE r IS NULL
       RETURN c.name
       """
     Then the result should be, in any order:
@@ -200,7 +199,7 @@ Feature: TriadicSelection1 - Query three related nodes on binary-tree graphs
       """
       MATCH (a:A)-[:KNOWS]->(b:X)-->(c)
       OPTIONAL MATCH (a)-[r:KNOWS]->(c)
-      WITH c,r WHERE r IS NULL
+      WITH c WHERE r IS NULL
       RETURN c.name
       """
     Then the result should be, in any order:
@@ -218,7 +217,7 @@ Feature: TriadicSelection1 - Query three related nodes on binary-tree graphs
       """
       MATCH (a:A)-[:KNOWS]->(b)-->(c)
       OPTIONAL MATCH (a)-[r:KNOWS]->(c)
-      WITH c,r WHERE r IS NOT NULL
+      WITH c WHERE r IS NOT NULL
       RETURN c.name
       """
     Then the result should be, in any order:
@@ -232,7 +231,7 @@ Feature: TriadicSelection1 - Query three related nodes on binary-tree graphs
       """
       MATCH (a:A)-[:KNOWS]->(b)-->(c)
       OPTIONAL MATCH (a)-[r:FOLLOWS]->(c)
-      WITH c,r WHERE r IS NOT NULL
+      WITH c WHERE r IS NOT NULL
       RETURN c.name
       """
     Then the result should be, in any order:
@@ -246,7 +245,7 @@ Feature: TriadicSelection1 - Query three related nodes on binary-tree graphs
       """
       MATCH (a:A)-[:KNOWS]->(b)-->(c)
       OPTIONAL MATCH (a)-[r]->(c)
-      WITH c,r WHERE r IS NOT NULL
+      WITH c WHERE r IS NOT NULL
       RETURN c.name
       """
     Then the result should be, in any order:
@@ -261,7 +260,7 @@ Feature: TriadicSelection1 - Query three related nodes on binary-tree graphs
       """
       MATCH (a:A)-->(b)-->(c)
       OPTIONAL MATCH (a)-[r:KNOWS]->(c)
-      WITH c,r WHERE r IS NOT NULL
+      WITH c WHERE r IS NOT NULL
       RETURN c.name
       """
     Then the result should be, in any order:
@@ -276,7 +275,7 @@ Feature: TriadicSelection1 - Query three related nodes on binary-tree graphs
       """
       MATCH (a:A)-[:KNOWS|FOLLOWS]->(b)-->(c)
       OPTIONAL MATCH (a)-[r:KNOWS]->(c)
-      WITH c,r WHERE r IS NOT NULL
+      WITH c WHERE r IS NOT NULL
       RETURN c.name
       """
     Then the result should be, in any order:
@@ -291,7 +290,7 @@ Feature: TriadicSelection1 - Query three related nodes on binary-tree graphs
       """
       MATCH (a:A)-[:KNOWS]->(b:X)-->(c:X)
       OPTIONAL MATCH (a)-[r:KNOWS]->(c)
-      WITH c,r WHERE r IS NOT NULL
+      WITH c WHERE r IS NOT NULL
       RETURN c.name
       """
     Then the result should be, in any order:
@@ -299,14 +298,13 @@ Feature: TriadicSelection1 - Query three related nodes on binary-tree graphs
       | 'b2'   |
     And no side effects
 
-  @fails @varBinding
   Scenario: [17] Handling triadic friend of a friend that is a friend with different labels
     Given the binary-tree-2 graph
     When executing query:
       """
       MATCH (a:A)-[:KNOWS]->(b:X)-->(c:Y)
       OPTIONAL MATCH (a)-[r:KNOWS]->(c)
-      WITH c,r WHERE r IS NOT NULL
+      WITH c WHERE r IS NOT NULL
       RETURN c.name
       """
     Then the result should be, in any order:
@@ -319,7 +317,7 @@ Feature: TriadicSelection1 - Query three related nodes on binary-tree graphs
       """
       MATCH (a:A)-[:KNOWS]->(b)-->(c:X)
       OPTIONAL MATCH (a)-[r:KNOWS]->(c)
-      WITH c,r WHERE r IS NOT NULL
+      WITH c WHERE r IS NOT NULL
       RETURN c.name
       """
     Then the result should be, in any order:
@@ -333,7 +331,7 @@ Feature: TriadicSelection1 - Query three related nodes on binary-tree graphs
       """
       MATCH (a:A)-[:KNOWS]->(b:X)-->(c)
       OPTIONAL MATCH (a)-[r:KNOWS]->(c)
-      WITH c,r WHERE r IS NOT NULL
+      WITH c WHERE r IS NOT NULL
       RETURN c.name
       """
     Then the result should be, in any order:

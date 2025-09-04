@@ -32,7 +32,6 @@ Feature: WithWhere3 - Equi-Joins on variables
 
   Scenario: [1] Join between node identities
     Given an empty graph
-    And having defined kuzu types: ab
     And having executed:
       """
       CREATE (:A), (:B)
@@ -52,7 +51,6 @@ Feature: WithWhere3 - Equi-Joins on variables
 
   Scenario: [2] Join between node properties of disconnected nodes
     Given an empty graph
-    And having defined kuzu types: ab_id
     And having executed:
       """
       CREATE (:A {id: 1}),
@@ -74,7 +72,6 @@ Feature: WithWhere3 - Equi-Joins on variables
 
   Scenario: [3] Join between node properties of adjacent nodes
     Given an empty graph
-    And having defined kuzu types: abcd_animal:k
     And having executed:
       """
       CREATE (a:A {animal: 'monkey'}),

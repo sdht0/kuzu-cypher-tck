@@ -30,7 +30,6 @@
 
 Feature: Call3 - Assignable-type arguments
 
-  @skip @unsupportedCustomProc
   Scenario: [1] Standalone call to procedure with argument of type NUMBER accepts value of type INTEGER
     Given an empty graph
     And there exists a procedure test.my.proc(in :: NUMBER?) :: (out :: STRING?):
@@ -46,7 +45,6 @@ Feature: Call3 - Assignable-type arguments
       | 'wisdom' |
     And no side effects
 
-  @skip @unsupportedCustomProc
   Scenario: [2] In-query call to procedure with argument of type NUMBER accepts value of type INTEGER
     Given an empty graph
     And there exists a procedure test.my.proc(in :: NUMBER?) :: (out :: STRING?):
@@ -63,7 +61,6 @@ Feature: Call3 - Assignable-type arguments
       | 'wisdom' |
     And no side effects
 
-  @skip @unsupportedCustomProc
   Scenario: [3] Standalone call to procedure with argument of type NUMBER accepts value of type FLOAT
     Given an empty graph
     And there exists a procedure test.my.proc(in :: NUMBER?) :: (out :: STRING?):
@@ -79,7 +76,6 @@ Feature: Call3 - Assignable-type arguments
       | 'about right' |
     And no side effects
 
-  @skip @unsupportedCustomProc
   Scenario: [4] In-query call to procedure with argument of type NUMBER accepts value of type FLOAT
     Given an empty graph
     And there exists a procedure test.my.proc(in :: NUMBER?) :: (out :: STRING?):
@@ -96,7 +92,6 @@ Feature: Call3 - Assignable-type arguments
       | 'about right' |
     And no side effects
 
-  @skip @unsupportedCustomProc
   Scenario: [5] Standalone call to procedure with argument of type FLOAT accepts value of type INTEGER
     Given an empty graph
     And there exists a procedure test.my.proc(in :: FLOAT?) :: (out :: STRING?):
@@ -111,7 +106,6 @@ Feature: Call3 - Assignable-type arguments
       | 'close enough' |
     And no side effects
 
-  @skip @unsupportedCustomProc
   Scenario: [6] In-query call to procedure with argument of type FLOAT accepts value of type INTEGER
     Given an empty graph
     And there exists a procedure test.my.proc(in :: FLOAT?) :: (out :: STRING?):

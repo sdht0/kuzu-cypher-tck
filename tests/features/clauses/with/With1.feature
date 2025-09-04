@@ -33,7 +33,6 @@ Feature: With1 - Forward single variable
 
   Scenario: [1] Forwarind a node variable 1
     Given an empty graph
-    And having defined kuzu types: ab:rel
     And having executed:
       """
       CREATE (:A)-[:REL]->(:B)
@@ -52,7 +51,6 @@ Feature: With1 - Forward single variable
 
   Scenario: [2] Forwarind a node variable 2
     Given an empty graph
-    And having defined kuzu types: abx:r
     And having executed:
       """
       CREATE (:A)-[:REL]->(:B)
@@ -63,22 +61,20 @@ Feature: With1 - Forward single variable
       MATCH (a:A)
       WITH a
       MATCH (x:X), (a)-->(b)
-      RETURN a,b,x
+      RETURN *
       """
     Then the result should be, in any order:
       | a    | b    | x    |
       | (:A) | (:B) | (:X) |
     And no side effects
 
-  @fails @varBinding
   Scenario: [3] Forwarding a relationship variable
     Given an empty graph
-    And having defined kuzu types: nx:t13
     And having executed:
       """
-      CREATE (:N)-[:T1]->(:X),
-             (:N)-[:T2]->(:X),
-             (:N)-[:T3]->(:N)
+      CREATE ()-[:T1]->(:X),
+             ()-[:T2]->(:X),
+             ()-[:T3]->()
       """
     When executing query:
       """
@@ -93,13 +89,11 @@ Feature: With1 - Forward single variable
       | [:T2] |
     And no side effects
 
-  @fails @withAlias
   Scenario: [4] Forwarding a path variable
     Given an empty graph
-    And having defined kuzu types: n
     And having executed:
       """
-      CREATE (:N)
+      CREATE ()
       """
     When executing query:
       """
@@ -114,7 +108,6 @@ Feature: With1 - Forward single variable
 
   Scenario: [5] Forwarding null
     Given an empty graph
-    And having defined kuzu types: ns:t
     When executing query:
       """
       OPTIONAL MATCH (a:Start)
@@ -128,10 +121,9 @@ Feature: With1 - Forward single variable
 
   Scenario: [6] Forwarding a node variable possibly null
     Given an empty graph
-    And having defined kuzu types: abcs:lr
     And having executed:
       """
-      CREATE (s:Singlee), (a:A {num: 42}),
+      CREATE (s:Single), (a:A {num: 42}),
              (b:B {num: 46}), (c:C)
       CREATE (s)-[:REL]->(a),
              (s)-[:REL]->(b),

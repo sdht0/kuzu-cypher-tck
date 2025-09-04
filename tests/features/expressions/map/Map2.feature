@@ -31,7 +31,6 @@
 Feature: Map2 - Dynamic Value Access
 # Dynamic value access refers to the bracket-operator – <expression resulting in a map>'['<expression resulting in a string>']' – irrespectively of whether the map key – i.e. <expression resulting in a string> – could be evaluated statically in a given scenario.
 
-  @fails @missingDynamicParamAccess
   Scenario: [1] Dynamically access a field based on parameters when there is no type information
     Given any graph
     And parameters are:
@@ -47,23 +46,21 @@ Feature: Map2 - Dynamic Value Access
       | 'Apa' |
     And no side effects
 
-  @fails @missingDynamicParamAccess
   Scenario: [2] Dynamically access a field based on parameters when there is rhs type information
     Given any graph
     And parameters are:
-      | expr:map2 | {name: 'Apa'} |
+      | expr | {name: 'Apa'} |
       | idx  | 'name'        |
     When executing query:
       """
       WITH $expr AS expr, $idx AS idx
-      RETURN expr[cast(idx AS STRING)] AS value
+      RETURN expr[toString(idx)] AS value
       """
     Then the result should be, in any order:
       | value |
       | 'Apa' |
     And no side effects
 
-  @fails @missingDynamicParamAccess
   Scenario: [3] Dynamically access a field on null results in null
     Given any graph
     When executing query:
@@ -76,7 +73,6 @@ Feature: Map2 - Dynamic Value Access
       | null  |
     And no side effects
 
-  @fails @missingDynamicParamAccess
   Scenario: [4] Dynamically access a field with null results in null
     Given any graph
     When executing query:
@@ -89,7 +85,6 @@ Feature: Map2 - Dynamic Value Access
       | null  |
     And no side effects
 
-  @fails @missingDynamicParamAccess
   Scenario Outline: [5] Dynamically access a field is case-sensitive
     Given any graph
     When executing query:
@@ -112,11 +107,10 @@ Feature: Map2 - Dynamic Value Access
       | {null: 'Mats', NULL: 'Pontus'} | 'null' | 'Mats'   |
       | {null: 'Mats', NULL: 'Pontus'} | 'NULL' | 'Pontus' |
 
-  @fails @missingDynamicParamAccess
   Scenario: [6] Fail at runtime when attempting to index with an Int into a Map
     Given any graph
     And parameters are:
-      | expr:map2 | {name: 'Apa'} |
+      | expr | {name: 'Apa'} |
       | idx  | 0             |
     When executing query:
       """
@@ -125,12 +119,11 @@ Feature: Map2 - Dynamic Value Access
       """
     Then a TypeError should be raised at runtime: MapElementAccessByNonString
 
-  @fails @missingDynamicParamAccess
   Scenario: [7] Fail at runtime when trying to index into a map with a non-string
     Given any graph
     And parameters are:
-      | expr:map2 | {name: 'Apa'} |
-      | idx       | 12.3          |
+      | expr | {name: 'Apa'} |
+      | idx  | 12.3          |
     When executing query:
       """
       WITH $expr AS expr, $idx AS idx
@@ -138,7 +131,6 @@ Feature: Map2 - Dynamic Value Access
       """
     Then a TypeError should be raised at runtime: MapElementAccessByNonString
 
-  @fails @missingDynamicParamAccess
   Scenario: [8] Fail at runtime when trying to index something which is not a map
     Given any graph
     And parameters are:

@@ -150,7 +150,6 @@ Feature: ReturnOrderBy1 - Order by a single variable (correct order of values ac
       | 1.3    |
     And no side effects
 
-  @fails @unsupportedMixedTypes
   Scenario: [9] ORDER BY should order lists in the expected order
     Given an empty graph
     When executing query:
@@ -171,7 +170,6 @@ Feature: ReturnOrderBy1 - Order by a single variable (correct order of values ac
       | [null, 2] |
     And no side effects
 
-  @fails @unsupportedMixedTypes
   Scenario: [10] ORDER BY DESC should order lists in the expected order
     Given an empty graph
     When executing query:
@@ -192,13 +190,11 @@ Feature: ReturnOrderBy1 - Order by a single variable (correct order of values ac
       | []        |
     And no side effects
 
-  @fails @unsupportedMixedTypes
   Scenario: [11] ORDER BY should order distinct types in the expected order
     Given an empty graph
-    And having defined kuzu types: nz:r
     And having executed:
       """
-      CREATE (:N)-[:REL]->(:Z)
+      CREATE (:N)-[:REL]->()
       """
     When executing query:
       """
@@ -221,13 +217,11 @@ Feature: ReturnOrderBy1 - Order by a single variable (correct order of values ac
       | null              |
     And no side effects
 
-  @fails @unsupportedMixedTypes
   Scenario: [12] ORDER BY DESC should order distinct types in the expected order
     Given an empty graph
-    And having defined kuzu types: nz:r
     And having executed:
       """
-      CREATE (:N)-[:REL]->(:Z)
+      CREATE (:N)-[:REL]->()
       """
     When executing query:
       """

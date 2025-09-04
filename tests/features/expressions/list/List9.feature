@@ -30,10 +30,8 @@
 
 Feature: List9 - List Tail
 
-  @fails @listTailFunc
   Scenario: [1] Returning nested expressions based on list property
     Given an empty graph
-    And having defined kuzu types: t_array
     And having executed:
       """
       CREATE (:TheLabel)

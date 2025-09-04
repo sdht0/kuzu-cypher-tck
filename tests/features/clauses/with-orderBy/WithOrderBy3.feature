@@ -34,7 +34,6 @@ Feature: WithOrderBy3 - Order by multiple expressions
 
   Scenario Outline: [1] Sort by two expressions, both in ascending order
     Given an empty graph
-    And having defined kuzu types: abcde_num_bool
     And having executed:
       """
       CREATE (:A {num: 9, bool: true}),
@@ -73,7 +72,6 @@ Feature: WithOrderBy3 - Order by multiple expressions
 
   Scenario Outline: [2] Sort by two expressions, first in ascending order, second in descending order
     Given an empty graph
-    And having defined kuzu types: abcde_num_bool
     And having executed:
       """
       CREATE (:A {num: 9, bool: true}),
@@ -109,7 +107,6 @@ Feature: WithOrderBy3 - Order by multiple expressions
 
   Scenario Outline: [3] Sort by two expressions, first in descending order, second in ascending order
     Given an empty graph
-    And having defined kuzu types: abcde_num_bool
     And having executed:
       """
       CREATE (:A {num: 9, bool: true}),
@@ -145,7 +142,6 @@ Feature: WithOrderBy3 - Order by multiple expressions
 
   Scenario Outline: [4] Sort by two expressions, both in descending order
     Given an empty graph
-    And having defined kuzu types: abcde_num_bool
     And having executed:
       """
       CREATE (:A {num: 9, bool: true}),
@@ -179,17 +175,16 @@ Feature: WithOrderBy3 - Order by multiple expressions
 
   Scenario Outline: [5] An expression without explicit sort direction is sorted in ascending order
     Given an empty graph
-    And having defined kuzu types: a_num_text
     And having executed:
       """
-      CREATE (:A {num: 3, text: 'a'}),
-             (:A {num: 3, text: 'b'}),
-             (:A {num: 1, text: 'a'}),
-             (:A {num: 1, text: 'b'}),
-             (:A {num: 2, text: 'a'}),
-             (:A {num: 2, text: 'b'}),
-             (:A {num: 4, text: 'a'}),
-             (:A {num: 4, text: 'b'})
+      CREATE ({num: 3, text: 'a'}),
+             ({num: 3, text: 'b'}),
+             ({num: 1, text: 'a'}),
+             ({num: 1, text: 'b'}),
+             ({num: 2, text: 'a'}),
+             ({num: 2, text: 'b'}),
+             ({num: 4, text: 'a'}),
+             ({num: 4, text: 'b'})
       """
     When executing query:
       """
@@ -201,7 +196,7 @@ Feature: WithOrderBy3 - Order by multiple expressions
       """
     Then the result should be, in any order:
       | a                              |
-      | (:A {num: <num>, text: '<text>'}) |
+      | ({num: <num>, text: '<text>'}) |
     And no side effects
 
     Examples:
@@ -213,17 +208,16 @@ Feature: WithOrderBy3 - Order by multiple expressions
 
   Scenario Outline: [6] An constant expression does not influence the order determined by other expression before and after the constant expression
     Given an empty graph
-    And having defined kuzu types: a_num_text
     And having executed:
       """
-      CREATE (:A {num: 3, text: 'a'}),
-             (:A {num: 3, text: 'b'}),
-             (:A {num: 1, text: 'a'}),
-             (:A {num: 1, text: 'b'}),
-             (:A {num: 2, text: 'a'}),
-             (:A {num: 2, text: 'b'}),
-             (:A {num: 4, text: 'a'}),
-             (:A {num: 4, text: 'b'})
+      CREATE ({num: 3, text: 'a'}),
+             ({num: 3, text: 'b'}),
+             ({num: 1, text: 'a'}),
+             ({num: 1, text: 'b'}),
+             ({num: 2, text: 'a'}),
+             ({num: 2, text: 'b'}),
+             ({num: 4, text: 'a'}),
+             ({num: 4, text: 'b'})
       """
     When executing query:
       """
@@ -235,7 +229,7 @@ Feature: WithOrderBy3 - Order by multiple expressions
       """
     Then the result should be, in any order:
       | a                              |
-      | (:A {num: <num>, text: '<text>'}) |
+      | ({num: <num>, text: '<text>'}) |
     And no side effects
 
     Examples:

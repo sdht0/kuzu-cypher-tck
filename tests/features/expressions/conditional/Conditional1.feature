@@ -32,18 +32,17 @@ Feature: Conditional1 - Coalesce expression
 
   Scenario: [1] Run coalesce
     Given an empty graph
-    And having defined kuzu types: n_nt
     And having executed:
       """
-      CREATE (:N {name: 'Emil Eifrem', title: 'CEO'}), (:N {name: 'Nobody'})
+      CREATE ({name: 'Emil Eifrem', title: 'CEO'}), ({name: 'Nobody'})
       """
     When executing query:
       """
       MATCH (a)
-      RETURN coalesce(a.title, a.name) as coalesce
+      RETURN coalesce(a.title, a.name)
       """
     Then the result should be, in any order:
-      | coalesce |
-      | 'CEO'    |
-      | 'Nobody' |
+      | coalesce(a.title, a.name) |
+      | 'CEO'                     |
+      | 'Nobody'                  |
     And no side effects

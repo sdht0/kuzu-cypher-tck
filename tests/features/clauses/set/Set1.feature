@@ -32,7 +32,6 @@ Feature: Set1 - Set a Property
 
   Scenario: [1] Set a property
     Given any graph
-    And having defined kuzu types: a_name
     And having executed:
       """
       CREATE (:A {name: 'Andres'})
@@ -53,7 +52,6 @@ Feature: Set1 - Set a Property
 
   Scenario: [2] Set a property to an expression
     Given an empty graph
-    And having defined kuzu types: a_name
     And having executed:
       """
       CREATE (:A {name: 'Andres'})
@@ -74,7 +72,6 @@ Feature: Set1 - Set a Property
 
   Scenario: [3] Set a property by selecting the node using a simple expression
     Given an empty graph
-    And having defined kuzu types: a_name
     And having executed:
       """
       CREATE (:A)
@@ -93,10 +90,9 @@ Feature: Set1 - Set a Property
 
   Scenario: [4] Set a property by selecting the relationship using a simple expression
     Given an empty graph
-    And having defined kuzu types: n:r_name-2
     And having executed:
       """
-      CREATE (:N)-[:REL]->(:N)
+      CREATE ()-[:REL]->()
       """
     When executing query:
       """
@@ -112,7 +108,6 @@ Feature: Set1 - Set a Property
 
   Scenario: [5] Adding a list property
     Given an empty graph
-    And having defined kuzu types: a_numbers
     And having executed:
       """
       CREATE (:A)
@@ -121,20 +116,19 @@ Feature: Set1 - Set a Property
       """
       MATCH (n:A)
       SET n.numbers = [1, 2, 3]
-      RETURN list_transform(n.numbers, x -> x / 2.0) AS x
+      RETURN [i IN n.numbers | i / 2.0] AS x
       """
     Then the result should be, in any order:
       | x               |
-      | [0.5, 1, 1.5] |
+      | [0.5, 1.0, 1.5] |
     And the side effects should be:
       | +properties | 1 |
 
   Scenario: [6] Concatenate elements onto a list property
     Given any graph
-    And having defined kuzu types: n_numbers
     When executing query:
       """
-      CREATE (a:N {numbers: [1, 2, 3]})
+      CREATE (a {numbers: [1, 2, 3]})
       SET a.numbers = a.numbers + [4, 5]
       RETURN a.numbers
       """
@@ -147,10 +141,9 @@ Feature: Set1 - Set a Property
 
   Scenario: [7] Concatenate elements in reverse onto a list property
     Given any graph
-    And having defined kuzu types: n_numbers
     When executing query:
       """
-      CREATE (a:N {numbers: [3, 4, 5]})
+      CREATE (a {numbers: [3, 4, 5]})
       SET a.numbers = [1, 2] + a.numbers
       RETURN a.numbers
       """
@@ -163,7 +156,6 @@ Feature: Set1 - Set a Property
 
   Scenario: [8] Ignore null when setting property
     Given an empty graph
-    And having defined kuzu types: d_num
     When executing query:
       """
       OPTIONAL MATCH (a:DoesNotExist)
@@ -177,29 +169,25 @@ Feature: Set1 - Set a Property
 
   Scenario: [9] Failing when using undefined variable in SET
     Given any graph
-    And having defined kuzu types: n_name
     When executing query:
       """
-      MATCH (a:N)
+      MATCH (a)
       SET a.name = missing
       RETURN a
       """
     Then a SyntaxError should be raised at compile time: UndefinedVariable
 
-  @fails @extraFeatureMapList
   Scenario: [10] Failing when setting a list of maps as a property
     Given any graph
-    And having defined kuzu types: n_maplist
     When executing query:
       """
-      CREATE (a:N)
+      CREATE (a)
       SET a.maplist = [{num: 1}]
       """
     Then a TypeError should be raised at runtime: InvalidPropertyType
 
   Scenario: [11] Set multiple node properties
     Given an empty graph
-    And having defined kuzu types: x_n3
     And having executed:
       """
       CREATE (:X)

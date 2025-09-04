@@ -144,7 +144,6 @@ Feature: Quantifier1 - None quantifier
       | ['abc', 'abc', 'abc'] | size(x) = 3 | false  |
       | ['ef', 'ef', 'ef']    | size(x) = 3 | true   |
 
-  @skip @unsupportedMixedTypeLists
   Scenario Outline: [6] None quantifier on list literal containing lists
     Given any graph
     When executing query:
@@ -168,7 +167,6 @@ Feature: Quantifier1 - None quantifier
       | [[1, 2, 3], [1, 2, 3], [1, 2, 3]] | size(x) = 3 | false  |
       | [['a'], ['a'], ['a']]             | size(x) = 3 | true   |
 
-  @skip @unsupportedMixedTypeLists
   Scenario Outline: [7] None quantifier on list literal containing maps
     Given any graph
     When executing query:
@@ -192,10 +190,8 @@ Feature: Quantifier1 - None quantifier
       | [{a: 2, b: 5}, {a: 2, b: 5}, {a: 2, b: 5}] | x.a = 2   | false  |
       | [{a: 4}, {a: 4}, {a: 4}]                   | x.a = 2   | true   |
 
-  @fails @missingTailFunc
   Scenario: [8] None quantifier on list containing nodes
     Given an empty graph
-    And having defined kuzu types: abr2s2_n:ir2_n
     And having executed:
       """
       CREATE (s1:SRelationships), (s2:SNodes)
@@ -240,10 +236,8 @@ Feature: Quantifier1 - None quantifier
       | [(:B {name: 'b'}), (:B {name: 'b'}), (:B {name: 'b'})] | true   |
     And no side effects
 
-  @fails @missingTailFunc
   Scenario: [9] None quantifier on list containing relationships
     Given an empty graph
-    And having defined kuzu types: abr2s2_n:ir2_n
     And having executed:
       """
       CREATE (s1:SRelationships), (s2:SNodes)
@@ -288,7 +282,6 @@ Feature: Quantifier1 - None quantifier
       | [[:RB {name: 'b'}], [:RB {name: 'b'}], [:RB {name: 'b'}]] | true   |
     And no side effects
 
-  @skip @unsupportedMixedTypeLists
   Scenario Outline: [10] None quantifier on lists containing nulls
     Given any graph
     When executing query:
@@ -363,7 +356,6 @@ Feature: Quantifier1 - None quantifier
       | [null, 123, null, null]  | false  |
       | [null, null, null, null] | true   |
 
-  @skip @unsupportedMixedTypeLists
   Scenario: [13] None quantifier is true if the predicate is statically false and the list is not empty
     Given any graph
     When executing query:
@@ -375,7 +367,6 @@ Feature: Quantifier1 - None quantifier
       | true   |
     And no side effects
 
-  @skip @unsupportedMixedTypeLists
   Scenario: [14] None quantifier is false if the predicate is statically true and the list is not empty
     Given any graph
     When executing query:

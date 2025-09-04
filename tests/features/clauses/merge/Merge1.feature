@@ -32,10 +32,9 @@ Feature: Merge1 - Merge node
 
   Scenario: [1] Merge node when no nodes exist
     Given an empty graph
-    And having defined kuzu types: n
     When executing query:
       """
-      MERGE (a:N)
+      MERGE (a)
       RETURN count(*) AS n
       """
     Then the result should be, in any order:
@@ -44,17 +43,15 @@ Feature: Merge1 - Merge node
     And the side effects should be:
       | +nodes | 1 |
 
-  @fails @labelsArray
   Scenario: [2] Merge node with label
     Given an empty graph
-    And having defined kuzu types: t
     When executing query:
       """
       MERGE (a:TheLabel)
-      RETURN labels(a) as labels
+      RETURN labels(a)
       """
     Then the result should be, in any order:
-      | labels       |
+      | labels(a)    |
       | ['TheLabel'] |
     And the side effects should be:
       | +nodes  | 1 |
@@ -62,7 +59,6 @@ Feature: Merge1 - Merge node
 
   Scenario: [3] Merge node with label when it exists
     Given an empty graph
-    And having defined kuzu types: t_id
     And having executed:
       """
       CREATE (:TheLabel {id: 1})
@@ -79,10 +75,9 @@ Feature: Merge1 - Merge node
 
   Scenario: [4] Merge node should create when it doesn't match, properties
     Given an empty graph
-    And having defined kuzu types: n_num
     And having executed:
       """
-      CREATE (:N {num: 42})
+      CREATE ({num: 42})
       """
     When executing query:
       """
@@ -98,7 +93,6 @@ Feature: Merge1 - Merge node
 
   Scenario: [5] Merge node should create when it doesn't match, properties and label
     Given an empty graph
-    And having defined kuzu types: t_num
     And having executed:
       """
       CREATE (:TheLabel {num: 42})
@@ -117,7 +111,6 @@ Feature: Merge1 - Merge node
 
   Scenario: [6] Merge node with prop and label
     Given an empty graph
-    And having defined kuzu types: t_num
     And having executed:
       """
       CREATE (:TheLabel {num: 42})
@@ -134,7 +127,6 @@ Feature: Merge1 - Merge node
 
   Scenario: [7] Merge should work when finding multiple elements
     Given an empty graph
-    And having defined kuzu types: x
     When executing query:
       """
       CREATE (:X)
@@ -148,11 +140,10 @@ Feature: Merge1 - Merge node
 
   Scenario: [8] Merge should handle argument properly
     Given an empty graph
-    And having defined kuzu types: mn_var
     And having executed:
       """
-      CREATE (:M {var: 42}),
-        (:M {var: 43})
+      CREATE ({var: 42}),
+        ({var: 'not42'})
       """
     When executing query:
       """
@@ -167,12 +158,11 @@ Feature: Merge1 - Merge node
 
   Scenario: [9] Merge should support updates while merging
     Given an empty graph
-    And having defined kuzu types: mn_xy
     And having executed:
       """
       UNWIND [0, 1, 2] AS x
       UNWIND [0, 1, 2] AS y
-      CREATE (:M {x: x, y: y})
+      CREATE ({x: x, y: y})
       """
     When executing query:
       """
@@ -199,7 +189,6 @@ Feature: Merge1 - Merge node
       | +labels     | 1  |
       | +properties | 30 |
 
-  @fails @unsupportedMultiLabel
   Scenario: [10] Merge must properly handle multiple labels
     Given an empty graph
     And having executed:
@@ -221,7 +210,6 @@ Feature: Merge1 - Merge node
 
   Scenario: [11] Merge should be able to merge using property of bound node
     Given an empty graph
-    And having defined kuzu types: cp_bn
     And having executed:
       """
       CREATE (:Person {name: 'A', bornIn: 'New York'})
@@ -244,11 +232,10 @@ Feature: Merge1 - Merge node
 
   Scenario: [12] Merge should be able to merge using property of freshly created node
     Given an empty graph
-    And having defined kuzu types: mn_nv
     When executing query:
       """
-      CREATE (a:M {num: 1})
-      MERGE (:N {v: a.num})
+      CREATE (a {num: 1})
+      MERGE ({v: a.num})
       """
     Then the result should be empty
     And the side effects should be:
@@ -257,22 +244,20 @@ Feature: Merge1 - Merge node
 
   Scenario: [13] Merge should bind a path
     Given an empty graph
-    And having defined kuzu types: n_num
     When executing query:
       """
-      MERGE p = (a:N {num: 1})
-      RETURN nodes(p) as nodes
+      MERGE p = (a {num: 1})
+      RETURN p
       """
     Then the result should be, in any order:
-      | nodes            |
-      | [(:N {num: 1})]  |
+      | p            |
+      | <({num: 1})> |
     And the side effects should be:
       | +nodes      | 1 |
       | +properties | 1 |
 
   Scenario: [14] Merges should not be able to match on deleted nodes
     Given an empty graph
-    And having defined kuzu types: a_num
     And having executed:
       """
       CREATE (:A {num: 1}),
@@ -312,7 +297,6 @@ Feature: Merge1 - Merge node
       """
     Then a SyntaxError should be raised at compile time: InvalidParameterUse
 
-  @fails @unsupportedMerge
   Scenario: [17] Fail on merging node with null property
     Given any graph
     When executing query:

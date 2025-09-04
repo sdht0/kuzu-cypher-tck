@@ -30,7 +30,6 @@
 
 Feature: Merge2 - Merge node - on create
 
-  @fails @unsupportedMultiLabel
   Scenario: [1] Merge node with label add label on create
     Given an empty graph
     When executing query:
@@ -48,10 +47,9 @@ Feature: Merge2 - Merge node - on create
 
   Scenario: [2] ON CREATE on created nodes
     Given an empty graph
-    And having defined kuzu types: n_created-2
     When executing query:
       """
-      MERGE (b:N)
+      MERGE (b)
         ON CREATE SET b.created = 1
       """
     Then the result should be empty
@@ -61,7 +59,6 @@ Feature: Merge2 - Merge node - on create
 
   Scenario: [3] Merge node with label add property on create
     Given an empty graph
-    And having defined kuzu types: t_num
     When executing query:
       """
       MERGE (a:TheLabel)
@@ -78,7 +75,6 @@ Feature: Merge2 - Merge node - on create
 
   Scenario: [4] Merge node with label add property on update when it exists
     Given an empty graph
-    And having defined kuzu types: t_num
     And having executed:
       """
       CREATE (:TheLabel)
@@ -96,7 +92,6 @@ Feature: Merge2 - Merge node - on create
 
   Scenario: [5] Merge should be able to use properties of bound node in ON CREATE
     Given an empty graph
-    And having defined kuzu types: cp_bn
     And having executed:
       """
       CREATE (:Person {bornIn: 'New York'}),
@@ -120,10 +115,9 @@ Feature: Merge2 - Merge node - on create
 
   Scenario: [6] Fail when using undefined variable in ON CREATE
     Given any graph
-    And having defined kuzu types: n_num
     When executing query:
       """
-      MERGE (n:N)
+      MERGE (n)
         ON CREATE SET x.num = 1
       """
     Then a SyntaxError should be raised at compile time: UndefinedVariable

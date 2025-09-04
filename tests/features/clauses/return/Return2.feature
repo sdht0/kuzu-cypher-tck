@@ -43,10 +43,9 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
 
   Scenario: [2] Returning a node property value
     Given an empty graph
-    And having defined kuzu types: n_num
     And having executed:
       """
-      CREATE (:N {num: 1})
+      CREATE ({num: 1})
       """
     When executing query:
       """
@@ -58,13 +57,11 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
       | 1     |
     And no side effects
 
-  @fails @typeCheck
   Scenario: [3] Missing node property should become null
     Given an empty graph
-    And having defined kuzu types: n_num
     And having executed:
       """
-      CREATE (:N {num: 1})
+      CREATE ({num: 1})
       """
     When executing query:
       """
@@ -78,10 +75,9 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
 
   Scenario: [4] Returning a relationship property value
     Given an empty graph
-    And having defined kuzu types: n:t_num
     And having executed:
       """
-      CREATE (:N)-[:T {num: 1}]->(:N)
+      CREATE ()-[:T {num: 1}]->()
       """
     When executing query:
       """
@@ -93,13 +89,11 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
       | 1     |
     And no side effects
 
-  @fails @typeCheck
   Scenario: [5] Missing relationship property should become null
     Given an empty graph
-    And having defined kuzu types: n:t_name
     And having executed:
       """
-      CREATE (:N)-[:T {name: 1}]->(:N)
+      CREATE ()-[:T {name: 1}]->()
       """
     When executing query:
       """
@@ -113,10 +107,9 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
 
   Scenario: [6] Adding a property and a literal in projection
     Given an empty graph
-    And having defined kuzu types: n_num
     And having executed:
       """
-      CREATE (:N {num: 1})
+      CREATE ({num: 1})
       """
     When executing query:
       """
@@ -130,10 +123,9 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
 
   Scenario: [7] Adding list properties in projection
     Given an empty graph
-    And having defined kuzu types: n_l2
     And having executed:
       """
-      CREATE (:N {list1: [1, 2, 3], list2: [4, 5]})
+      CREATE ({list1: [1, 2, 3], list2: [4, 5]})
       """
     When executing query:
       """
@@ -145,13 +137,11 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
       | [4, 5, 1, 2, 3] |
     And no side effects
 
-  @fails @labelInMatch
   Scenario: [8] Returning label predicate expression
     Given an empty graph
-    And having defined kuzu types: fn
     And having executed:
       """
-      CREATE (:N), (:Foo)
+      CREATE (), (:Foo)
       """
     When executing query:
       """
@@ -166,17 +156,16 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
 
   Scenario: [9] Returning a projected map
     Given an empty graph
-    And having defined kuzu types: n_numbers
     And having executed:
       """
-      CREATE (:N {numbers: [1, 2, 3]})
+      CREATE ({numbers: [1, 2, 3]})
       """
     When executing query:
       """
-      RETURN {a: 1, b: 'foo'} as a
+      RETURN {a: 1, b: 'foo'}
       """
     Then the result should be, in any order:
-      | a                |
+      | {a: 1, b: 'foo'} |
       | {a: 1, b: 'foo'} |
     And no side effects
 
@@ -185,16 +174,15 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
     When executing query:
       """
       MATCH (a)
-      RETURN count(a) > 0 as c
+      RETURN count(a) > 0
       """
     Then the result should be, in any order:
-      | c     |
-      | false |
+      | count(a) > 0 |
+      | false        |
     And no side effects
 
   Scenario: [11] RETURN does not lose precision on large integers
     Given an empty graph
-    And having defined kuzu types: t_id
     And having executed:
       """
       CREATE (:TheLabel {id: 4611686018427387905})
@@ -209,10 +197,8 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
       | 4611686018427387905 |
     And no side effects
 
-  @fails @typeError
   Scenario: [12] Projecting a list of nodes and relationships
     Given an empty graph
-    And having defined kuzu types: ab:t
     And having executed:
       """
       CREATE (a:A), (b:B)
@@ -230,7 +216,6 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
 
   Scenario: [13] Projecting a map of nodes and relationships
     Given an empty graph
-    And having defined kuzu types: ab:t
     And having executed:
       """
       CREATE (a:A), (b:B)
@@ -239,39 +224,36 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
     When executing query:
       """
       MATCH (n)-[r]->(m)
-      RETURN {node1: LABEL(n), rel: LABEL(r), node2: LABEL(m)} AS m
+      RETURN {node1: n, rel: r, node2: m} AS m
       """
     Then the result should be, in any order:
-      | m                                  |
-      | {node1: 'A', rel: 'T', node2: 'B'} |
+      | m                                     |
+      | {node1: (:A), rel: [:T], node2: (:B)} |
     And no side effects
 
   Scenario: [14] Do not fail when returning type of deleted relationships
     Given an empty graph
-    And having defined kuzu types: n:t
     And having executed:
       """
-      CREATE (:N)-[:T]->(:N)
+      CREATE ()-[:T]->()
       """
     When executing query:
       """
       MATCH ()-[r]->()
       DELETE r
-      RETURN LABEL(r) as l
+      RETURN type(r)
       """
     Then the result should be, in any order:
-      | l   |
-      | 'T' |
+      | type(r) |
+      | 'T'     |
     And the side effects should be:
       | -relationships | 1 |
 
-  @fails @expectedError
   Scenario: [15] Fail when returning properties of deleted nodes
     Given an empty graph
-    And having defined kuzu types: n_num
     And having executed:
       """
-      CREATE (:N {num: 0})
+      CREATE ({num: 0})
       """
     When executing query:
       """
@@ -281,7 +263,6 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
       """
     Then a EntityNotFound should be raised at runtime: DeletedEntityAccess
 
-  @fails @expectedError
   Scenario: [16] Fail when returning labels of deleted nodes
     Given an empty graph
     And having executed:
@@ -296,7 +277,6 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
       """
     Then a EntityNotFound should be raised at runtime: DeletedEntityAccess
 
-  @fails @expectedError
   Scenario: [17] Fail when returning properties of deleted relationships
     Given an empty graph
     And having executed:

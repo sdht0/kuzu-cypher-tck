@@ -34,7 +34,7 @@ Feature: TypeConversion4 - To String
     Given any graph
     When executing query:
       """
-      RETURN CAST(42 AS string) AS bool
+      RETURN toString(42) AS bool
       """
     Then the result should be, in any order:
       | bool   |
@@ -45,27 +45,26 @@ Feature: TypeConversion4 - To String
     Given any graph
     When executing query:
       """
-      RETURN CAST(true AS string) AS bool
+      RETURN toString(true) AS bool
       """
     Then the result should be, in any order:
       | bool   |
-      | 'True' |
+      | 'true' |
     And no side effects
 
   Scenario: [3] `toString()` handling inlined boolean
     Given any graph
     When executing query:
       """
-      RETURN CAST(1 < 0 AS string) AS bool
+      RETURN toString(1 < 0) AS bool
       """
     Then the result should be, in any order:
       | bool    |
-      | 'False' |
+      | 'false' |
     And no side effects
 
   Scenario: [4] `toString()` handling boolean properties
     Given an empty graph
-    And having defined kuzu types: m_w
     And having executed:
       """
       CREATE (:Movie {watched: true})
@@ -73,14 +72,13 @@ Feature: TypeConversion4 - To String
     When executing query:
       """
       MATCH (m:Movie)
-      RETURN CAST(m.watched AS string)
+      RETURN toString(m.watched)
       """
     Then the result should be, in any order:
       | toString(m.watched) |
-      | 'True'              |
+      | 'true'              |
     And no side effects
 
-  @fails @unsupportedMixedTypesLists
   Scenario: [5] `toString()` should work on Any type
     Given any graph
     When executing query:
@@ -96,19 +94,16 @@ Feature: TypeConversion4 - To String
     Given any graph
     When executing query:
       """
-      UNWIND [1, 2, 3] AS n
-      RETURN CAST(n AS string) AS string_numbers
+      WITH [1, 2, 3] AS numbers
+      RETURN [n IN numbers | toString(n)] AS string_numbers
       """
     Then the result should be, in any order:
-      | string_numbers |
-      | '1'            |
-      | '2'            |
-      | '3'            |
+      | string_numbers  |
+      | ['1', '2', '3'] |
     And no side effects
 
   Scenario: [7] `toString()` on node property
     Given an empty graph
-    And having defined kuzu types: m_r
     And having executed:
       """
       CREATE (:Movie {rating: 4})
@@ -118,7 +113,7 @@ Feature: TypeConversion4 - To String
       MATCH (m:Movie { rating: 4 })
       WITH *
       MATCH (n)
-      RETURN CAST(n.rating AS string)
+      RETURN toString(n.rating)
       """
     Then the result should be, in any order:
       | toString(n.rating) |
@@ -130,7 +125,7 @@ Feature: TypeConversion4 - To String
     When executing query:
       """
       UNWIND ['male', 'female', null] AS gen
-      RETURN coalesce(CAST(gen AS string), 'x') AS result
+      RETURN coalesce(toString(gen), 'x') AS result
       """
     Then the result should be, in any order:
       | result   |
@@ -144,7 +139,7 @@ Feature: TypeConversion4 - To String
     When executing query:
       """
       UNWIND ['male', 'female', null] AS gen
-      RETURN CAST(coalesce(gen, 'x') AS string) AS result
+      RETURN toString(coalesce(gen, 'x')) AS result
       """
     Then the result should be, in any order:
       | result   |
@@ -153,7 +148,6 @@ Feature: TypeConversion4 - To String
       | 'x'      |
     And no side effects
 
-  @skip @unsupportedMixedTypesLists
   Scenario Outline: [10] Fail `toString()` on invalid types #Example: <exampleName>
     Given an empty graph
     And having executed:

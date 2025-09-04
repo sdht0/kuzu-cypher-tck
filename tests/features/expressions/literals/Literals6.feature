@@ -131,7 +131,6 @@ Feature: Literals6 - String
       | ''      |
     And no side effects
 
-  @fails @rustUnicodeOutput
   Scenario: [10] Accept valid Unicode literal
     Given any graph
     When executing query:

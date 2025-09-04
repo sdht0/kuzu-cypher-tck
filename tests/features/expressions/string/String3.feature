@@ -34,9 +34,9 @@ Feature: String3 - String Reversal
     Given any graph
     When executing query:
       """
-      RETURN reverse('raksO') as reversed
+      RETURN reverse('raksO')
       """
     Then the result should be, in any order:
-      | reversed |
-      | 'Oskar'  |
+      | reverse('raksO') |
+      | 'Oskar'          |
     And no side effects

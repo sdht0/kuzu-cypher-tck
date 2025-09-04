@@ -32,7 +32,6 @@ Feature: String8 - Exact String Prefix Search
 
   Scenario: [1] Finding exact matches with non-proper prefix
     Given an empty graph
-    And having defined kuzu types: t2_name
     And having executed:
       """
       CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
@@ -52,7 +51,6 @@ Feature: String8 - Exact String Prefix Search
 
   Scenario: [2] Finding beginning of string
     Given an empty graph
-    And having defined kuzu types: t2_name
     And having executed:
       """
       CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
@@ -72,7 +70,6 @@ Feature: String8 - Exact String Prefix Search
 
   Scenario: [3] Finding the empty prefix
     Given an empty graph
-    And having defined kuzu types: t2_name
     And having executed:
       """
       CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
@@ -96,7 +93,6 @@ Feature: String8 - Exact String Prefix Search
 
   Scenario: [4] Finding strings starting with whitespace
     Given an empty graph
-    And having defined kuzu types: t2_name
     And having executed:
       """
       CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
@@ -117,10 +113,8 @@ Feature: String8 - Exact String Prefix Search
       | ' Foo ' |
     And no side effects
 
-  @fails @incorrectEscaping
   Scenario: [5] Finding strings starting with newline
     Given an empty graph
-    And having defined kuzu types: t2_name
     And having executed:
       """
       CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
@@ -143,7 +137,6 @@ Feature: String8 - Exact String Prefix Search
 
   Scenario: [6] No string starts with null
     Given an empty graph
-    And having defined kuzu types: t2_name
     And having executed:
       """
       CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
@@ -162,7 +155,6 @@ Feature: String8 - Exact String Prefix Search
 
   Scenario: [7] No string does not start with null
     Given an empty graph
-    And having defined kuzu types: t2_name
     And having executed:
       """
       CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
@@ -179,10 +171,8 @@ Feature: String8 - Exact String Prefix Search
       | a |
     And no side effects
 
-  @fails @listMultipleTypes
   Scenario: [8] Handling non-string operands for STARTS WITH
     Given an empty graph
-    And having defined kuzu types: t2_name
     And having executed:
       """
       CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),
@@ -204,7 +194,6 @@ Feature: String8 - Exact String Prefix Search
 
   Scenario: [9] NOT with STARTS WITH
     Given an empty graph
-    And having defined kuzu types: t2_name
     And having executed:
       """
       CREATE (:TheLabel {name: 'ABCDEF'}), (:TheLabel {name: 'AB'}),

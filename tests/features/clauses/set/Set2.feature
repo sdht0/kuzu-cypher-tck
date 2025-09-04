@@ -32,7 +32,6 @@ Feature: Set2 - Set a Property to Null
 
   Scenario: [1] Setting a node property to null removes the existing property
     Given an empty graph
-    And having defined kuzu types: a_p2
     And having executed:
       """
       CREATE (:A {property1: 23, property2: 46})
@@ -51,7 +50,6 @@ Feature: Set2 - Set a Property to Null
 
   Scenario: [2] Setting a node property to null removes the existing property, but not before SET
     Given an empty graph
-    And having defined kuzu types: a_an
     And having executed:
       """
       CREATE (:A {name: 'Michael', age: 35})
@@ -71,7 +69,6 @@ Feature: Set2 - Set a Property to Null
 
   Scenario: [3] Setting a relationship property to null removes the existing property
     Given an empty graph
-    And having defined kuzu types: n:r_p2
     And having executed:
       """
       CREATE ()-[:REL {property1: 12, property2: 24}]->()

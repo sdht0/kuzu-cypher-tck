@@ -32,12 +32,11 @@ Feature: Aggregation3 - Sum
 
   Scenario: [1] Sum only non-null values
     Given an empty graph
-    And having defined kuzu types: n_nn
     And having executed:
       """
-      CREATE (:N {name: 'a', num: 33})
-      CREATE (:N {name: 'a'})
-      CREATE (:N {name: 'a', num: 42})
+      CREATE ({name: 'a', num: 33})
+      CREATE ({name: 'a'})
+      CREATE ({name: 'a', num: 42})
       """
     When executing query:
       """
@@ -63,4 +62,4 @@ Feature: Aggregation3 - Sum
       | 3004498500 |
     And no side effects
 
-
+  

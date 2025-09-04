@@ -46,14 +46,13 @@ Feature: ReturnSkipLimit2 - Limit
 
   Scenario: [2] Limit to two hits with explicit order
     Given an empty graph
-    And having defined kuzu types: abcde_name
     And having executed:
       """
-      CREATE (:A {name: 'A'}),
-        (:B {name: 'B'}),
-        (:C {name: 'C'}),
-        (:D {name: 'D'}),
-        (:E {name: 'E'})
+      CREATE ({name: 'A'}),
+        ({name: 'B'}),
+        ({name: 'C'}),
+        ({name: 'D'}),
+        ({name: 'E'})
       """
     When executing query:
       """
@@ -64,16 +63,15 @@ Feature: ReturnSkipLimit2 - Limit
       """
     Then the result should be, in order:
       | n             |
-      | (:A {name: 'A'}) |
-      | (:B {name: 'B'}) |
+      | ({name: 'A'}) |
+      | ({name: 'B'}) |
     And no side effects
 
   Scenario: [3] LIMIT 0 should return an empty result
     Given an empty graph
-    And having defined kuzu types: n
     And having executed:
       """
-      CREATE (:N), (:N), (:N)
+      CREATE (), (), ()
       """
     When executing query:
       """
@@ -87,7 +85,6 @@ Feature: ReturnSkipLimit2 - Limit
 
   Scenario: [4] Handle ORDER BY with LIMIT 1
     Given an empty graph
-    And having defined kuzu types: p_name
     And having executed:
       """
       CREATE (s:Person {name: 'Steven'}),
@@ -107,7 +104,6 @@ Feature: ReturnSkipLimit2 - Limit
 
   Scenario: [5] ORDER BY with LIMIT 0 should not generate errors
     Given any graph
-    And having defined kuzu types: p_name
     When executing query:
       """
       MATCH (p:Person)
@@ -121,16 +117,15 @@ Feature: ReturnSkipLimit2 - Limit
 
   Scenario: [6] LIMIT with an expression that does not depend on variables
     Given any graph
-    And having defined kuzu types: n_nr
     And having executed:
       """
       UNWIND range(1, 3) AS i
-      CREATE (:N {nr: i})
+      CREATE ({nr: i})
       """
     When executing query:
       """
       MATCH (n)
-      WITH n LIMIT CAST(ceil(1.7) AS INT64)
+      WITH n LIMIT toInteger(ceil(1.7))
       RETURN count(*) AS count
       """
     Then the result should be, in any order:
@@ -140,10 +135,9 @@ Feature: ReturnSkipLimit2 - Limit
 
   Scenario: [7] Limit to more rows than actual results 1
     Given an empty graph
-    And having defined kuzu types: n_num
     And having executed:
       """
-      CREATE (:N {num: 1}), (:N {num: 3}), (:N {num: 2})
+      CREATE ({num: 1}), ({num: 3}), ({num: 2})
       """
     When executing query:
       """
@@ -161,11 +155,10 @@ Feature: ReturnSkipLimit2 - Limit
 
   Scenario: [8] Limit to more rows than actual results 2
     Given an empty graph
-    And having defined kuzu types: an_num:t
     And having executed:
       """
-      CREATE (a:A), (n1:N {num: 1}), (n2:N {num: 2}),
-             (m1:N), (m2:N)
+      CREATE (a:A), (n1 {num: 1}), (n2 {num: 2}),
+             (m1), (m2)
       CREATE (a)-[:T]->(n1),
              (n1)-[:T]->(m1),
              (a)-[:T]->(n2),
@@ -174,14 +167,14 @@ Feature: ReturnSkipLimit2 - Limit
     When executing query:
       """
       MATCH (a:A)-->(n)-->(m)
-      RETURN n.num, count(*) as count
+      RETURN n.num, count(*)
         ORDER BY n.num
         LIMIT 1000
       """
     Then the result should be, in order:
-      | n.num | count |
-      | 1     | 1     |
-      | 2     | 1     |
+      | n.num | count(*) |
+      | 1     | 1        |
+      | 2     | 1        |
     And no side effects
 
   Scenario: [9] Fail when using non-constants in LIMIT
@@ -194,7 +187,6 @@ Feature: ReturnSkipLimit2 - Limit
 
   Scenario: [10] Negative parameter for LIMIT should fail
     Given any graph
-    And having defined kuzu types: p_name
     And having executed:
       """
       CREATE (s:Person {name: 'Steven'}),
@@ -212,7 +204,6 @@ Feature: ReturnSkipLimit2 - Limit
 
   Scenario: [11] Negative parameter for LIMIT with ORDER BY should fail
     Given any graph
-    And having defined kuzu types: p_name
     And having executed:
       """
       CREATE (s:Person {name: 'Steven'}),
@@ -240,7 +231,6 @@ Feature: ReturnSkipLimit2 - Limit
 
   Scenario: [13] Fail when using negative value in LIMIT 2
     Given any graph
-    And having defined kuzu types: p_name
     And having executed:
       """
       CREATE (s:Person {name: 'Steven'}),
@@ -256,7 +246,6 @@ Feature: ReturnSkipLimit2 - Limit
 
   Scenario: [14] Floating point parameter for LIMIT should fail
     Given any graph
-    And having defined kuzu types: p_name
     And having executed:
       """
       CREATE (s:Person {name: 'Steven'}),
@@ -274,7 +263,6 @@ Feature: ReturnSkipLimit2 - Limit
 
   Scenario: [15] Floating point parameter for LIMIT with ORDER BY should fail
     Given any graph
-    And having defined kuzu types: p_name
     And having executed:
       """
       CREATE (s:Person {name: 'Steven'}),
@@ -292,7 +280,6 @@ Feature: ReturnSkipLimit2 - Limit
 
   Scenario: [16] Fail when using floating point in LIMIT 1
     Given any graph
-    And having defined kuzu types: n
     When executing query:
       """
       MATCH (n)
@@ -303,7 +290,6 @@ Feature: ReturnSkipLimit2 - Limit
 
   Scenario: [17] Fail when using floating point in LIMIT 2
     Given any graph
-    And having defined kuzu types: p_name
     And having executed:
       """
       CREATE (s:Person {name: 'Steven'}),

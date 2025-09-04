@@ -30,7 +30,6 @@
 
 Feature: Path1 - Nodes of a path
 
-  @skip @wellDefinedSchema
   Scenario: [1] `nodes()` on null path
     Given any graph
     When executing query:

@@ -31,7 +31,6 @@
 Feature: Graph7 - Dynamic property access
   # Accessing a property of a node or edge by using a dynamically-computed string value as the key; e.g. allowing for the key to be passed in as a parameter
 
-  @skip @unsupportedDynamicPropertyLookup
   Scenario: [1] Execute n['name'] in read queries
     Given any graph
     And having executed:
@@ -48,7 +47,6 @@ Feature: Graph7 - Dynamic property access
       | 'Apa' |
     And no side effects
 
-  @skip @unsupportedDynamicPropertyLookup
   Scenario: [2] Execute n['name'] in update queries
     Given any graph
     When executing query:
@@ -63,15 +61,13 @@ Feature: Graph7 - Dynamic property access
       | +nodes      | 1 |
       | +properties | 1 |
 
-  @skip @unsupportedDynamicPropertyLookup
   Scenario: [3] Use dynamic property lookup based on parameters when there is lhs type information
     Given any graph
-    And having defined kuzu types: n_name
     And parameters are:
       | idx | 'name' |
     When executing query:
       """
-      CREATE (n:N {name: 'Apa'})
+      CREATE (n {name: 'Apa'})
       RETURN n[$idx] AS value
       """
     Then the result should be, in any order:

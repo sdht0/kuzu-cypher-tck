@@ -31,15 +31,13 @@
 Feature: With2 - Forward single expression
   # correctly projecting an expression, no other effects
 
-  @fails @propertyInCreate
   Scenario: [1] Forwarding a property to express a join
     Given an empty graph
-    And having defined kuzu types: be_in:t
     And having executed:
       """
-      CREATE (a:`End` {num: 42, id: 0}),
-             (:`End` {num: 3}),
-             (:Begin {num: 42})
+      CREATE (a:End {num: 42, id: 0}),
+             (:End {num: 3}),
+             (:Begin {num: a.id})
       """
     When executing query:
       """
@@ -59,9 +57,9 @@ Feature: With2 - Forward single expression
     When executing query:
       """
       WITH {name: {name2: 'baz'}} AS nestedMap
-      RETURN nestedMap.name.name2 as nested
+      RETURN nestedMap.name.name2
       """
     Then the result should be, in any order:
-      | nested |
-      | 'baz'  |
+      | nestedMap.name.name2 |
+      | 'baz'                |
     And no side effects

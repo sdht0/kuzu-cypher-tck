@@ -31,7 +31,6 @@
 Feature: Map1 - Static value access
 # Static value access refers to the dot-operator – <expression resulting in a map>.<identify> – which does not allow any dynamic computation of the map key – i.e. <identify>.
 
-  @skip @wellDefinedSchema
   Scenario: [1] Statically access a field of a non-null map
     Given any graph
     When executing query:
@@ -44,7 +43,6 @@ Feature: Map1 - Static value access
       | null      | null         | 42         |
     And no side effects
 
-  @skip @wellDefinedSchema
   Scenario: [2] Statically access a field of a null map
     Given any graph
     When executing query:
@@ -57,7 +55,6 @@ Feature: Map1 - Static value access
       | null      |
     And no side effects
 
-  @skip @unsupportedMixedTypeLists
   Scenario: [3] Statically access a field of a map resulting from an expression
     Given any graph
     When executing query:
@@ -70,7 +67,6 @@ Feature: Map1 - Static value access
       | null              | null                 | 42                 |
     And no side effects
 
-  @skip @wellDefinedSchema
   Scenario Outline: [4] Statically access a field is case-sensitive
     Given any graph
     When executing query:
@@ -90,7 +86,6 @@ Feature: Map1 - Static value access
       | {name: 'Mats', Name: 'Pontus'} | Name | 'Pontus' |
       | {name: 'Mats', Name: 'Pontus'} | nAMe | null     |
 
-  @skip @wellDefinedSchema
   Scenario Outline: [5] Statically access a field with a delimited identifier
     Given any graph
     When executing query:
@@ -112,7 +107,6 @@ Feature: Map1 - Static value access
       | {null: 'Mats', NULL: 'Pontus'} | `null` | 'Mats'   |
       | {null: 'Mats', NULL: 'Pontus'} | `NULL` | 'Pontus' |
 
-  @skip @wellDefinedSchema
   Scenario Outline: [6] Fail when performing property access on a non-map
     Given any graph
     When executing query:

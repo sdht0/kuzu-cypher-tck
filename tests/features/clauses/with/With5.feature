@@ -32,12 +32,11 @@ Feature: With5 - Implicit grouping with DISTINCT
 
   Scenario: [1] DISTINCT on an expression
     Given an empty graph
-    And having defined kuzu types: n_name
     And having executed:
       """
-      CREATE (:N {name: 'A'}),
-             (:N {name: 'A'}),
-             (:N {name: 'B'})
+      CREATE ({name: 'A'}),
+             ({name: 'A'}),
+             ({name: 'B'})
       """
     When executing query:
       """
@@ -53,18 +52,17 @@ Feature: With5 - Implicit grouping with DISTINCT
 
   Scenario: [2] Handling DISTINCT with lists in maps
     Given an empty graph
-    And having defined kuzu types: n_l
     And having executed:
       """
-      CREATE (:N {list: ['A', 'B']}), (:N {list: ['A', 'B']})
+      CREATE ({list: ['A', 'B']}), ({list: ['A', 'B']})
       """
     When executing query:
       """
       MATCH (n)
       WITH DISTINCT {name: n.list} AS map
-      RETURN count(*) as count
+      RETURN count(*)
       """
     Then the result should be, in any order:
-      | count |
-      | 1     |
+      | count(*) |
+      | 1        |
     And no side effects

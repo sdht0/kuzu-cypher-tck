@@ -30,13 +30,11 @@
 
 Feature: Aggregation5 - Collect
 
-  @fails @optionalMatchNull
   Scenario: [1] `collect()` filtering nulls
     Given an empty graph
-    And having defined kuzu types: n:n
     And having executed:
       """
-      CREATE (:N)
+      CREATE ()
       """
     When executing query:
       """
@@ -45,14 +43,12 @@ Feature: Aggregation5 - Collect
       RETURN n, collect(x)
       """
     Then the result should be, in any order:
-      | n    | collect(x) |
-      | (:N) | []         |
+      | n  | collect(x) |
+      | () | []         |
     And no side effects
 
-  @fails @optionalMatchNull
   Scenario: [2] OPTIONAL MATCH and `collect()` on node property
     Given an empty graph
-    And having defined kuzu types: dd
     And having executed:
       """
       CREATE (:DoesExist {num: 42})

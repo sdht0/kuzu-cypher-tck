@@ -30,7 +30,6 @@
 
 Feature: Graph5 - Node and edge label expressions
 
-  @fails @unsupportedLabelExpression
   Scenario: [1] Single-labels expression on nodes
     Given an empty graph
     And having executed:
@@ -56,7 +55,6 @@ Feature: Graph5 - Node and edge label expressions
     And no side effects
 
   # This scenario does not work in Cypher. Although that is a little bit odd.
-  @fails @unsupportedLabelExpression
   @ignore @skipStyleCheck
   Scenario: [2] Single-labels expression on relationships
     Given an empty graph
@@ -82,7 +80,6 @@ Feature: Graph5 - Node and edge label expressions
       | [:T4] | false  |
     And no side effects
 
-  @fails @unsupportedLabelExpression
   Scenario: [3] Conjunctive labels expression on nodes
     Given an empty graph
     And having executed:
@@ -107,7 +104,6 @@ Feature: Graph5 - Node and edge label expressions
       | ()       | false  |
     And no side effects
 
-  @fails @unsupportedLabelExpression
   Scenario Outline: [4] Conjunctive labels expression on nodes with varying order and repeating labels
     Given an empty graph
     And having executed:
@@ -134,7 +130,6 @@ Feature: Graph5 - Node and edge label expressions
       | :C:C:A   | (:A:C) |
       | :C:A:A:C | (:A:C) |
 
-  @fails @unsupportedLabelExpression
   Scenario: [5] Label expression on null
     Given an empty graph
     And having executed:

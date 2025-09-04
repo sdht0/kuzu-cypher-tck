@@ -30,14 +30,12 @@
 
 Feature: Delete2 - Deleting relationships
 
-  @fails @unsupportedUndirDelete
   Scenario: [1] Delete relationships
     Given an empty graph
-    And having defined kuzu types: n:r
     And having executed:
       """
       UNWIND range(0, 2) AS i
-      CREATE (:N)-[:R]->(:N)
+      CREATE ()-[:R]->()
       """
     When executing query:
       """
@@ -48,13 +46,11 @@ Feature: Delete2 - Deleting relationships
     And the side effects should be:
       | -relationships | 3 |
 
-  @fails @unsupportedUndirDelete
   Scenario: [2] Delete optionally matched relationship
     Given an empty graph
-    And having defined kuzu types: n
     And having executed:
       """
-      CREATE (:N)
+      CREATE ()
       """
     When executing query:
       """
@@ -66,13 +62,11 @@ Feature: Delete2 - Deleting relationships
     And the side effects should be:
       | -nodes | 1 |
 
-  @fails @unsupportedUndirDelete
   Scenario: [3] Delete relationship with bidirectional matching
     Given an empty graph
-    And having defined kuzu types: n:t_id
     And having executed:
       """
-      CREATE (:N)-[:T {id: 42}]->(:N)
+      CREATE ()-[:T {id: 42}]->()
       """
     When executing query:
       """
@@ -85,27 +79,25 @@ Feature: Delete2 - Deleting relationships
       | -relationships | 1 |
       | -properties    | 1 |
 
-  @fails @unsupportedUndirDelete
+
   Scenario: [4] Ignore null when deleting relationship
     Given an empty graph
-    And having defined kuzu types: n:d
     When executing query:
       """
-      OPTIONAL MATCH (:N)-[r:DoesNotExist]-(:N)
+      OPTIONAL MATCH ()-[r:DoesNotExist]-()
       DELETE r
       RETURN r
       """
     Then the result should be, in any order:
-      | r |
-      |   |
+      | r    |
+      | null |
     And no side effects
 
   Scenario: [5] Failing when deleting a relationship type
     Given an empty graph
-    And having defined kuzu types: n:t_id
     And having executed:
       """
-      CREATE (:N)-[:T {id: 42}]->(:N)
+      CREATE ()-[:T {id: 42}]->()
       """
     When executing query:
       """

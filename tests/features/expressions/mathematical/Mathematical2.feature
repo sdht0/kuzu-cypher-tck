@@ -32,10 +32,9 @@ Feature: Mathematical2 - Addition
 
   Scenario: [1] Allow addition
     Given an empty graph
-    And having defined kuzu types: n_iv
     And having executed:
       """
-      CREATE (:N {id: 1337, version: 99})
+      CREATE ({id: 1337, version: 99})
       """
     When executing query:
       """

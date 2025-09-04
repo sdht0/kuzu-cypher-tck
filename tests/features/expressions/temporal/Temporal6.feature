@@ -30,7 +30,6 @@
 
 Feature: Temporal6 - Render Temporal Values as a String
 
-  @fails @unsupportedTemporalFuncs
   Scenario: [1] Should serialize date
     Given any graph
     When executing query:
@@ -43,7 +42,6 @@ Feature: Temporal6 - Render Temporal Values as a String
       | '1984-10-11' | true |
     And no side effects
 
-  @fails @unsupportedTemporalFuncs
   Scenario: [2] Should serialize local time
     Given any graph
     When executing query:
@@ -56,7 +54,6 @@ Feature: Temporal6 - Render Temporal Values as a String
       | '12:31:14.645876123' | true |
     And no side effects
 
-  @fails @unsupportedTemporalFuncs
   Scenario: [3] Should serialize time
     Given any graph
     When executing query:
@@ -69,7 +66,6 @@ Feature: Temporal6 - Render Temporal Values as a String
       | '12:31:14.645876123+01:00' | true |
     And no side effects
 
-  @fails @unsupportedTemporalFuncs
   Scenario: [4] Should serialize local date time
     Given any graph
     When executing query:
@@ -82,7 +78,6 @@ Feature: Temporal6 - Render Temporal Values as a String
       | '1984-10-11T12:31:14.645876123' | true |
     And no side effects
 
-  @fails @unsupportedTemporalFuncs
   Scenario: [5] Should serialize date time
     Given any graph
     When executing query:
@@ -95,7 +90,6 @@ Feature: Temporal6 - Render Temporal Values as a String
       | '1984-10-11T12:31:14.645876123+01:00' | true |
     And no side effects
 
-  @fails @unsupportedTemporalFuncs
   Scenario Outline: [6] Should serialize duration
     Given any graph
     When executing query:
@@ -122,7 +116,6 @@ Feature: Temporal6 - Render Temporal Values as a String
       | {seconds: -60, milliseconds: 1}                                                       | 'PT-59.999S'                    | true    |
       | {seconds: -60, milliseconds: -1}                                                      | 'PT-1M-0.001S'                  | true    |
 
-  @fails @unsupportedTemporalFuncs
   Scenario: [7] Should serialize timezones correctly
     Given any graph
     When executing query:

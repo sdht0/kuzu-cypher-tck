@@ -30,7 +30,6 @@
 
 Feature: Set3 - Set a Label
 
-  @fails @setLabel
   Scenario: [1] Add a single label to a node with no label
     Given an empty graph
     And having executed:
@@ -49,7 +48,6 @@ Feature: Set3 - Set a Label
     And the side effects should be:
       | +labels | 1 |
 
-  @fails @multipleLabels
   Scenario: [2] Adding multiple labels to a node with no label
     Given an empty graph
     And having executed:
@@ -68,7 +66,6 @@ Feature: Set3 - Set a Label
     And the side effects should be:
       | +labels | 2 |
 
-  @fails @setLabel
   Scenario: [3] Add a single label to a node with an existing label
     Given an empty graph
     And having executed:
@@ -87,7 +84,6 @@ Feature: Set3 - Set a Label
     And the side effects should be:
       | +labels | 1 |
 
-  @fails @multipleLabels
   Scenario: [4] Adding multiple labels to a node with an existing label
     Given an empty graph
     And having executed:
@@ -106,7 +102,6 @@ Feature: Set3 - Set a Label
     And the side effects should be:
       | +labels | 2 |
 
-  @fails @setLabel
   Scenario: [5] Ignore whitespace before colon 1
     Given an empty graph
     And having executed:
@@ -125,7 +120,6 @@ Feature: Set3 - Set a Label
     And the side effects should be:
       | +labels | 1 |
 
-  @fails @setLabel
   Scenario: [6] Ignore whitespace before colon 2
     Given an empty graph
     And having executed:
@@ -144,7 +138,6 @@ Feature: Set3 - Set a Label
     And the side effects should be:
       | +labels | 2 |
 
-  @fails @setLabel
   Scenario: [7] Ignore whitespace before colon 3
     Given an empty graph
     And having executed:
@@ -163,10 +156,8 @@ Feature: Set3 - Set a Label
     And the side effects should be:
       | +labels | 2 |
 
-  @fails @setLabel
   Scenario: [8] Ignore null when setting label
     Given an empty graph
-    And having defined kuzu types: dn_name
     When executing query:
       """
       OPTIONAL MATCH (a:DoesNotExist)

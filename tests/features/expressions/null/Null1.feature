@@ -30,45 +30,40 @@
 
 Feature: Null1 - IS NULL validation
 
-  @skip @wellDefinedSchema
   Scenario: [1] Property null check on non-null node
     Given an empty graph
-    And having defined kuzu types: n_e
     And having executed:
       """
-      CREATE (:N {`exists`: 42})
+      CREATE ({exists: 42})
       """
     When executing query:
       """
       MATCH (n)
       RETURN n.missing IS NULL,
-             n.`exists` IS NULL
+             n.exists IS NULL
       """
     Then the result should be, in any order:
       | n.missing IS NULL | n.exists IS NULL |
       | true              | false            |
     And no side effects
 
-  @skip @wellDefinedSchema
   Scenario: [2] Property null check on optional non-null node
     Given an empty graph
-    And having defined kuzu types: n_e
     And having executed:
       """
-      CREATE (:N {`exists`: 42})
+      CREATE ({exists: 42})
       """
     When executing query:
       """
       OPTIONAL MATCH (n)
       RETURN n.missing IS NULL,
-             n.`exists` IS NULL
+             n.exists IS NULL
       """
     Then the result should be, in any order:
       | n.missing IS NULL | n.exists IS NULL |
       | true              | false            |
     And no side effects
 
-  @skip @wellDefinedSchema
   Scenario: [3] Property null check on null node
     Given an empty graph
     When executing query:
@@ -92,7 +87,6 @@ Feature: Null1 - IS NULL validation
       | true  |
     And no side effects
 
-  @skip @wellDefinedSchema
   Scenario Outline: [5] IS NULL on a map
     Given any graph
     When executing query:
@@ -123,7 +117,6 @@ Feature: Null1 - IS NULL validation
   @skipStyleCheck
   Scenario: [6] IS NULL is case insensitive
     Given an empty graph
-    And having defined kuzu types: x_p
     And having executed:
       """
       CREATE (a:X {prop: 42}), (:X)

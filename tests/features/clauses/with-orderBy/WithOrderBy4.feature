@@ -34,7 +34,6 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
 
   Scenario: [1] Sort by a projected expression
     Given an empty graph
-    And having defined kuzu types: a_num2
     And having executed:
       """
       CREATE (:A {num: 1, num2: 4}), //num + num2 = 5
@@ -60,7 +59,6 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
 
   Scenario: [2] Sort by an alias of a projected expression
     Given an empty graph
-    And having defined kuzu types: a_num2
     And having executed:
       """
       CREATE (:A {num: 1, num2: 4}), //num + num2 = 5
@@ -86,7 +84,6 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
 
   Scenario: [3] Sort by two projected expressions with order priority being different than projection order
     Given an empty graph
-    And having defined kuzu types: a_num2
     And having executed:
       """
       CREATE (:A {num: 1, num2: 4}), //num2 % 3 = 1, num + num2 = 5
@@ -112,7 +109,6 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
 
   Scenario: [4] Sort by one projected expression and one alias of a projected expression with order priority being different than projection order
     Given an empty graph
-    And having defined kuzu types: a_num2
     And having executed:
       """
       CREATE (:A {num: 1, num2: 4}), //num2 % 3 = 1, num + num2 = 5
@@ -138,7 +134,6 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
 
   Scenario: [5] Sort by one alias of a projected expression and one projected expression with order priority being different than projection order
     Given an empty graph
-    And having defined kuzu types: a_num2
     And having executed:
       """
       CREATE (:A {num: 1, num2: 4}), //num2 % 3 = 1, num + num2 = 5
@@ -164,7 +159,6 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
 
   Scenario: [6] Sort by aliases of two projected expressions with order priority being different than projection order
     Given an empty graph
-    And having defined kuzu types: a_num2
     And having executed:
       """
       CREATE (:A {num: 1, num2: 4}), //num2 % 3 = 1, num + num2 = 5
@@ -188,10 +182,8 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
       | (:A {num: 1, num2: 4}) | 5   | 1   |
     And no side effects
 
-  @fails @bugVariableShadowing
   Scenario: [7] Sort by an alias of a projected expression where the alias shadows an existing variable
     Given an empty graph
-    And having defined kuzu types: a_num2
     And having executed:
       """
       CREATE (:A {num: 1, num2: 4}), //num2 % 3 = 1, num + num2 = 5
@@ -218,7 +210,6 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
 
   Scenario: [8] Sort by non-projected existing variable
     Given an empty graph
-    And having defined kuzu types: a_num2
     And having executed:
       """
       CREATE (:A {num: 1, num2: 4}), //num2 % 3 = 1, num + num2 = 5
@@ -243,10 +234,8 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
       | (:A {num: 5, num2: 2}) | 2   |
     And no side effects
 
-  @fails @bugVariableShadowing
   Scenario: [9] Sort by an alias of a projected expression containing the variable shadowed by the alias
     Given an empty graph
-    And having defined kuzu types: a_num2
     And having executed:
       """
       CREATE (:A {num: 1, num2: 4}), //num2 % 3 = 1, num + num2 = 5
@@ -271,10 +260,8 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
       | 1 |
     And no side effects
 
-  @fails @bugVariableShadowing
   Scenario: [10] Sort by a non-projected expression containing an alias of a projected expression containing the variable shadowed by the alias
     Given an empty graph
-    And having defined kuzu types: a_num2
     And having executed:
       """
       CREATE (:A {num: 1, num2: 4}), //num2 % 3 = 1, num + num2 = 5
@@ -299,10 +286,8 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
       | 1 |
     And no side effects
 
-  @fails @varBinding
   Scenario: [11] Sort by an aggregate projection
     Given an empty graph
-    And having defined kuzu types: a_num2
     And having executed:
       """
       CREATE (:A {num: 1, num2: 4}), //num2 % 3 = 1, num + num2 = 5
@@ -327,7 +312,6 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
 
   Scenario: [12] Sort by an aliased aggregate projection
     Given an empty graph
-    And having defined kuzu types: a_num2
     And having executed:
       """
       CREATE (:A {num: 1, num2: 4}), //num2 % 3 = 1, num + num2 = 5
@@ -352,7 +336,6 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
 
   Scenario: [13] Fail on sorting by a non-projected aggregation on a variable
     Given an empty graph
-    And having defined kuzu types: a_num2
     And having executed:
       """
       CREATE (:A {num: 1, num2: 4}), //num2 % 3 = 1, num + num2 = 5
@@ -374,7 +357,6 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
 
   Scenario: [14] Fail on sorting by a non-projected aggregation on an expression
     Given an empty graph
-    And having defined kuzu types: a_num2
     And having executed:
       """
       CREATE (:A {num: 1, num2: 4}), //num2 % 3 = 1, num + num2 = 5
@@ -393,15 +375,13 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
       """
     Then a SyntaxError should be raised at compile time: UndefinedVariable
 
-  @fails @orderBySkipLimit
   Scenario: [15] Sort by an aliased aggregate projection does allow subsequent matching
     Given an empty graph
-    And having defined kuzu types: ax:t12_id
     And having executed:
       """
-      CREATE (:A)-[:T1 {id: 0}]->(:X),
-             (:A)-[:T2 {id: 1}]->(:X),
-             (:A)-[:T2 {id: 2}]->(:A)
+      CREATE ()-[:T1 {id: 0}]->(:X),
+             ()-[:T2 {id: 1}]->(:X),
+             ()-[:T2 {id: 2}]->()
       """
     When executing query:
       """
@@ -418,10 +398,8 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
       | [:T2 {id: 1}] |
     And no side effects
 
-  @fails @orderBySkipLimit
   Scenario: [16] Handle constants and parameters inside an order by item which contains an aggregation expression
     Given an empty graph
-    And having defined kuzu types: p_age
     And parameters are:
       | age | 38 |
     When executing query:
@@ -436,10 +414,8 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
       | null   |
     And no side effects
 
-  @fails @varBinding
   Scenario: [17] Handle projected variables inside an order by item which contains an aggregation expression
     Given an empty graph
-    And having defined kuzu types: p_age
     When executing query:
       """
       MATCH (me: Person)--(you: Person)
@@ -451,10 +427,8 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
       | age |
     And no side effects
 
-  @fails @varBinding
   Scenario: [18]  Handle projected property accesses inside an order by item which contains an aggregation expression
     Given an empty graph
-    And having defined kuzu types: p_age
     When executing query:
       """
       MATCH (me: Person)--(you: Person)
@@ -468,7 +442,6 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
 
   Scenario: [19] Fail if not projected variables are used inside an order by item which contains an aggregation expression
     Given an empty graph
-    And having defined kuzu types: p_age
     When executing query:
       """
       MATCH (me: Person)--(you: Person)
@@ -480,7 +453,6 @@ Feature: WithOrderBy4 - Order by in combination with projection and aliasing
 
   Scenario: [20] Fail if more complex expressions, even if projected, are used inside an order by item which contains an aggregation expression
     Given an empty graph
-    And having defined kuzu types: p_age
     When executing query:
       """
       MATCH (me: Person)--(you: Person)

@@ -28,7 +28,6 @@
 
 #encoding: utf-8
 
-@mismatch @listSlice
 Feature: List2 - List Slicing
 
   Scenario: [1] List slice
@@ -36,33 +35,31 @@ Feature: List2 - List Slicing
     When executing query:
       """
       WITH [1, 2, 3, 4, 5] AS list
-      RETURN list_slice(list, 2, 3) AS r
+      RETURN list[1..3] AS r
       """
     Then the result should be, in any order:
       | r      |
       | [2, 3] |
     And no side effects
 
-  @needsDocs @listEndIndex
   Scenario: [2] List slice with implicit end
     Given any graph
     When executing query:
       """
       WITH [1, 2, 3] AS list
-      RETURN list_slice(list, 2, -1) AS r
+      RETURN list[1..] AS r
       """
     Then the result should be, in any order:
       | r      |
       | [2, 3] |
     And no side effects
 
-  @fails @listimplicitStartIndex
   Scenario: [3] List slice with implicit start
     Given any graph
     When executing query:
       """
       WITH [1, 2, 3] AS list
-      RETURN list_slice(list, -1, 2) AS r
+      RETURN list[..2] AS r
       """
     Then the result should be, in any order:
       | r      |
@@ -74,7 +71,7 @@ Feature: List2 - List Slicing
     When executing query:
       """
       WITH [1, 2, 3] AS list
-      RETURN list_slice(list, 1, 1) AS r
+      RETURN list[0..1] AS r
       """
     Then the result should be, in any order:
       | r   |
@@ -86,14 +83,13 @@ Feature: List2 - List Slicing
     When executing query:
       """
       WITH [1, 2, 3] AS list
-      RETURN list_slice(list, 1, 0) AS r
+      RETURN list[0..0] AS r
       """
     Then the result should be, in any order:
       | r  |
       | [] |
     And no side effects
 
-  @fails @listNegativeIndices
   Scenario: [6] List slice with negative range
     Given any graph
     When executing query:
@@ -111,14 +107,13 @@ Feature: List2 - List Slicing
     When executing query:
       """
       WITH [1, 2, 3] AS list
-      RETURN list_slice(list, 3, 1) AS r
+      RETURN list[3..1] AS r
       """
     Then the result should be, in any order:
       | r  |
       | [] |
     And no side effects
 
-  @fails @listNegativeIndices
   Scenario: [8] List slice with exceeding range
     Given any graph
     When executing query:
@@ -136,7 +131,7 @@ Feature: List2 - List Slicing
     When executing query:
       """
       WITH [1, 2, 3] AS list
-      RETURN list_slice(list, <lower>, <upper>) AS r
+      RETURN list[<lower>..<upper>] AS r
       """
     Then the result should be, in any order:
       | r    |
@@ -148,16 +143,18 @@ Feature: List2 - List Slicing
       | null  | null  |
       | 1     | null  |
       | null  | 3     |
+      |       | null  |
+      | null  |       |
 
   Scenario: [10] List slice with parameterised range
     Given any graph
     And parameters are:
-      | from | 2 |
+      | from | 1 |
       | to   | 3 |
     When executing query:
       """
       WITH [1, 2, 3] AS list
-      RETURN list_slice(list, $from, $to) AS r
+      RETURN list[$from..$to] AS r
       """
     Then the result should be, in any order:
       | r      |
@@ -172,7 +169,7 @@ Feature: List2 - List Slicing
     When executing query:
       """
       WITH [1, 2, 3] AS list
-      RETURN list_slice(list, $from, $to) AS r
+      RETURN list[$from..$to] AS r
       """
     Then the result should be, in any order:
       | r  |

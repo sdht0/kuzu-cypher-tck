@@ -30,13 +30,11 @@
 
 Feature: Graph8 - Property keys function
 
-  @updatedOutput
   Scenario: [1] Using `keys()` on a single node, non-empty result
     Given an empty graph
-    And having defined kuzu types: n_ns
     And having executed:
       """
-      CREATE (:N {name: 'Andres', surname: 'Lopez'})
+      CREATE ({name: 'Andres', surname: 'Lopez'})
       """
     When executing query:
       """
@@ -46,19 +44,16 @@ Feature: Graph8 - Property keys function
       """
     Then the result should be, in any order:
       | theProps  |
-      | '_k'      |
       | 'name'    |
       | 'surname' |
     And no side effects
 
-  @updatedOutput
   Scenario: [2] Using `keys()` on multiple nodes, non-empty result
     Given an empty graph
-    And having defined kuzu types: n_no2s
     And having executed:
       """
-      CREATE (:N {name: 'Andres', surname: 'Lopez'}),
-             (:N {otherName: 'Andres', otherSurname: 'Lopez'})
+      CREATE ({name: 'Andres', surname: 'Lopez'}),
+             ({otherName: 'Andres', otherSurname: 'Lopez'})
       """
     When executing query:
       """
@@ -68,20 +63,17 @@ Feature: Graph8 - Property keys function
       """
     Then the result should be, in any order:
       | theProps       |
-      | '_k'           |
       | 'name'         |
       | 'surname'      |
       | 'otherName'    |
       | 'otherSurname' |
     And no side effects
 
-  @skip @mandatoryPrimaryKey
   Scenario: [3] Using `keys()` on a single node, empty result
     Given an empty graph
-    And having defined kuzu types: n
     And having executed:
       """
-      CREATE (:N)
+      CREATE ()
       """
     When executing query:
       """
@@ -93,13 +85,11 @@ Feature: Graph8 - Property keys function
       | theProps |
     And no side effects
 
-  @skip @mandatoryPrimaryKey
   Scenario: [4] Using `keys()` on an optionally matched node
     Given an empty graph
-    And having defined kuzu types: n
     And having executed:
       """
-      CREATE (:N)
+      CREATE ()
       """
     When executing query:
       """
@@ -113,10 +103,9 @@ Feature: Graph8 - Property keys function
 
   Scenario: [5] Using `keys()` on a relationship, non-empty result
     Given an empty graph
-    And having defined kuzu types: n:k_sy
     And having executed:
       """
-      CREATE (:N)-[:KNOWS {status: 'bad', year: '2015'}]->(:N)
+      CREATE ()-[:KNOWS {status: 'bad', year: '2015'}]->()
       """
     When executing query:
       """
@@ -132,10 +121,9 @@ Feature: Graph8 - Property keys function
 
   Scenario: [6] Using `keys()` on a relationship, empty result
     Given an empty graph
-    And having defined kuzu types: n:k
     And having executed:
       """
-      CREATE (:N)-[:KNOWS]->(:N)
+      CREATE ()-[:KNOWS]->()
       """
     When executing query:
       """
@@ -149,10 +137,9 @@ Feature: Graph8 - Property keys function
 
   Scenario: [7] Using `keys()` on an optionally matched relationship
     Given an empty graph
-    And having defined kuzu types: n:k
     And having executed:
       """
-      CREATE (:N)-[:KNOWS]->(:N)
+      CREATE ()-[:KNOWS]->()
       """
     When executing query:
       """
@@ -164,13 +151,11 @@ Feature: Graph8 - Property keys function
       | theProps |
     And no side effects
 
-  @skip @wellDefinedSchema
   Scenario: [8] Using `keys()` and `IN` to check property existence
     Given an empty graph
-    And having defined kuzu types: n_em
     And having executed:
       """
-      CREATE (:N {`exists`: 42, missing: null})
+      CREATE ({exists: 42, missing: null})
       """
     When executing query:
       """

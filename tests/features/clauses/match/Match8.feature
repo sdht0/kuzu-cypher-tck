@@ -32,7 +32,6 @@ Feature: Match8 - Match clause interoperation with other clauses
 
   Scenario: [1] Pattern independent of bound variables results in cross product
     Given an empty graph
-    And having defined kuzu types: ab
     And having executed:
       """
       CREATE (:A), (:B)
@@ -52,11 +51,8 @@ Feature: Match8 - Match clause interoperation with other clauses
       | (:B) | (:B) |
     And no side effects
 
-  @fails @bugFailedVarBinding
-  # Query execution failed: Binder exception: Create node b with multiple node labels is not supported.
   Scenario: [2] Counting rows after MATCH, MERGE, OPTIONAL MATCH
     Given an empty graph
-    And having defined kuzu types: ab:t12
     And having executed:
       """
       CREATE (a:A), (b:B)
@@ -76,18 +72,16 @@ Feature: Match8 - Match clause interoperation with other clauses
       | 6        |
     And no side effects
 
-  @fails @extraOutputBackTraversal @testbug
-  # Kuzu visits duplicate paths.
   Scenario: [3] Matching and disregarding output, then matching again
     Given an empty graph
-    And having defined kuzu types: pf:a
     And having executed:
       """
-      CREATE (andres:P {name: 'Andres'}),
-             (michael:P {name: 'Michael'}),
-             (bread:F {type: 'Bread'}),
-             (veggies:F {type: 'Veggies'}),
-             (meat:F {type: 'Meat'})
+      CREATE (andres {name: 'Andres'}),
+             (michael {name: 'Michael'}),
+             (peter {name: 'Peter'}),
+             (bread {type: 'Bread'}),
+             (veggies {type: 'Veggies'}),
+             (meat {type: 'Meat'})
       CREATE (andres)-[:ATE {times: 10}]->(bread),
              (andres)-[:ATE {times: 8}]->(veggies),
              (michael)-[:ATE {times: 4}]->(veggies),
@@ -105,6 +99,6 @@ Feature: Match8 - Match clause interoperation with other clauses
       RETURN sum(r1.times)
       """
     Then the result should be, in any order:
-      | SUM(r1.times) |
+      | sum(r1.times) |
       | 776           |
     And no side effects

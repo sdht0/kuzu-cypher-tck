@@ -32,10 +32,9 @@ Feature: Create2 - Creating relationships
 
   Scenario: [1] Create two nodes and a single relationship in a single pattern
     Given any graph
-    And having defined kuzu types: n:r
     When executing query:
       """
-      CREATE (:N)-[:R]->(:N)
+      CREATE ()-[:R]->()
       """
     Then the result should be empty
     And the side effects should be:
@@ -44,11 +43,10 @@ Feature: Create2 - Creating relationships
 
   Scenario: [2] Create two nodes and a single relationship in separate patterns
     Given any graph
-    And having defined kuzu types: n:r
     When executing query:
       """
-      CREATE (a:N), (b:N),
-             (a:N)-[:R]->(b:N)
+      CREATE (a), (b),
+             (a)-[:R]->(b)
       """
     Then the result should be empty
     And the side effects should be:
@@ -57,22 +55,19 @@ Feature: Create2 - Creating relationships
 
   Scenario: [3] Create two nodes and a single relationship in separate clauses
     Given any graph
-    And having defined kuzu types: n:r
     When executing query:
       """
-      CREATE (a:N)
-      CREATE (b:N)
-      CREATE (a:N)-[:R]->(b:N)
+      CREATE (a)
+      CREATE (b)
+      CREATE (a)-[:R]->(b)
       """
     Then the result should be empty
     And the side effects should be:
       | +nodes         | 2 |
       | +relationships | 1 |
 
-  @outputModified
   Scenario: [4] Create two nodes and a single relationship in the reverse direction
     Given an empty graph
-    And having defined kuzu types: ab:r
     When executing query:
       """
       CREATE (:A)<-[:R]-(:B)
@@ -93,7 +88,6 @@ Feature: Create2 - Creating relationships
 
   Scenario: [5] Create a single relationship between two existing nodes
     Given an empty graph
-    And having defined kuzu types: xy:r
     And having executed:
       """
       CREATE (:X)
@@ -110,7 +104,6 @@ Feature: Create2 - Creating relationships
 
   Scenario: [6] Create a single relationship between two existing nodes in the reverse direction
     Given an empty graph
-    And having defined kuzu types: xy:r
     And having executed:
       """
       CREATE (:X)
@@ -130,15 +123,14 @@ Feature: Create2 - Creating relationships
       RETURN x, y
       """
     Then the result should be, in any order:
-      | x    | y    |
+      | x    |  y   |
       | (:X) | (:Y) |
 
   Scenario: [7] Create a single node and a single self loop in a single pattern
     Given any graph
-    And having defined kuzu types: n:l
     When executing query:
       """
-      CREATE (root:N)-[:LINK]->(root)
+      CREATE (root)-[:LINK]->(root)
       """
     Then the result should be empty
     And the side effects should be:
@@ -147,10 +139,9 @@ Feature: Create2 - Creating relationships
 
   Scenario: [8] Create a single node and a single self loop in separate patterns
     Given any graph
-    And having defined kuzu types: n:l
     When executing query:
       """
-      CREATE (root:N),
+      CREATE (root),
              (root)-[:LINK]->(root)
       """
     Then the result should be empty
@@ -160,10 +151,9 @@ Feature: Create2 - Creating relationships
 
   Scenario: [9] Create a single node and a single self loop in separate clauses
     Given any graph
-    And having defined kuzu types: n:l
     When executing query:
       """
-      CREATE (root:N)
+      CREATE (root)
       CREATE (root)-[:LINK]->(root)
       """
     Then the result should be empty
@@ -173,7 +163,6 @@ Feature: Create2 - Creating relationships
 
   Scenario: [10] Create a single self loop on an existing node
     Given an empty graph
-    And having defined kuzu types: r:l
     And having executed:
       """
       CREATE (:Root)
@@ -189,7 +178,6 @@ Feature: Create2 - Creating relationships
 
   Scenario: [11] Create a single relationship and an end node on an existing starting node
     Given an empty graph
-    And having defined kuzu types: be:t
     And having executed:
       """
       CREATE (:Begin)
@@ -197,7 +185,7 @@ Feature: Create2 - Creating relationships
     When executing query:
       """
       MATCH (x:Begin)
-      CREATE (x)-[:TYPE]->(:`End`)
+      CREATE (x)-[:TYPE]->(:End)
       """
     Then the result should be empty
     And the side effects should be:
@@ -206,7 +194,7 @@ Feature: Create2 - Creating relationships
       | +labels        | 1 |
     When executing control query:
       """
-      MATCH (x:Begin)-[:TYPE]->(y:`End`)
+      MATCH (x:Begin)-[:TYPE]->(y:End)
       RETURN x, y
       """
     Then the result should be, in any order:
@@ -215,14 +203,13 @@ Feature: Create2 - Creating relationships
 
   Scenario: [12] Create a single relationship and a starting node on an existing end node
     Given an empty graph
-    And having defined kuzu types: be:t
     And having executed:
       """
-      CREATE (:`End`)
+      CREATE (:End)
       """
     When executing query:
       """
-      MATCH (x:`End`)
+      MATCH (x:End)
       CREATE (:Begin)-[:TYPE]->(x)
       """
     Then the result should be empty
@@ -232,7 +219,7 @@ Feature: Create2 - Creating relationships
       | +labels        | 1 |
     When executing control query:
       """
-      MATCH (x:Begin)-[:TYPE]->(y:`End`)
+      MATCH (x:Begin)-[:TYPE]->(y:End)
       RETURN x, y
       """
     Then the result should be, in any order:
@@ -241,10 +228,9 @@ Feature: Create2 - Creating relationships
 
   Scenario: [13] Create a single relationship with a property
     Given any graph
-    And having defined kuzu types: n:r_num
     When executing query:
       """
-      CREATE (:N)-[:R {num: 42}]->(:N)
+      CREATE ()-[:R {num: 42}]->()
       """
     Then the result should be empty
     And the side effects should be:
@@ -254,10 +240,9 @@ Feature: Create2 - Creating relationships
 
   Scenario: [14] Create a single relationship with a property and return it
     Given any graph
-    And having defined kuzu types: n:r_num
     When executing query:
       """
-      CREATE (:N)-[r:R {num: 42}]->(:N)
+      CREATE ()-[r:R {num: 42}]->()
       RETURN r.num AS num
       """
     Then the result should be, in any order:
@@ -270,10 +255,9 @@ Feature: Create2 - Creating relationships
 
   Scenario: [15] Create a single relationship with two properties
     Given any graph
-    And having defined kuzu types: n:r_2
     When executing query:
       """
-      CREATE (:N)-[:R {id: 12, name: 'foo'}]->(:N)
+      CREATE ()-[:R {id: 12, name: 'foo'}]->()
       """
     Then the result should be empty
     And the side effects should be:
@@ -281,13 +265,11 @@ Feature: Create2 - Creating relationships
       | +relationships | 1 |
       | +properties    | 2 |
 
-  @outputModified
   Scenario: [16] Create a single relationship with two properties and return them
     Given any graph
-    And having defined kuzu types: n:r_2
     When executing query:
       """
-      CREATE (:N)-[r:R {id: 12, name: 'foo'}]->(:N)
+      CREATE ()-[r:R {id: 12, name: 'foo'}]->()
       RETURN r.id AS id, r.name AS name
       """
     Then the result should be, in any order:
@@ -298,13 +280,11 @@ Feature: Create2 - Creating relationships
       | +relationships | 1 |
       | +properties    | 2 |
 
-  @outputModified
   Scenario: [17] Create a single relationship with null properties should not return those properties
     Given any graph
-    And having defined kuzu types: n:x_2
     When executing query:
       """
-      CREATE (:N)-[r:X {id: 12, name: null}]->(:N)
+      CREATE ()-[r:X {id: 12, name: null}]->()
       RETURN r.id, r.name AS name
       """
     Then the result should be, in any order:
@@ -317,66 +297,59 @@ Feature: Create2 - Creating relationships
 
   Scenario: [18] Fail when creating a relationship without a type
     Given any graph
-    And having defined kuzu types: n
     When executing query:
       """
-      CREATE (:N)-->(:N)
+      CREATE ()-->()
       """
     Then a SyntaxError should be raised at compile time: NoSingleRelationshipType
 
   Scenario: [19] Fail when creating a relationship without a direction
     Given any graph
-    And having defined kuzu types: n:f
     When executing query:
       """
-      CREATE (a:N)-[:FOO]-(b:N)
+      CREATE (a)-[:FOO]-(b)
       """
     Then a SyntaxError should be raised at compile time: RequiresDirectedRelationship
 
   Scenario: [20] Fail when creating a relationship with two directions
     Given any graph
-    And having defined kuzu types: n:f
     When executing query:
       """
-      CREATE (a:N)<-[:FOO]->(b:N)
+      CREATE (a)<-[:FOO]->(b)
       """
     Then a SyntaxError should be raised at compile time: RequiresDirectedRelationship
 
   Scenario: [21] Fail when creating a relationship with more than one type
     Given any graph
-    And having defined kuzu types: n:ab
     When executing query:
       """
-      CREATE (:N)-[:A|:B]->(:N)
+      CREATE ()-[:A|:B]->()
       """
     Then a SyntaxError should be raised at compile time: NoSingleRelationshipType
 
   Scenario: [22] Fail when creating a variable-length relationship
     Given any graph
-    And having defined kuzu types: n:f
     When executing query:
       """
-      CREATE (:N)-[:FOO*2]->(:N)
+      CREATE ()-[:FOO*2]->()
       """
     Then a SyntaxError should be raised at compile time: CreatingVarLength
 
   Scenario: [23] Fail when creating a relationship that is already bound
     Given any graph
-    And having defined kuzu types: n:e
     When executing query:
       """
       MATCH ()-[r]->()
-      CREATE (:N)-[r:E]->(:N)
+      CREATE ()-[r]->()
       """
     Then a SyntaxError should be raised at compile time: VariableAlreadyBound
 
   Scenario: [24] Fail when creating a relationship using undefined variable in pattern
     Given any graph
-    And having defined kuzu types: n_name:k
     When executing query:
       """
-      MATCH (a:N)
-      CREATE (a)-[:KNOWS]->(b:N {name: missing})
+      MATCH (a)
+      CREATE (a)-[:KNOWS]->(b {name: missing})
       RETURN b
       """
     Then a SyntaxError should be raised at compile time: UndefinedVariable

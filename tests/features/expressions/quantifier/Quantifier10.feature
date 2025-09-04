@@ -30,7 +30,6 @@
 
 Feature: Quantifier10 - Single quantifier invariants
 
-  @skip @unsupportedMixedTypeLists
   Scenario: [1] Single quantifier is always false if the predicate is statically false and the list is not empty
     Given any graph
     When executing query:
@@ -54,7 +53,6 @@ Feature: Quantifier10 - Single quantifier invariants
       | false  |
     And no side effects
 
-  @skip @unsupportedMixedTypeLists
   Scenario: [2] Single quantifier is always false if the predicate is statically true and the list has more than one element
     Given any graph
     When executing query:
@@ -78,7 +76,6 @@ Feature: Quantifier10 - Single quantifier invariants
       | false  |
     And no side effects
 
-  @skip @unsupportedMixedTypeLists
   Scenario: [3] Single quantifier is always true if the predicate is statically true and the list has exactly one non-null element
     Given any graph
     When executing query:
@@ -93,7 +90,6 @@ Feature: Quantifier10 - Single quantifier invariants
       | true   |
     And no side effects
 
-  @fails @unsupportedListComprehension
   Scenario Outline: [4] Single quantifier is always equal whether the size of the list filtered with same the predicate is one
     Given any graph
     When executing query:
