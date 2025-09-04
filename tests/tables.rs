@@ -161,14 +161,6 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE KNOWS(FROM A to B);
             "
         }
-        "abc:k" => {
-            "
-              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY);
-              CREATE NODE TABLE B(_k SERIAL PRIMARY KEY);
-              CREATE NODE TABLE C(_k SERIAL PRIMARY KEY);
-              CREATE REL TABLE KNOWS(FROM A to B, FROM B to C);
-            "
-        }
         "ab:k_created" => {
             "
               CREATE NODE TABLE A(_k SERIAL PRIMARY KEY);
@@ -248,6 +240,14 @@ pub fn get_table(id: &str) -> &str {
             "
               CREATE NODE TABLE A(_k SERIAL PRIMARY KEY);
               CREATE NODE TABLE X(_k SERIAL PRIMARY KEY);
+            "
+        }
+        "abc:k" => {
+            "
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE B(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE C(_k SERIAL PRIMARY KEY);
+              CREATE REL TABLE KNOWS(FROM A to B, FROM B to C);
             "
         }
         "abc_p2:r" => {
@@ -673,6 +673,17 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE C(_k SERIAL PRIMARY KEY, datetime TIMESTAMP);
               CREATE NODE TABLE D(_k SERIAL PRIMARY KEY, datetime TIMESTAMP);
               CREATE NODE TABLE E(_k SERIAL PRIMARY KEY, datetime TIMESTAMP);
+            "
+        }
+        "abr2s2_n:ir2_n" => {
+            "
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, name STRING);
+              CREATE NODE TABLE B(_k SERIAL PRIMARY KEY, name STRING);
+              CREATE NODE TABLE SRelationships(_k SERIAL PRIMARY KEY, name STRING);
+              CREATE NODE TABLE SNodes(_k SERIAL PRIMARY KEY, name STRING);
+              CREATE REL TABLE I(FROM SRelationships to SNodes);
+              CREATE REL TABLE RA(FROM SNodes to A, FROM A TO A, FROM A TO B, FROM B TO A, FROM B TO B, name STRING);
+              CREATE REL TABLE RB(FROM SNodes to B, FROM A TO A, FROM A TO B, FROM B TO A, FROM B TO B, name STRING);
             "
         }
         "abc" => {

@@ -249,7 +249,12 @@ fn check_results(kuzu: &mut Kuzu, step: &Step) {
     let mut expected_results = HashMap::new();
     for row in iter {
         *expected_results
-            .entry(row.join(OUTPUT_SEP).replace(".0 ", " ").trim_end_matches(".0").to_string())
+            .entry(
+                row.join(OUTPUT_SEP)
+                    .replace(".0 ", " ")
+                    .trim_end_matches(".0")
+                    .to_string(),
+            )
             .or_insert(0_u32) += 1;
     }
     // Is there any reason to check columns names?
