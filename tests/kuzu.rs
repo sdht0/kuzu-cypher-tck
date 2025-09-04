@@ -444,5 +444,9 @@ fn check_error(kuzu: &mut Kuzu, _etype: String, _error: String) {
 }
 
 fn main() {
-    futures::executor::block_on(Kuzu::cucumber().fail_on_skipped().run("tests/features"));
+    futures::executor::block_on(
+        Kuzu::cucumber()
+            .fail_on_skipped()
+            .run("tests/features"),
+    );
 }

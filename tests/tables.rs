@@ -1052,6 +1052,11 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, created INT64);
             "
         }
+        "n_d" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, dates DURATION[]);
+            "
+        }
         "n_division" => {
             "
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, division STRING);
