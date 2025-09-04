@@ -61,10 +61,11 @@ Feature: WithSkipLimit2 - Limit
 
   Scenario: [1] ORDER BY and LIMIT can be used
     Given an empty graph
+    And having defined kuzu types: an_name:r
     And having executed:
       """
-      CREATE (a:A), (), (), (),
-             (a)-[:REL]->()
+      CREATE (a:A), (:N), (:N), (:N),
+             (a)-[:REL]->(:N)
       """
     When executing query:
       """
@@ -81,13 +82,15 @@ Feature: WithSkipLimit2 - Limit
     And no side effects
 
   # Does this scenario realy testing LIMIT?
+  @note @createPropertyFromAnotherProperty #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [2] Handle dependencies across WITH with LIMIT
     Given an empty graph
+    And having defined kuzu types: be_in:t
     And having executed:
       """
-      CREATE (a:End {num: 42, id: 0}),
-             (:End {num: 3}),
-             (:Begin {num: a.id})
+      CREATE (a:`End` {num: 42, id: 0}),
+             (:`End` {num: 3}),
+             (:Begin {num: 0})
       """
     When executing query:
       """
@@ -100,11 +103,12 @@ Feature: WithSkipLimit2 - Limit
       """
     Then the result should be, in any order:
       | b                       |
-      | (:End {num: 42, id: 0}) |
+      | (:End {id: 0, num: 42}) |
     And no side effects
 
   Scenario: [3] Connected components succeeding WITH with LIMIT
     Given an empty graph
+    And having defined kuzu types: abx:r
     And having executed:
       """
       CREATE (:A)-[:REL]->(:X)
@@ -116,7 +120,7 @@ Feature: WithSkipLimit2 - Limit
       WITH n
       LIMIT 1
       MATCH (m:B), (n)-->(x:X)
-      RETURN *
+      RETURN m,n,x
       """
     Then the result should be, in any order:
       | m    | n    | x    |
@@ -125,11 +129,12 @@ Feature: WithSkipLimit2 - Limit
 
   Scenario: [4] Ordering and limiting on aggregate
     Given an empty graph
+    And having defined kuzu types: nxy:t3_num
     And having executed:
       """
-      CREATE ()-[:T1 {num: 3}]->(x:X),
-             ()-[:T2 {num: 2}]->(x),
-             ()-[:T3 {num: 1}]->(:Y)
+      CREATE (:N)-[:T1 {num: 3}]->(x:X),
+             (:N)-[:T2 {num: 2}]->(x),
+             (:N)-[:T3 {num: 1}]->(:Y)
       """
     When executing query:
       """

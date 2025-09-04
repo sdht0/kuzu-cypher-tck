@@ -32,9 +32,10 @@ Feature: Delete1 - Deleting nodes
 
   Scenario: [1] Delete nodes
     Given an empty graph
+    And having defined kuzu types: n
     And having executed:
       """
-      CREATE ()
+      CREATE (:N)
       """
     When executing query:
       """
@@ -47,9 +48,10 @@ Feature: Delete1 - Deleting nodes
 
   Scenario: [2] Detach delete node
     Given an empty graph
+    And having defined kuzu types: n
     And having executed:
       """
-      CREATE ()
+      CREATE (:N)
       """
     When executing query:
       """
@@ -62,12 +64,13 @@ Feature: Delete1 - Deleting nodes
 
   Scenario: [3] Detach deleting connected nodes and relationships
     Given an empty graph
+    And having defined kuzu types: nx:r
     And having executed:
       """
       CREATE (x:X)
-      CREATE (x)-[:R]->()
-      CREATE (x)-[:R]->()
-      CREATE (x)-[:R]->()
+      CREATE (x)-[:R]->(:N)
+      CREATE (x)-[:R]->(:N)
+      CREATE (x)-[:R]->(:N)
       """
     When executing query:
       """
@@ -92,6 +95,7 @@ Feature: Delete1 - Deleting nodes
 
   Scenario: [5] Ignore null when deleting node
     Given an empty graph
+    And having defined kuzu types: d
     When executing query:
       """
       OPTIONAL MATCH (a:DoesNotExist)
@@ -115,12 +119,13 @@ Feature: Delete1 - Deleting nodes
 
   Scenario: [7] Failing when deleting connected nodes
     Given an empty graph
+    And having defined kuzu types: nx:r
     And having executed:
       """
       CREATE (x:X)
-      CREATE (x)-[:R]->()
-      CREATE (x)-[:R]->()
-      CREATE (x)-[:R]->()
+      CREATE (x)-[:R]->(:N)
+      CREATE (x)-[:R]->(:N)
+      CREATE (x)-[:R]->(:N)
       """
     When executing query:
       """

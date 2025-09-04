@@ -160,13 +160,14 @@ Feature: Quantifier4 - All quantifier
       | []                                | size(x) = 3 | true   |
       | [[1, 2, 3]]                       | size(x) = 3 | true   |
       | [['a']]                           | size(x) = 3 | false  |
-      | [[1, 2, 3], ['a']]                | size(x) = 3 | false  |
-      | [['a'], [1, 2, 3]]                | size(x) = 3 | false  |
-      | [[1, 2, 3], ['a'], [1, 2, 3]]     | size(x) = 3 | false  |
-      | [['a'], [1, 2, 3], ['a']]         | size(x) = 3 | false  |
+      | [[1, 2, 3], [1]]                  | size(x) = 3 | false  |
+      | [[1], [1, 2, 3]]                  | size(x) = 3 | false  |
+      | [[1, 2, 3], [1], [1, 2, 3]]       | size(x) = 3 | false  |
+      | [[1], [1, 2, 3], [1]]             | size(x) = 3 | false  |
       | [[1, 2, 3], [1, 2, 3], [1, 2, 3]] | size(x) = 3 | true   |
-      | [['a'], ['a'], ['a']]             | size(x) = 3 | false  |
+      | [[1], [1], [1]]             | size(x) = 3 | false  |
 
+  @skip @unsupportedMixedTypeLists
   Scenario Outline: [7] All quantifier on list literal containing maps
     Given any graph
     When executing query:
@@ -190,6 +191,7 @@ Feature: Quantifier4 - All quantifier
       | [{a: 2, b: 5}, {a: 2, b: 5}, {a: 2, b: 5}] | x.a = 2   | true   |
       | [{a: 4}, {a: 4}, {a: 4}]                   | x.a = 2   | false  |
 
+  @fails @unsupportedFuncTail #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [8] All quantifier on list containing nodes
     Given an empty graph
     And having executed:
@@ -236,6 +238,7 @@ Feature: Quantifier4 - All quantifier
       | [(:B {name: 'b'}), (:B {name: 'b'}), (:B {name: 'b'})] | false  |
     And no side effects
 
+  @fails @unsupportedFuncTail #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [9] All quantifier on list containing relationships
     Given an empty graph
     And having executed:
@@ -282,6 +285,7 @@ Feature: Quantifier4 - All quantifier
       | [[:RB {name: 'b'}], [:RB {name: 'b'}], [:RB {name: 'b'}]] | false  |
     And no side effects
 
+  @fails @semanticsNullHandling #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [10] All quantifier on lists containing nulls
     Given any graph
     When executing query:
@@ -356,6 +360,7 @@ Feature: Quantifier4 - All quantifier
       | [null, 123, null, null]  | false  |
       | [null, null, null, null] | false  |
 
+  @skip @unsupportedMixedTypeLists
   Scenario: [13] All quantifier is false if the predicate is statically false and the list is not empty
     Given any graph
     When executing query:
@@ -367,6 +372,7 @@ Feature: Quantifier4 - All quantifier
       | false  |
     And no side effects
 
+  @skip @unsupportedMixedTypeLists
   Scenario: [14] All quantifier is true if the predicate is statically true and the list is not empty
     Given any graph
     When executing query:

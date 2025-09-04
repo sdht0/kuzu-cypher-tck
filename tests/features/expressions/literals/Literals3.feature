@@ -30,6 +30,7 @@
 
 Feature: Literals3 - Hexadecimal integer
 
+  @fails @unsupportedTypeHexadecimal #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [1] Return a short positive hexadecimal integer
     Given any graph
     When executing query:
@@ -41,6 +42,7 @@ Feature: Literals3 - Hexadecimal integer
       | 1       |
     And no side effects
 
+  @fails @unsupportedTypeHexadecimal #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [2] Return a long positive hexadecimal integer
     Given any graph
     When executing query:
@@ -52,6 +54,7 @@ Feature: Literals3 - Hexadecimal integer
       | 372036854  |
     And no side effects
 
+  @fails @unsupportedTypeHexadecimal #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [3] Return the largest hexadecimal integer
     Given any graph
     When executing query:
@@ -63,6 +66,7 @@ Feature: Literals3 - Hexadecimal integer
       | 9223372036854775807  |
     And no side effects
 
+  @fails @unsupportedTypeHexadecimal #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [4] Return a positive hexadecimal zero
     Given any graph
     When executing query:
@@ -74,6 +78,7 @@ Feature: Literals3 - Hexadecimal integer
       | 0       |
     And no side effects
 
+  @fails @unsupportedTypeHexadecimal #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [5] Return a negative hexadecimal zero
     Given any graph
     When executing query:
@@ -85,6 +90,7 @@ Feature: Literals3 - Hexadecimal integer
       | 0       |
     And no side effects
 
+  @fails @unsupportedTypeHexadecimal #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [6] Return a short negative hexadecimal integer
     Given any graph
     When executing query:
@@ -96,6 +102,7 @@ Feature: Literals3 - Hexadecimal integer
       | -1      |
     And no side effects
 
+  @fails @unsupportedTypeHexadecimal #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [7] Return a long negative hexadecimal integer
     Given any graph
     When executing query:
@@ -107,6 +114,7 @@ Feature: Literals3 - Hexadecimal integer
       | -372036854 |
     And no side effects
 
+  @fails @unsupportedTypeHexadecimal #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [8] Return the smallest hexadecimal integer
     Given any graph
     When executing query:
@@ -118,6 +126,7 @@ Feature: Literals3 - Hexadecimal integer
       | -9223372036854775808 |
     And no side effects
 
+  @fails @unsupportedTypeHexadecimal #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [9] Return a lower case hexadecimal integer
     Given any graph
     When executing query:
@@ -129,6 +138,7 @@ Feature: Literals3 - Hexadecimal integer
       | 460367961908983 |
     And no side effects
 
+  @fails @unsupportedTypeHexadecimal #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [10] Return a upper case hexadecimal integer
     Given any graph
     When executing query:
@@ -140,6 +150,7 @@ Feature: Literals3 - Hexadecimal integer
       | 460367961908983 |
     And no side effects
 
+  @fails @unsupportedTypeHexadecimal #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [11] Return a mixed case hexadecimal integer
     Given any graph
     When executing query:
@@ -151,6 +162,7 @@ Feature: Literals3 - Hexadecimal integer
       | 460367961908983 |
     And no side effects
 
+  @fails @unsupportedTypeHexadecimal #https://github.com/kuzudb/kuzu/issues/5841
   @skipGrammarCheck
   Scenario: [12] Fail on an incomplete hexadecimal integer
     Given any graph
@@ -160,6 +172,7 @@ Feature: Literals3 - Hexadecimal integer
       """
     Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
 
+  @fails @unsupportedTypeHexadecimal #https://github.com/kuzudb/kuzu/issues/5841
   @skipGrammarCheck
   Scenario: [13] Fail on an hexadecimal literal containing a lower case invalid alphanumeric character
     Given any graph
@@ -169,6 +182,7 @@ Feature: Literals3 - Hexadecimal integer
       """
     Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
 
+  @fails @unsupportedTypeHexadecimal #https://github.com/kuzudb/kuzu/issues/5841
   @skipGrammarCheck
   Scenario: [14] Fail on an hexadecimal literal containing a upper case invalid alphanumeric character
     Given any graph
@@ -188,6 +202,7 @@ Feature: Literals3 - Hexadecimal integer
 #      """
 #    Then a SyntaxError should be raised at compile time: InvalidNumberLiteral
 
+  @fails @unsupportedTypeHexadecimal #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [16] Fail on a too large hexadecimal integer
     Given any graph
     When executing query:
@@ -196,6 +211,7 @@ Feature: Literals3 - Hexadecimal integer
       """
     Then a SyntaxError should be raised at compile time: IntegerOverflow
 
+  @fails @unsupportedTypeHexadecimal #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [17] Fail on a too small hexadecimal integer
     Given any graph
     When executing query:

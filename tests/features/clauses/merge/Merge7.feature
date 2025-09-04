@@ -32,6 +32,7 @@ Feature: Merge7 - Merge relationships - on match
 
   Scenario: [1] Using ON MATCH on created node
     Given an empty graph
+    And having defined kuzu types: ab_c:k
     And having executed:
       """
       CREATE (:A), (:B)
@@ -48,6 +49,7 @@ Feature: Merge7 - Merge relationships - on match
 
   Scenario: [2] Using ON MATCH on created relationship
     Given an empty graph
+    And having defined kuzu types: ab:k_created
     And having executed:
       """
       CREATE (:A), (:B)
@@ -64,6 +66,7 @@ Feature: Merge7 - Merge relationships - on match
 
   Scenario: [3] Using ON MATCH on a relationship
     Given an empty graph
+    And having defined kuzu types: ab_name:t_name-2
     And having executed:
       """
       CREATE (a:A), (b:B)
@@ -84,6 +87,7 @@ Feature: Merge7 - Merge relationships - on match
 
   Scenario: [4] Copying properties from node with ON MATCH
     Given an empty graph
+    And having defined kuzu types: ab_name:t_name-2
     And having executed:
       """
       CREATE (:A {name: 'A'}), (:B {name: 'B'})
@@ -97,7 +101,7 @@ Feature: Merge7 - Merge relationships - on match
       """
       MATCH (a {name: 'A'}), (b {name: 'B'})
       MERGE (a)-[r:TYPE]->(b)
-        ON MATCH SET r = a
+        ON MATCH SET r.name = a.name
       """
     Then the result should be empty
     And the side effects should be:
@@ -106,14 +110,15 @@ Feature: Merge7 - Merge relationships - on match
     When executing control query:
       """
       MATCH ()-[r:TYPE]->()
-      RETURN [key IN keys(r) | key + '->' + r[key]] AS keyValue
+      RETURN r
       """
     Then the result should be, in any order:
-      | keyValue    |
-      | ['name->A'] |
+      | r |
+      | [:TYPE {name: 'A'}] |
 
   Scenario: [5] Copying properties from literal map with ON MATCH
     Given an empty graph
+    And having defined kuzu types: ab_name:t_n2
     And having executed:
       """
       CREATE (:A {name: 'A'}), (:B {name: 'B'})
@@ -127,7 +132,7 @@ Feature: Merge7 - Merge relationships - on match
       """
       MATCH (a {name: 'A'}), (b {name: 'B'})
       MERGE (a)-[r:TYPE]->(b)
-        ON MATCH SET r += {name: 'baz', name2: 'baz'}
+        ON MATCH SET r.name = 'baz', r.name2 = 'baz'
       """
     Then the result should be empty
     And the side effects should be:
@@ -136,8 +141,8 @@ Feature: Merge7 - Merge relationships - on match
     When executing control query:
       """
       MATCH ()-[r:TYPE]->()
-      RETURN [key IN keys(r) | key + '->' + r[key]] AS keyValue
+      RETURN r
       """
     Then the result should be (ignoring element order for lists):
-      | keyValue                    |
-      | ['name->baz', 'name2->baz'] |
+      | r                                   |
+      | [:TYPE {name: 'baz', name2: 'baz'}] |

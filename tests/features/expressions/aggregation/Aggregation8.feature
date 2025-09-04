@@ -44,9 +44,10 @@ Feature: Aggregation8 - DISTINCT
 
   Scenario: [2] Distinct on null
     Given an empty graph
+    And having defined kuzu types: n_name
     And having executed:
       """
-      CREATE ()
+      CREATE (:N)
       """
     When executing query:
       """
@@ -58,6 +59,7 @@ Feature: Aggregation8 - DISTINCT
       | 0                      |
     And no side effects
 
+  @fails @semanticsNullHandlingCollect #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [3] Collect distinct nulls
     Given any graph
     When executing query:

@@ -32,11 +32,12 @@ Feature: ReturnOrderBy2 - Order by a single expression (order of projection)
 
   Scenario: [1] ORDER BY should return results in ascending order
     Given an empty graph
+    And having defined kuzu types: n_num
     And having executed:
       """
-      CREATE (n1 {num: 1}),
-        (n2 {num: 3}),
-        (n3 {num: -5})
+      CREATE (n1:N {num: 1}),
+        (n2:N {num: 3}),
+        (n3:N {num: -5})
       """
     When executing query:
       """
@@ -53,11 +54,12 @@ Feature: ReturnOrderBy2 - Order by a single expression (order of projection)
 
   Scenario: [2] ORDER BY DESC should return results in descending order
     Given an empty graph
+    And having defined kuzu types: n_num
     And having executed:
       """
-      CREATE (n1 {num: 1}),
-        (n2 {num: 3}),
-        (n3 {num: -5})
+      CREATE (n1:N {num: 1}),
+        (n2:N {num: 3}),
+        (n3:N {num: -5})
       """
     When executing query:
       """
@@ -74,12 +76,13 @@ Feature: ReturnOrderBy2 - Order by a single expression (order of projection)
 
   Scenario: [3] Sort on aggregated function
     Given an empty graph
+    And having defined kuzu types: n_ad
     And having executed:
       """
-      CREATE ({division: 'A', age: 22}),
-        ({division: 'B', age: 33}),
-        ({division: 'B', age: 44}),
-        ({division: 'C', age: 55})
+      CREATE (:N {division: 'A', age: 22}),
+        (:N {division: 'B', age: 33}),
+        (:N {division: 'B', age: 44}),
+        (:N {division: 'C', age: 55})
       """
     When executing query:
       """
@@ -97,11 +100,12 @@ Feature: ReturnOrderBy2 - Order by a single expression (order of projection)
 
   Scenario: [4] Support sort and distinct
     Given an empty graph
+    And having defined kuzu types: n_name
     And having executed:
       """
-      CREATE ({name: 'A'}),
-        ({name: 'B'}),
-        ({name: 'C'})
+      CREATE (:N {name: 'A'}),
+        (:N {name: 'B'}),
+        (:N {name: 'C'})
       """
     When executing query:
       """
@@ -110,14 +114,15 @@ Feature: ReturnOrderBy2 - Order by a single expression (order of projection)
         ORDER BY a.name
       """
     Then the result should be, in order:
-      | a             |
-      | ({name: 'A'}) |
-      | ({name: 'B'}) |
-      | ({name: 'C'}) |
+      | a                |
+      | (:N {name: 'A'}) |
+      | (:N {name: 'B'}) |
+      | (:N {name: 'C'}) |
     And no side effects
 
   Scenario: [5] Support ordering by a property after being distinct-ified
     Given an empty graph
+    And having defined kuzu types: ab_name:t
     And having executed:
       """
       CREATE (:A)-[:T]->(:B)
@@ -135,6 +140,7 @@ Feature: ReturnOrderBy2 - Order by a single expression (order of projection)
 
   Scenario: [6] Count star should count everything in scope
     Given an empty graph
+    And having defined kuzu types: l13
     And having executed:
       """
       CREATE (:L1), (:L2), (:L3)
@@ -154,9 +160,10 @@ Feature: ReturnOrderBy2 - Order by a single expression (order of projection)
 
   Scenario: [7] Ordering with aggregation
     Given an empty graph
+    And having defined kuzu types: n_name
     And having executed:
       """
-      CREATE ({name: 'nisse'})
+      CREATE (:N {name: 'nisse'})
       """
     When executing query:
       """
@@ -171,9 +178,10 @@ Feature: ReturnOrderBy2 - Order by a single expression (order of projection)
 
   Scenario: [8] Returning all variables with ordering
     Given an empty graph
+    And having defined kuzu types: n_id
     And having executed:
       """
-      CREATE ({id: 1}), ({id: 10})
+      CREATE (:N {id: 1}), (:N {id: 10})
       """
     When executing query:
       """
@@ -182,16 +190,17 @@ Feature: ReturnOrderBy2 - Order by a single expression (order of projection)
         ORDER BY n.id
       """
     Then the result should be, in order:
-      | n          |
-      | ({id: 1})  |
-      | ({id: 10}) |
+      | n             |
+      | (:N {id: 1})  |
+      | (:N {id: 10}) |
     And no side effects
 
   Scenario: [9] Using aliased DISTINCT expression in ORDER BY
     Given an empty graph
+    And having defined kuzu types: n_id
     And having executed:
       """
-      CREATE ({id: 1}), ({id: 10})
+      CREATE (:N {id: 1}), (:N {id: 10})
       """
     When executing query:
       """
@@ -207,9 +216,10 @@ Feature: ReturnOrderBy2 - Order by a single expression (order of projection)
 
   Scenario: [10] Returned columns do not change from using ORDER BY
     Given an empty graph
+    And having defined kuzu types: n_id
     And having executed:
       """
-      CREATE ({id: 1}), ({id: 10})
+      CREATE (:N {id: 1}), (:N {id: 10})
       """
     When executing query:
       """
@@ -218,13 +228,14 @@ Feature: ReturnOrderBy2 - Order by a single expression (order of projection)
         ORDER BY n.id
       """
     Then the result should be, in order:
-      | n          |
-      | ({id: 1})  |
-      | ({id: 10}) |
+      | n             |
+      | (:N {id: 1})  |
+      | (:N {id: 10}) |
     And no side effects
 
   Scenario: [11] Aggregates ordered by arithmetics
     Given an empty graph
+    And having defined kuzu types: ax
     And having executed:
       """
       CREATE (:A), (:X), (:X)
@@ -242,6 +253,7 @@ Feature: ReturnOrderBy2 - Order by a single expression (order of projection)
 
   Scenario: [12] Aggregation of named paths
     Given an empty graph
+    And having defined kuzu types: abcdef:r
     And having executed:
       """
       CREATE (a:A), (b:B), (c:C), (d:D), (e:E), (f:F)
@@ -265,9 +277,10 @@ Feature: ReturnOrderBy2 - Order by a single expression (order of projection)
 
   Scenario: [13] Fail when sorting on variable removed by DISTINCT
     Given an empty graph
+    And having defined kuzu types: n_agename
     And having executed:
       """
-      CREATE ({name: 'A', age: 13}), ({name: 'B', age: 12}), ({name: 'C', age: 11})
+      CREATE (:N {name: 'A', age: 13}), (:N {name: 'B', age: 12}), (:N {name: 'C', age: 11})
       """
     When executing query:
       """
@@ -279,9 +292,10 @@ Feature: ReturnOrderBy2 - Order by a single expression (order of projection)
 
   Scenario: [14] Fail on aggregation in ORDER BY after RETURN
     Given any graph
+    And having defined kuzu types: n_num12
     When executing query:
       """
-      MATCH (n)
+      MATCH (n:N)
       RETURN n.num1
         ORDER BY max(n.num2)
       """

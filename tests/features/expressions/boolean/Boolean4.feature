@@ -54,9 +54,10 @@ Feature: Boolean4 - NOT logical operations
 
   Scenario: [3] NOT and false
     Given an empty graph
+    And having defined kuzu types: n_name
     And having executed:
       """
-      CREATE ({name: 'a'})
+      CREATE (:N {name: 'a'})
       """
     When executing query:
       """
@@ -66,7 +67,7 @@ Feature: Boolean4 - NOT logical operations
       """
     Then the result should be, in any order:
       | n             |
-      | ({name: 'a'}) |
+      | (:N {name: 'a'}) |
     And no side effects
 
   Scenario Outline: [4] Fail when using NOT on a non-boolean literal

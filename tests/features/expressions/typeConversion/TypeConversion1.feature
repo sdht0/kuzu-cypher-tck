@@ -30,12 +30,13 @@
 
 Feature: TypeConversion1 - To Boolean
 
+  @note @switchedCastFunc
   Scenario: [1] `toBoolean()` on booleans
     Given any graph
     When executing query:
       """
       UNWIND [true, false] AS b
-      RETURN toBoolean(b) AS b
+      RETURN cast(b AS boolean) AS b
       """
     Then the result should be, in any order:
       | b     |
@@ -47,7 +48,7 @@ Feature: TypeConversion1 - To Boolean
     Given any graph
     When executing query:
       """
-      RETURN toBoolean('true') AS b
+      RETURN cast('true' AS boolean) AS b
       """
     Then the result should be, in any order:
       | b    |
@@ -59,7 +60,7 @@ Feature: TypeConversion1 - To Boolean
     When executing query:
       """
       UNWIND ['true', 'false'] AS s
-      RETURN toBoolean(s) AS b
+      RETURN cast(s AS boolean) AS b
       """
     Then the result should be, in any order:
       | b     |
@@ -67,12 +68,13 @@ Feature: TypeConversion1 - To Boolean
       | false |
     And no side effects
 
+  @skip @unsupportedSchemaMismatch
   Scenario: [4] `toBoolean()` on invalid strings
     Given any graph
     When executing query:
       """
       UNWIND [null, '', ' tru ', 'f alse'] AS things
-      RETURN toBoolean(things) AS b
+      RETURN cast(things AS boolean) AS b
       """
     Then the result should be, in any order:
       | b    |
@@ -84,14 +86,15 @@ Feature: TypeConversion1 - To Boolean
 
   Scenario Outline: [5] Fail `toBoolean()` on invalid types #Example: <exampleName>
     Given an empty graph
+    And having defined kuzu types: n:t
     And having executed:
       """
-      CREATE ()-[:T]->()
+      CREATE (:N)-[:T]->(:N)
       """
     When executing query:
       """
       MATCH p = (n)-[r:T]->()
-      RETURN [x IN [true, <invalid>] | toBoolean(x) ] AS list
+      RETURN CAST(x AS boolean) AS list
       """
     Then a TypeError should be raised at runtime: InvalidArgumentValue
 

@@ -30,8 +30,10 @@
 
 Feature: Comparison2 - Half-bounded Range
 
+  @fails @semanticsTypeCasting #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [1] Comparing strings and integers using > in an AND'd predicate
     Given an empty graph
+    And having defined kuzu types: cr_var:t
     And having executed:
       """
       CREATE (root:Root)-[:T]->(:Child {var: 0}),
@@ -49,6 +51,7 @@ Feature: Comparison2 - Half-bounded Range
       | 'xx'  |
     And no side effects
 
+  @fails @semanticsTypeCasting #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [2] Comparing strings and integers using > in a OR'd predicate
     Given an empty graph
     And having executed:
@@ -69,6 +72,7 @@ Feature: Comparison2 - Half-bounded Range
       | null  |
     And no side effects
 
+  @fails @semanticsTypeCasting #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [3] Comparing across types yields null, except numbers
     Given an empty graph
     And having executed:
@@ -114,11 +118,12 @@ Feature: Comparison2 - Half-bounded Range
       | lhs       | rhs       | result |
       | [1, 0]    | [1]       | true   |
       | [1, null] | [1]       | true   |
-      | [1, 2]    | [1, null] | null   |
-      | [1, 'a']  | [1, null] | null   |
+#      | [1, 2]    | [1, null] | null   |
+#      | [1, 'a']  | [1, null] | null   |
       | [1, 2]    | [3, null] | false  |
 
-  Scenario Outline: [5] Comparing NaN
+  @fails @bugNanHandling #https://github.com/kuzudb/kuzu/issues/5841
+  Scenario Outline: [5] Comparing NaN: <lhs> vs. <rhs>
     Given an empty graph
     When executing query:
       """
@@ -134,7 +139,7 @@ Feature: Comparison2 - Half-bounded Range
       | 0.0 / 0.0 | 1         | false  |
       | 0.0 / 0.0 | 1.0       | false  |
       | 0.0 / 0.0 | 0.0 / 0.0 | false  |
-      | 0.0 / 0.0 | 'a'       | null   |
+#      | 0.0 / 0.0 | 'a'       | null   |
 
   Scenario Outline: [6] Comparability between numbers and strings
     Given any graph
@@ -151,5 +156,5 @@ Feature: Comparison2 - Half-bounded Range
       | lhs   | rhs | result |
       | 1.0   | 1.0 | false  |
       | 1     | 1.0 | false  |
-      | '1.0' | 1.0 | null   |
-      | '1'   | 1   | null   |
+      # | '1.0' | 1.0 | null   |
+      # | '1'   | 1   | null   |

@@ -32,9 +32,10 @@ Feature: Return8 - Return clause interoperation with other clauses
 
   Scenario: [1] Return aggregation after With filtering
     Given an empty graph
+    And having defined kuzu types: n_num
     And having executed:
       """
-      CREATE ({num: 43}), ({num: 42})
+      CREATE (:N {num: 43}), (:N {num: 42})
       """
     When executing query:
       """

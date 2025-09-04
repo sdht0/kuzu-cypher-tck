@@ -32,9 +32,10 @@ Feature: Return6 - Implicit grouping with aggregates
 
   Scenario: [1] Return count aggregation over nodes
     Given an empty graph
+    And having defined kuzu types: n_num
     And having executed:
       """
-      CREATE ({num: 42})
+      CREATE (:N {num: 42})
       """
     When executing query:
       """
@@ -48,9 +49,10 @@ Feature: Return6 - Implicit grouping with aggregates
 
   Scenario: [2] Projecting an arithmetic expression with aggregation
     Given an empty graph
+    And having defined kuzu types: n_id
     And having executed:
       """
-      CREATE ({id: 42})
+      CREATE (:N {id: 42})
       """
     When executing query:
       """
@@ -58,15 +60,16 @@ Feature: Return6 - Implicit grouping with aggregates
       RETURN a, count(a) + 3
       """
     Then the result should be, in any order:
-      | a          | count(a) + 3 |
-      | ({id: 42}) | 4            |
+      | a             | count(a) + 3 |
+      | (:N {id: 42}) | 4            |
     And no side effects
 
   Scenario: [3] Aggregating by a list property has a correct definition of equality
     Given an empty graph
+    And having defined kuzu types: n_an
     And having executed:
       """
-      CREATE ({a: [1, 2, 3]}), ({a: [1, 2, 3]})
+      CREATE (:N {a: [1, 2, 3]}), (:N {a: [1, 2, 3]})
       """
     When executing query:
       """
@@ -81,10 +84,11 @@ Feature: Return6 - Implicit grouping with aggregates
 
   Scenario: [4] Support multiple divisions in aggregate function
     Given an empty graph
+    And having defined kuzu types: n
     And having executed:
       """
       UNWIND range(0, 7250) AS i
-      CREATE ()
+      CREATE (:N)
       """
     When executing query:
       """
@@ -98,10 +102,11 @@ Feature: Return6 - Implicit grouping with aggregates
 
   Scenario: [5] Aggregates inside normal functions
     Given an empty graph
+    And having defined kuzu types: n
     And having executed:
       """
       UNWIND range(0, 10) AS i
-      CREATE ()
+      CREATE (:N)
       """
     When executing query:
       """
@@ -115,9 +120,10 @@ Feature: Return6 - Implicit grouping with aggregates
 
   Scenario: [6] Handle aggregates inside non-aggregate expressions
     Given an empty graph
+    And having defined kuzu types: n_name:f
     When executing query:
       """
-      MATCH (a {name: 'Andres'})<-[:FATHER]-(child)
+      MATCH (a:N {name: 'Andres'})<-[:FATHER]-(child:N)
       RETURN a.name, {foo: a.name='Andres', kids: collect(child.name)}
       """
     Then the result should be, in any order:
@@ -126,11 +132,12 @@ Feature: Return6 - Implicit grouping with aggregates
 
   Scenario: [7] Aggregate on property
     Given an empty graph
+    And having defined kuzu types: n_num
     And having executed:
       """
-      CREATE ({num: 33})
-      CREATE ({num: 33})
-      CREATE ({num: 42})
+      CREATE (:N {num: 33})
+      CREATE (:N {num: 33})
+      CREATE (:N {num: 42})
       """
     When executing query:
       """
@@ -145,9 +152,10 @@ Feature: Return6 - Implicit grouping with aggregates
 
   Scenario: [8] Handle aggregation on functions
     Given an empty graph
+    And having defined kuzu types: ln:a
     And having executed:
       """
-      CREATE (a:L), (b1), (b2)
+      CREATE (a:L), (b1:N), (b2:N)
       CREATE (a)-[:A]->(b1), (a)-[:A]->(b2)
       """
     When executing query:
@@ -156,16 +164,17 @@ Feature: Return6 - Implicit grouping with aggregates
       RETURN b, avg(length(p))
       """
     Then the result should be, in any order:
-      | b  | avg(length(p)) |
-      | () | 1.0            |
-      | () | 1.0            |
+      | b    | avg(length(p)) |
+      | (:N) | 1.0            |
+      | (:N) | 1.0            |
     And no side effects
 
   Scenario: [9] Aggregates with arithmetics
     Given an empty graph
+    And having defined kuzu types: n
     And having executed:
       """
-      CREATE ()
+      CREATE (:N)
       """
     When executing query:
       """
@@ -179,9 +188,10 @@ Feature: Return6 - Implicit grouping with aggregates
 
   Scenario: [10] Multiple aggregates on same variable
     Given an empty graph
+    And having defined kuzu types: n
     And having executed:
       """
-      CREATE ()
+      CREATE (:N)
       """
     When executing query:
       """
@@ -190,15 +200,16 @@ Feature: Return6 - Implicit grouping with aggregates
       """
     Then the result should be, in any order:
       | count(n) | collect(n) |
-      | 1        | [()]       |
+      | 1        | [(:N)]     |
     And no side effects
 
   Scenario: [11] Counting matches
     Given an empty graph
+    And having defined kuzu types: n
     And having executed:
       """
       UNWIND range(1, 100) AS i
-      CREATE ()
+      CREATE (:N)
       """
     When executing query:
       """
@@ -212,9 +223,10 @@ Feature: Return6 - Implicit grouping with aggregates
 
   Scenario: [12] Counting matches per group
     Given an empty graph
+    And having defined kuzu types: ln:a
     And having executed:
       """
-      CREATE (a:L), (b1), (b2)
+      CREATE (a:L), (b1:N), (b2:N)
       CREATE (a)-[:A]->(b1), (a)-[:A]->(b2)
       """
     When executing query:
@@ -229,6 +241,7 @@ Feature: Return6 - Implicit grouping with aggregates
 
   Scenario: [13] Returning the minimum length of paths
     Given an empty graph
+    And having defined kuzu types: t_name:r
     And having executed:
       """
       CREATE (a:T {name: 'a'}), (b:T {name: 'b'}), (c:T {name: 'c'})
@@ -264,16 +277,18 @@ Feature: Return6 - Implicit grouping with aggregates
       """
     Then a SyntaxError should be raised at compile time: NonConstantExpression
 
+  @fails @semanticsBackTraversal
   Scenario: [16] Aggregation on complex expressions
     Given an empty graph
+    And having defined kuzu types: pf:a
     And having executed:
       """
-      CREATE (andres {name: 'Andres'}),
-             (michael {name: 'Michael'}),
-             (peter {name: 'Peter'}),
-             (bread {type: 'Bread'}),
-             (veggies {type: 'Veggies'}),
-             (meat {type: 'Meat'})
+      CREATE (andres:P {name: 'Andres'}),
+             (michael:P {name: 'Michael'}),
+             (peter:P {name: 'Peter'}),
+             (bread:F {type: 'Bread'}),
+             (veggies:F {type: 'Veggies'}),
+             (meat:F {type: 'Meat'})
       CREATE (andres)-[:ATE {times: 10}]->(bread),
              (andres)-[:ATE {times: 8}]->(veggies),
              (michael)-[:ATE {times: 4}]->(veggies),
@@ -292,18 +307,19 @@ Feature: Return6 - Implicit grouping with aggregates
       RETURN me, you, sum((1 - abs(r1.times / H1 - r2.times / H2)) * (r1.times + r2.times) / (H1 + H2)) AS sum
       """
     Then the result should be, in any order:
-      | me                  | you                | sum |
-      | ({name: 'Michael'}) | ({name: 'Andres'}) | -7  |
-      | ({name: 'Michael'}) | ({name: 'Peter'})  | 0   |
+      | me                     | you                   | sum |
+      | (:P {name: 'Michael'}) | (:P {name: 'Andres'}) | -7  |
+      | (:P {name: 'Michael'}) | (:P {name: 'Peter'})  | 0   |
     And no side effects
 
   Scenario: [17] Handle constants and parameters inside an expression which contains an aggregation expression
     Given an empty graph
+    And having defined kuzu types: n_age
     And parameters are:
       | age | 38 |
     When executing query:
       """
-      MATCH (person)
+      MATCH (person:N)
       RETURN $age + avg(person.age) - 1000
       """
     Then the result should be, in any order:
@@ -313,6 +329,7 @@ Feature: Return6 - Implicit grouping with aggregates
 
   Scenario: [18] Handle returned variables inside an expression which contains an aggregation expression
     Given an empty graph
+    And having defined kuzu types: p_age
     When executing query:
       """
       MATCH (me: Person)--(you: Person)
@@ -325,6 +342,7 @@ Feature: Return6 - Implicit grouping with aggregates
 
   Scenario: [19] Handle returned property accesses inside an expression which contains an aggregation expression
     Given an empty graph
+    And having defined kuzu types: p_age
     When executing query:
       """
       MATCH (me: Person)--(you: Person)
@@ -336,6 +354,7 @@ Feature: Return6 - Implicit grouping with aggregates
 
   Scenario: [20] Fail if not returned variables are used inside an expression which contains an aggregation expression
     Given an empty graph
+    And having defined kuzu types: p_age
     When executing query:
       """
       MATCH (me: Person)--(you: Person)

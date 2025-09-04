@@ -32,9 +32,10 @@ Feature: Return1 - Return single variable (correct return of values according to
 
   Scenario: [1] Returning a list property
     Given an empty graph
+    And having defined kuzu types: n_numbers
     And having executed:
       """
-      CREATE ({numbers: [1, 2, 3]})
+      CREATE (:N {numbers: [1, 2, 3]})
       """
     When executing query:
       """
@@ -42,8 +43,8 @@ Feature: Return1 - Return single variable (correct return of values according to
       RETURN n
       """
     Then the result should be, in any order:
-      | n                      |
-      | ({numbers: [1, 2, 3]}) |
+      | n                         |
+      | (:N {numbers: [1, 2, 3]}) |
     And no side effects
 
   Scenario: [2] Fail when returning an undefined variable

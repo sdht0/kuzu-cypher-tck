@@ -33,6 +33,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
   # TODO: Replace this with a named graph (or two)
   Background:
     Given an empty graph
+    And having defined kuzu types: abce_name:l
     And having executed:
       """
       CREATE (n0:A {name: 'n0'}),
@@ -231,6 +232,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n011' |
     And no side effects
 
+  @fails @unsupportedReverseRange #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [11] Handling upper and lower bounded variable length match, empty interval 1
     When executing query:
       """
@@ -242,6 +244,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | c.name |
     And no side effects
 
+  @fails @unsupportedReverseRange #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [12] Handling upper and lower bounded variable length match, empty interval 2
     When executing query:
       """
@@ -253,6 +256,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | c.name |
     And no side effects
 
+  @fails @unsupportedReverseRange #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [13] Handling upper bounded variable length match, empty interval
     When executing query:
       """
@@ -463,7 +467,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
     And no side effects
 
   Scenario: [25] Handling a variable length relationship and a standard relationship in chain, longer 3
-    And having executed:
+    Given having executed:
       """
       MATCH (d:D)
       CREATE (e1:E {name: d.name + '0'}),
@@ -497,8 +501,9 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n01111' |
     And no side effects
 
+  @fails @bugCreateRelUsingVariables #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [26] Handling mixed relationship patterns and directions 1
-    And having executed:
+    Given having executed:
       """
       MATCH (a:A)-[r]->(b)
       DELETE r
@@ -538,9 +543,10 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
       | 'n01111' |
     And no side effects
 
+  @fails @unsupportedLabelInWhere #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [27] Handling mixed relationship patterns and directions 2
     # This gets hard to follow for a human mind. The answer is named graphs, but it's not crucial to fix.
-    And having executed:
+    Given having executed:
       """
       MATCH (a)-[r]->(b)
       WHERE NOT a:A
@@ -582,7 +588,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
     And no side effects
 
   Scenario: [28] Handling mixed relationship patterns 1
-    And having executed:
+    Given having executed:
       """
       MATCH (d:D)
       CREATE (e1:E {name: d.name + '0'}),
@@ -617,7 +623,7 @@ Feature: Match5 - Match variable length patterns over given graphs scenarios
     And no side effects
 
   Scenario: [29] Handling mixed relationship patterns 2
-    And having executed:
+    Given having executed:
       """
       MATCH (d:D)
       CREATE (e1:E {name: d.name + '0'}),

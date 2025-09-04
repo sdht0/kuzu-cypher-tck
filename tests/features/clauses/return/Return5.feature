@@ -32,9 +32,10 @@ Feature: Return5 - Implicit grouping with distinct
 
   Scenario: [1] DISTINCT inside aggregation should work with lists in maps
     Given an empty graph
+    And having defined kuzu types: n_l
     And having executed:
       """
-      CREATE ({list: ['A', 'B']}), ({list: ['A', 'B']})
+      CREATE (:N {list: ['A', 'B']}), (:N {list: ['A', 'B']})
       """
     When executing query:
       """
@@ -48,9 +49,10 @@ Feature: Return5 - Implicit grouping with distinct
 
   Scenario: [2] DISTINCT on nullable values
     Given an empty graph
+    And having defined kuzu types: n_name
     And having executed:
       """
-      CREATE ({name: 'Florescu'}), (), ()
+      CREATE (:N {name: 'Florescu'}), (:N), (:N)
       """
     When executing query:
       """
@@ -65,9 +67,10 @@ Feature: Return5 - Implicit grouping with distinct
 
   Scenario: [3] DISTINCT inside aggregation should work with nested lists in maps
     Given an empty graph
+    And having defined kuzu types: n_l
     And having executed:
       """
-      CREATE ({list: ['A', 'B']}), ({list: ['A', 'B']})
+      CREATE (:N {list: ['A', 'B']}), (:N {list: ['A', 'B']})
       """
     When executing query:
       """
@@ -79,11 +82,13 @@ Feature: Return5 - Implicit grouping with distinct
       | 1     |
     And no side effects
 
+  @skip @unsupportedMixedTypeLists
   Scenario: [4] DISTINCT inside aggregation should work with nested lists of maps in maps
     Given an empty graph
+    And having defined kuzu types: n_l
     And having executed:
       """
-      CREATE ({list: ['A', 'B']}), ({list: ['A', 'B']})
+      CREATE (:N {list: ['A', 'B']}), (:N {list: ['A', 'B']})
       """
     When executing query:
       """
@@ -97,11 +102,12 @@ Feature: Return5 - Implicit grouping with distinct
 
   Scenario: [5] Aggregate on list values
     Given an empty graph
+    And having defined kuzu types: n_color
     And having executed:
       """
-      CREATE ({color: ['red']})
-      CREATE ({color: ['blue']})
-      CREATE ({color: ['red']})
+      CREATE (:N {color: ['red']})
+      CREATE (:N {color: ['blue']})
+      CREATE (:N {color: ['red']})
       """
     When executing query:
       """

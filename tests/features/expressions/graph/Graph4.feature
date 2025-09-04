@@ -30,6 +30,7 @@
 
 Feature: Graph4 - Edge relationship type
 
+  @fails @unsupportedFuncType #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [1] `type()`
     Given an empty graph
     And having executed:
@@ -46,6 +47,7 @@ Feature: Graph4 - Edge relationship type
       | 'T'     |
     And no side effects
 
+  @fails @unsupportedFuncType #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [2] `type()` on two relationships
     Given an empty graph
     And having executed:
@@ -62,6 +64,7 @@ Feature: Graph4 - Edge relationship type
       | 'T1'     | 'T2'     |
     And no side effects
 
+  @fails @unsupportedFuncType #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [3] `type()` on null relationship
     Given an empty graph
     And having executed:
@@ -79,6 +82,7 @@ Feature: Graph4 - Edge relationship type
       | null    | null       |
     And no side effects
 
+  @fails @unsupportedFuncType #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [4] `type()` on mixed null and non-null relationships
     Given an empty graph
     And having executed:
@@ -97,6 +101,7 @@ Feature: Graph4 - Edge relationship type
       | null    |
     And no side effects
 
+  @fails @unsupportedFuncType #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [5] `type()` handling Any type
     Given an empty graph
     And having executed:
@@ -114,6 +119,7 @@ Feature: Graph4 - Edge relationship type
       | 'T'           |
     And no side effects
 
+  @fails @unsupportedFuncType #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [6] `type()` failing on invalid arguments
     Given an empty graph
     And having executed:
@@ -135,6 +141,7 @@ Feature: Graph4 - Edge relationship type
       | ''      |
       | []      |
 
+  @fails @unsupportedFuncType #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [7] Failing when using `type()` on a node
     Given any graph
     When executing query:

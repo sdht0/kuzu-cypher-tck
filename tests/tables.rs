@@ -154,6 +154,16 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE T4(FROM A to A);
             "
         }
+        "ab_name:t14" => {
+            "
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, name STRING);
+              CREATE NODE TABLE B(_k SERIAL PRIMARY KEY, name STRING);
+              CREATE REL TABLE T1(FROM A to B);
+              CREATE REL TABLE T2(FROM B to A);
+              CREATE REL TABLE T3(FROM B to B);
+              CREATE REL TABLE T4(FROM A to A);
+            "
+        }
         "ab_c:k" => {
             "
               CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, created INT64);
@@ -439,6 +449,15 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE REL(FROM A to B, FROM A to X);
             "
         }
+        "abcde" => {
+            "
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE B(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE C(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE D(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE E(_k SERIAL PRIMARY KEY);
+            "
+        }
         "abcd:r_3" => {
             "
               CREATE NODE TABLE A(_k SERIAL PRIMARY KEY);
@@ -531,9 +550,9 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, num INT64);
               CREATE NODE TABLE B(_k SERIAL PRIMARY KEY, num INT64);
               CREATE NODE TABLE C(_k SERIAL PRIMARY KEY, num INT64);
-              CREATE NODE TABLE Singlee(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE `Single`(_k SERIAL PRIMARY KEY);
               CREATE REL TABLE LOOP(FROM B to B);
-              CREATE REL TABLE REL(FROM Singlee to A, FROM Singlee to B, FROM A TO C);
+              CREATE REL TABLE REL(FROM `Single` to A, FROM `Single` to B, FROM A TO C);
             "
         }
         "abcs:lrx" => {
@@ -541,9 +560,9 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, num INT64);
               CREATE NODE TABLE B(_k SERIAL PRIMARY KEY, num INT64);
               CREATE NODE TABLE C(_k SERIAL PRIMARY KEY, num INT64);
-              CREATE NODE TABLE Singlee(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE `Single`(_k SERIAL PRIMARY KEY);
               CREATE REL TABLE LOOP(FROM B to B);
-              CREATE REL TABLE REL(FROM Singlee to A, FROM Singlee to B, FROM A TO C);
+              CREATE REL TABLE REL(FROM `Single` to A, FROM `Single` to B, FROM A TO C);
               CREATE REL TABLE X(FROM A to B);
             "
         }
@@ -552,10 +571,10 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, num INT64);
               CREATE NODE TABLE B(_k SERIAL PRIMARY KEY, num INT64);
               CREATE NODE TABLE C(_k SERIAL PRIMARY KEY, num INT64);
-              CREATE NODE TABLE Singlee(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE `Single`(_k SERIAL PRIMARY KEY);
               CREATE NODE TABLE NonExistent(_k SERIAL PRIMARY KEY);
               CREATE REL TABLE LOOP(FROM B to B);
-              CREATE REL TABLE REL(FROM Singlee to A, FROM Singlee to B, FROM A TO C);
+              CREATE REL TABLE REL(FROM `Single` to A, FROM `Single` to B, FROM A TO C);
             "
         }
         "abcns_num:lnr" => {
@@ -564,10 +583,10 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE B(_k SERIAL PRIMARY KEY, num INT64);
               CREATE NODE TABLE C(_k SERIAL PRIMARY KEY, num INT64);
               CREATE NODE TABLE NotThere(_k SERIAL PRIMARY KEY, num INT64);
-              CREATE NODE TABLE Singlee(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE `Single`(_k SERIAL PRIMARY KEY);
               CREATE REL TABLE LOOP(FROM B to B);
               CREATE REL TABLE NOR_THIS(FROM NotThere to NotThere);
-              CREATE REL TABLE REL(FROM Singlee to A, FROM Singlee to B, FROM A TO C);
+              CREATE REL TABLE REL(FROM `Single` to A, FROM `Single` to B, FROM A TO C);
             "
         }
         "abcde_bool" => {
@@ -724,9 +743,9 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE REL(FROM A to B, FROM B TO `End`, num INT64);
             "
         }
-        "an:r" => {
+        "an_name:r" => {
             "
-              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE A(_k SERIAL PRIMARY KEY, name STRING);
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY);
               CREATE REL TABLE REL(FROM A to N);
             "
@@ -765,12 +784,19 @@ pub fn get_table(id: &str) -> &str {
               CREATE REL TABLE T2(FROM A to X, FROM A to A, id INT64);
             "
         }
-        "bce:r_num" => {
+        "bcs:r_num" => {
             "
               CREATE NODE TABLE B(_k SERIAL PRIMARY KEY);
               CREATE NODE TABLE C(_k SERIAL PRIMARY KEY);
               CREATE NODE TABLE Start(_k SERIAL PRIMARY KEY);
               CREATE REL TABLE REL(FROM Start to B, FROM B TO C, num INT64);
+            "
+        }
+        "be:r_n" => {
+            "
+              CREATE NODE TABLE B(_k SERIAL PRIMARY KEY);
+              CREATE NODE TABLE `End`(_k SERIAL PRIMARY KEY);
+              CREATE REL TABLE REL(FROM `End` to B, FROM B TO `End`, num INT64);
             "
         }
         "bf:f_f" => {
@@ -821,8 +847,8 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE Bar(_k SERIAL PRIMARY KEY);
               CREATE NODE TABLE Foo(_k SERIAL PRIMARY KEY);
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY);
-              CREATE REL TABLE T1(FROM Foo TO N, FROM N TO Foo);
-              CREATE REL TABLE T2(FROM Bar TO N, FROM N TO Bar);
+              CREATE REL TABLE T1(FROM Foo TO N, FROM N TO Bar);
+              CREATE REL TABLE T2(FROM Bar TO N, FROM Foo TO N);
             "
         }
         "bdf:o" => {
@@ -884,9 +910,9 @@ pub fn get_table(id: &str) -> &str {
               CREATE NODE TABLE Teacher(_k SERIAL PRIMARY KEY, name STRING);
               CREATE REL TABLE BUDDY(FROM Student to StudyBuddy);
               CREATE REL TABLE CURRICULUM(FROM Department to Subject);
-              CREATE REL TABLE DEPARTMENTR(FROM School to Department);
+              CREATE REL TABLE DEPARTMENTREL(FROM School to Department);
               CREATE REL TABLE STAFF(FROM School to Teacher);
-              CREATE REL TABLE STUDENTR(FROM School to Student);
+              CREATE REL TABLE STUDENTREL(FROM School to Student);
               CREATE REL TABLE TAUGHT_BY(FROM Subject to Teacher);
             "
         }
@@ -901,10 +927,10 @@ pub fn get_table(id: &str) -> &str {
         }
         "ens_name:c" => {
             "
-              CREATE NODE TABLE Eend(_k SERIAL PRIMARY KEY, name STRING);
+              CREATE NODE TABLE `End`(_k SERIAL PRIMARY KEY, name STRING);
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, name STRING);
               CREATE NODE TABLE Start(_k SERIAL PRIMARY KEY, name STRING);
-              CREATE REL TABLE CONNECTED_TO(FROM N to Start, FROM N to Eend, FROM N to N);
+              CREATE REL TABLE CONNECTED_TO(FROM N to Start, FROM N to `End`, FROM N to N);
             "
         }
         "ey_iy:i" => {
@@ -931,6 +957,11 @@ pub fn get_table(id: &str) -> &str {
         "l" => {
             "
               CREATE NODE TABLE Label(_k SERIAL PRIMARY KEY);
+            "
+        }
+        "l_num" => {
+            "
+              CREATE NODE TABLE L(_k SERIAL PRIMARY KEY, num INT64);
             "
         }
         "l13" => {
@@ -1239,6 +1270,12 @@ pub fn get_table(id: &str) -> &str {
             "
               CREATE NODE TABLE N(_k SERIAL PRIMARY KEY, num INT64);
               CREATE REL TABLE T(FROM N to N);
+            "
+        }
+        "n:t_nn" => {
+            "
+              CREATE NODE TABLE N(_k SERIAL PRIMARY KEY);
+              CREATE REL TABLE T(FROM N to N, name STRING, name2 STRING);
             "
         }
         "n:r_em" => {

@@ -43,9 +43,10 @@ Feature: Match1 - Match nodes
 
   Scenario: [2] Matching all nodes
     Given an empty graph
+    And having defined kuzu types: abc_name
     And having executed:
       """
-      CREATE (:A), (:B {name: 'b'}), ({name: 'c'})
+      CREATE (:A), (:B {name: 'b'}), (:C {name: 'c'});
       """
     When executing query:
       """
@@ -56,9 +57,10 @@ Feature: Match1 - Match nodes
       | n                |
       | (:A)             |
       | (:B {name: 'b'}) |
-      | ({name: 'c'})    |
+      | (:C {name: 'c'}) |
     And no side effects
 
+  @fails @unsupportedMultipleLabels #https://github.com/kuzudb/kuzu/issues/3117
   Scenario: [3] Matching nodes using multiple labels
     Given an empty graph
     And having executed:
@@ -80,9 +82,10 @@ Feature: Match1 - Match nodes
 
   Scenario: [4] Simple node inline property predicate
     Given an empty graph
+    And having defined kuzu types: n_name
     And having executed:
       """
-      CREATE ({name: 'bar'}), ({name: 'monkey'}), ({firstname: 'bar'})
+      CREATE (:N {name: 'bar'}), (:N {name: 'monkey'}), (:N {name: 'baz'});
       """
     When executing query:
       """
@@ -90,17 +93,18 @@ Feature: Match1 - Match nodes
       RETURN n
       """
     Then the result should be, in any order:
-      | n               |
-      | ({name: 'bar'}) |
+      | n                  |
+      | (:N {name: 'bar'}) |
     And no side effects
 
   Scenario: [5] Use multiple MATCH clauses to do a Cartesian product
     Given an empty graph
+    And having defined kuzu types: n_num
     And having executed:
       """
-      CREATE ({num: 1}),
-        ({num: 2}),
-        ({num: 3})
+      CREATE (:N {num: 1}),
+        (:N {num: 2}),
+        (:N {num: 3})
       """
     When executing query:
       """

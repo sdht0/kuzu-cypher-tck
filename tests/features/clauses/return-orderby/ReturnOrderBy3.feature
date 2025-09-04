@@ -32,12 +32,13 @@ Feature: ReturnOrderBy3 - Order by multiple expressions (order obey priority of 
 
   Scenario: [1] Sort on aggregate function and normal property
     Given an empty graph
+    And having defined kuzu types: n_division
     And having executed:
       """
-      CREATE ({division: 'Sweden'})
-      CREATE ({division: 'Germany'})
-      CREATE ({division: 'England'})
-      CREATE ({division: 'Sweden'})
+      CREATE (:N {division: 'Sweden'})
+      CREATE (:N {division: 'Germany'})
+      CREATE (:N {division: 'England'})
+      CREATE (:N {division: 'Sweden'})
       """
     When executing query:
       """

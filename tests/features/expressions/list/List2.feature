@@ -30,108 +30,117 @@
 
 Feature: List2 - List Slicing
 
+  @note @changedListSliceSyntax
   Scenario: [1] List slice
     Given any graph
     When executing query:
       """
       WITH [1, 2, 3, 4, 5] AS list
-      RETURN list[1..3] AS r
+      RETURN list[2:3] AS r
       """
     Then the result should be, in any order:
       | r      |
       | [2, 3] |
     And no side effects
 
+  @note @changedListSliceSyntax
   Scenario: [2] List slice with implicit end
     Given any graph
     When executing query:
       """
       WITH [1, 2, 3] AS list
-      RETURN list[1..] AS r
+      RETURN list[2:] AS r
       """
     Then the result should be, in any order:
       | r      |
       | [2, 3] |
     And no side effects
 
+  @note @changedListSliceSyntax
   Scenario: [3] List slice with implicit start
     Given any graph
     When executing query:
       """
       WITH [1, 2, 3] AS list
-      RETURN list[..2] AS r
+      RETURN list[:2] AS r
       """
     Then the result should be, in any order:
       | r      |
       | [1, 2] |
     And no side effects
 
+  @note @changedListSliceSyntax
   Scenario: [4] List slice with singleton range
     Given any graph
     When executing query:
       """
       WITH [1, 2, 3] AS list
-      RETURN list[0..1] AS r
+      RETURN list[1:1] AS r
       """
     Then the result should be, in any order:
       | r   |
       | [1] |
     And no side effects
 
+  @note @changedListSliceSyntax
   Scenario: [5] List slice with empty range
     Given any graph
     When executing query:
       """
       WITH [1, 2, 3] AS list
-      RETURN list[0..0] AS r
+      RETURN list[1:0] AS r
       """
     Then the result should be, in any order:
       | r  |
       | [] |
     And no side effects
 
+  @note @changedListSliceSyntax
   Scenario: [6] List slice with negative range
     Given any graph
     When executing query:
       """
       WITH [1, 2, 3] AS list
-      RETURN list[-3..-1] AS r
+      RETURN list[-3:-2] AS r
       """
     Then the result should be, in any order:
       | r      |
       | [1, 2] |
     And no side effects
 
+  @note @changedListSliceSyntax
   Scenario: [7] List slice with invalid range
     Given any graph
     When executing query:
       """
       WITH [1, 2, 3] AS list
-      RETURN list[3..1] AS r
+      RETURN list[2:1] AS r
       """
     Then the result should be, in any order:
       | r  |
       | [] |
     And no side effects
 
+  @note @changedListSliceSyntax
   Scenario: [8] List slice with exceeding range
     Given any graph
     When executing query:
       """
       WITH [1, 2, 3] AS list
-      RETURN list[-5..5] AS r
+      RETURN list[-5:5] AS r
       """
     Then the result should be, in any order:
       | r         |
       | [1, 2, 3] |
     And no side effects
 
+  @note @changedListSliceSyntax
   Scenario Outline: [9] List slice with null range
     Given any graph
     When executing query:
       """
       WITH [1, 2, 3] AS list
-      RETURN list[<lower>..<upper>] AS r
+      RETURN list[<lower>:<upper>] AS r
       """
     Then the result should be, in any order:
       | r    |
@@ -146,21 +155,23 @@ Feature: List2 - List Slicing
       |       | null  |
       | null  |       |
 
+  @note @changedListSliceSyntax
   Scenario: [10] List slice with parameterised range
     Given any graph
     And parameters are:
-      | from | 1 |
+      | from | 2 |
       | to   | 3 |
     When executing query:
       """
       WITH [1, 2, 3] AS list
-      RETURN list[$from..$to] AS r
+      RETURN list[$from:$to] AS r
       """
     Then the result should be, in any order:
       | r      |
       | [2, 3] |
     And no side effects
 
+  @note @changedListSliceSyntax
   Scenario: [11] List slice with parameterised invalid range
     Given any graph
     And parameters are:
@@ -169,7 +180,7 @@ Feature: List2 - List Slicing
     When executing query:
       """
       WITH [1, 2, 3] AS list
-      RETURN list[$from..$to] AS r
+      RETURN list[$from:$to] AS r
       """
     Then the result should be, in any order:
       | r  |

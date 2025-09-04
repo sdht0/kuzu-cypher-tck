@@ -32,9 +32,10 @@ Feature: Return4 - Column renaming
 
   Scenario: [1] Honour the column name for RETURN items
     Given an empty graph
+    And having defined kuzu types: n_name
     And having executed:
       """
-      CREATE ({name: 'Someone'})
+      CREATE (:N {name: 'Someone'})
       """
     When executing query:
       """
@@ -49,6 +50,7 @@ Feature: Return4 - Column renaming
 
   Scenario: [2] Support column renaming
     Given an empty graph
+    And having defined kuzu types: s
     And having executed:
       """
       CREATE (:Singleton)
@@ -65,9 +67,10 @@ Feature: Return4 - Column renaming
 
   Scenario: [3] Aliasing expressions
     Given an empty graph
+    And having defined kuzu types: n_id
     And having executed:
       """
-      CREATE ({id: 42})
+      CREATE (:N {id: 42})
       """
     When executing query:
       """
@@ -81,9 +84,10 @@ Feature: Return4 - Column renaming
 
   Scenario: [4] Keeping used expression 1
     Given an empty graph
+    And having defined kuzu types: n
     And having executed:
       """
-      CREATE ()
+      CREATE (:N)
       """
     When executing query:
       """
@@ -97,9 +101,10 @@ Feature: Return4 - Column renaming
 
   Scenario: [5] Keeping used expression 2
     Given an empty graph
+    And having defined kuzu types: n
     And having executed:
       """
-      CREATE ()
+      CREATE (:N)
       """
     When executing query:
       """
@@ -113,9 +118,10 @@ Feature: Return4 - Column renaming
   @skipStyleCheck
   Scenario: [6] Keeping used expression 3
     Given an empty graph
+    And having defined kuzu types: n
     And having executed:
       """
-      CREATE ()
+      CREATE (:N)
       """
     When executing query:
       """
@@ -129,9 +135,10 @@ Feature: Return4 - Column renaming
 
   Scenario: [7] Keeping used expression 4
     Given an empty graph
+    And having defined kuzu types: n_age
     And having executed:
       """
-      CREATE ()
+      CREATE (:N)
       """
     When executing query:
       """
@@ -145,10 +152,11 @@ Feature: Return4 - Column renaming
 
   Scenario: [8] Support column renaming for aggregations
     Given an empty graph
+    And having defined kuzu types: n
     And having executed:
       """
       UNWIND range(0, 10) AS i
-      CREATE ()
+      CREATE (:N)
       """
     When executing query:
       """
@@ -162,6 +170,7 @@ Feature: Return4 - Column renaming
 
   Scenario: [9] Handle subexpression in aggregation also occurring as standalone expression with nested aggregation in a literal map
     Given an empty graph
+    And having defined kuzu types: ab_num
     And having executed:
       """
       CREATE (:A), (:B {num: 42})
@@ -186,8 +195,10 @@ Feature: Return4 - Column renaming
       """
     Then a SyntaxError should be raised at compile time: ColumnNameConflict
 
+  @fails @bugOrderByFollowedByLimit #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [11] Reusing variable names in RETURN
     Given an empty graph
+    And having defined kuzu types: mp:lp
     And having executed:
       """
       CREATE (a:Person), (b:Person), (m:Message {id: 10})

@@ -32,13 +32,14 @@ Feature: ReturnSkipLimit3 - Skip and limit
 
   Scenario: [1] Get rows in the middle
     Given an empty graph
+    And having defined kuzu types: abcde_name
     And having executed:
       """
-      CREATE ({name: 'A'}),
-        ({name: 'B'}),
-        ({name: 'C'}),
-        ({name: 'D'}),
-        ({name: 'E'})
+      CREATE (:A {name: 'A'}),
+        (:B {name: 'B'}),
+        (:C {name: 'C'}),
+        (:D {name: 'D'}),
+        (:E {name: 'E'})
       """
     When executing query:
       """
@@ -50,19 +51,20 @@ Feature: ReturnSkipLimit3 - Skip and limit
       """
     Then the result should be, in order:
       | n             |
-      | ({name: 'C'}) |
-      | ({name: 'D'}) |
+      | (:C {name: 'C'}) |
+      | (:D {name: 'D'}) |
     And no side effects
 
   Scenario: [2] Get rows in the middle by param
     Given an empty graph
+    And having defined kuzu types: abcde_name
     And having executed:
       """
-      CREATE ({name: 'A'}),
-        ({name: 'B'}),
-        ({name: 'C'}),
-        ({name: 'D'}),
-        ({name: 'E'})
+      CREATE (:A {name: 'A'}),
+        (:B {name: 'B'}),
+        (:C {name: 'C'}),
+        (:D {name: 'D'}),
+        (:E {name: 'E'})
       """
     And parameters are:
       | s | 2 |
@@ -77,16 +79,17 @@ Feature: ReturnSkipLimit3 - Skip and limit
       """
     Then the result should be, in order:
       | n             |
-      | ({name: 'C'}) |
-      | ({name: 'D'}) |
+      | (:C {name: 'C'}) |
+      | (:D {name: 'D'}) |
     And no side effects
 
   Scenario: [3] Limiting amount of rows when there are fewer left than the LIMIT argument
     Given an empty graph
+    And having defined kuzu types: n_count
     And having executed:
       """
       UNWIND range(0, 15) AS i
-      CREATE ({count: i})
+      CREATE (:N {count: i})
       """
     When executing query:
       """

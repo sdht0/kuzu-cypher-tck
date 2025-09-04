@@ -52,6 +52,7 @@ Feature: Quantifier6 - Single quantifier interop
       | all(y IN x WHERE y = 'abc')    | true   |
       | all(y IN x WHERE y = 'def')    | false  |
 
+  @fails @unsupportedNestedQuantifier #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [2] Single quantifier can nest itself and other quantifiers on the same list
     Given any graph
     When executing query:
@@ -75,6 +76,7 @@ Feature: Quantifier6 - Single quantifier interop
       | all(y IN list WHERE x <= y)         | true   |
       | all(y IN list WHERE x <= y + 1)     | false  |
 
+  @fails @unsupportedListComprehension #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [3] Single quantifier is equal whether the size of the list filtered with same the predicate is one
     Given any graph
     When executing query:

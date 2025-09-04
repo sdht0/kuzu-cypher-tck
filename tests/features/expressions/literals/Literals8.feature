@@ -30,6 +30,7 @@
 
 Feature: Literals8 - Maps
 
+  @fails @unsupportedEmptyMap #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [1] Return an empty map
     Given any graph
     When executing query:
@@ -118,6 +119,7 @@ Feature: Literals8 - Maps
       | {k: 1}   |
     And no side effects
 
+  @fails @unsupportedTypeHexadecimal #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [9] Return a map containing a hexadecimal integer
     Given any graph
     When executing query:
@@ -129,6 +131,7 @@ Feature: Literals8 - Maps
       | {F: -372036854} |
     And no side effects
 
+  @fails @unsupportedTypeOctal #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [10] Return a map containing a octal integer
     Given any graph
     When executing query:
@@ -162,6 +165,7 @@ Feature: Literals8 - Maps
       | {k: 'ab: c, as#?lßdj '} |
     And no side effects
 
+  @fails @unsupportedEmptyMap #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [13] Return a map containing an empty map
     Given any graph
     When executing query:
@@ -173,37 +177,40 @@ Feature: Literals8 - Maps
       | {a: {}}  |
     And no side effects
 
+  @note @changedEmptyMap
   Scenario: [14] Return seven-deep nested maps
     Given any graph
     When executing query:
       """
-      RETURN {a1: {a2: {a3: {a4: {a5: {a6: {}}}}}}} AS literal
+      RETURN {a1: {a2: {a3: {a4: {a5: {a6: {id: 0}}}}}}} AS literal
       """
     Then the result should be, in any order:
       | literal                          |
-      | {a1: {a2: {a3: {a4: {a5: {a6: {}}}}}}} |
+      | {a1: {a2: {a3: {a4: {a5: {a6: {id: 0}}}}}}} |
     And no side effects
 
+  @note @changedEmptyMap
   Scenario: [15] Return 20-deep nested maps
     Given any graph
     When executing query:
       """
-      RETURN {a1: {a2: {a3: {a4: {a5: {a6: {a7: {a8: {a9: {a10: {a11: {a12: {a13: {a14: {a15: {a16: {a17: {a18: {a19: {}}}}}}}}}}}}}}}}}}}} AS literal
+      RETURN {a1: {a2: {a3: {a4: {a5: {a6: {a7: {a8: {a9: {a10: {a11: {a12: {a13: {a14: {a15: {a16: {a17: {a18: {a19: {id: 0}}}}}}}}}}}}}}}}}}}} AS literal
       """
     Then the result should be, in any order:
       | literal                                                                                                     |
-      | {a1: {a2: {a3: {a4: {a5: {a6: {a7: {a8: {a9: {a10: {a11: {a12: {a13: {a14: {a15: {a16: {a17: {a18: {a19: {}}}}}}}}}}}}}}}}}}}} |
+      | {a1: {a2: {a3: {a4: {a5: {a6: {a7: {a8: {a9: {a10: {a11: {a12: {a13: {a14: {a15: {a16: {a17: {a18: {a19: {id: 0}}}}}}}}}}}}}}}}}}}} |
     And no side effects
 
+  @note @changedEmptyMap
   Scenario: [16] Return 40-deep nested maps
     Given any graph
     When executing query:
       """
-      RETURN {a1: {a2: {a3: {a4: {a5: {a6: {a7: {a8: {a9: {a10: {a11: {a12: {a13: {a14: {a15: {a16: {a17: {a18: {a19: {a20: {a21: {a22: {a23: {a24: {a25: {a26: {a27: {a28: {a29: {a30: {a31: {a32: {a33: {a34: {a35: {a36: {a37: {a38: {a39: {}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} AS literal
+      RETURN {a1: {a2: {a3: {a4: {a5: {a6: {a7: {a8: {a9: {a10: {a11: {a12: {a13: {a14: {a15: {a16: {a17: {a18: {a19: {a20: {a21: {a22: {a23: {a24: {a25: {a26: {a27: {a28: {a29: {a30: {a31: {a32: {a33: {a34: {a35: {a36: {a37: {a38: {a39: {id: 0}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} AS literal
       """
     Then the result should be, in any order:
       | literal                                                                                                                                                                                                                             |
-      | {a1: {a2: {a3: {a4: {a5: {a6: {a7: {a8: {a9: {a10: {a11: {a12: {a13: {a14: {a15: {a16: {a17: {a18: {a19: {a20: {a21: {a22: {a23: {a24: {a25: {a26: {a27: {a28: {a29: {a30: {a31: {a32: {a33: {a34: {a35: {a36: {a37: {a38: {a39: {}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} |
+      | {a1: {a2: {a3: {a4: {a5: {a6: {a7: {a8: {a9: {a10: {a11: {a12: {a13: {a14: {a15: {a16: {a17: {a18: {a19: {a20: {a21: {a22: {a23: {a24: {a25: {a26: {a27: {a28: {a29: {a30: {a31: {a32: {a33: {a34: {a35: {a36: {a37: {a38: {a39: {id: 0}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}}} |
     And no side effects
 
   Scenario: [17] Return a map containing real and fake nested maps

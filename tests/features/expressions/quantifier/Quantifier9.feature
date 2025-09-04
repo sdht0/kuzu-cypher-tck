@@ -30,6 +30,7 @@
 
 Feature: Quantifier9 - None quantifier invariants
 
+  @skip @unsupportedMixedTypeLists
   Scenario: [1] None quantifier is always true if the predicate is statically false and the list is not empty
     Given any graph
     When executing query:
@@ -53,6 +54,7 @@ Feature: Quantifier9 - None quantifier invariants
       | true   |
     And no side effects
 
+  @skip @unsupportedMixedTypeLists
   Scenario: [2] None quantifier is always false if the predicate is statically true and the list is not empty
     Given any graph
     When executing query:
@@ -76,6 +78,7 @@ Feature: Quantifier9 - None quantifier invariants
       | false  |
     And no side effects
 
+  @fails @unsupportedListComprehension #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [3] None quantifier is always equal the boolean negative of the any quantifier
     Given any graph
     When executing query:
@@ -106,6 +109,7 @@ Feature: Quantifier9 - None quantifier invariants
       | x < 7     |
       | x >= 3    |
 
+  @fails @unsupportedListComprehension #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [4] None quantifier is always equal the all quantifier on the boolean negative of the predicate
     Given any graph
     When executing query:
@@ -136,6 +140,7 @@ Feature: Quantifier9 - None quantifier invariants
       | x < 7     |
       | x >= 3    |
 
+  @fails @unsupportedListComprehension #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [5] None quantifier is always equal whether the size of the list filtered with same the predicate is zero
     Given any graph
     When executing query:

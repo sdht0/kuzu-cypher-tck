@@ -32,6 +32,7 @@ Feature: Merge8 - Merge relationships - on match and on create
 
   Scenario: [1] Using ON CREATE and ON MATCH
     Given an empty graph
+    And having defined kuzu types: ab_id:t_name
     And having executed:
       """
       CREATE (a:A {id: 1}), (b:B {id: 2})
