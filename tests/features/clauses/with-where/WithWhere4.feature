@@ -50,7 +50,7 @@ Feature: WithWhere4 - Non-Equi-Joins on variables
       | (:B) | (:A) |
     And no side effects
 
-  @fails @bugIncorrectVariableBinding #https://github.com/kuzudb/kuzu/issues/5963
+  @fails @bugVariableBinding #https://github.com/kuzudb/kuzu/issues/5963
   Scenario: [2] Join with disjunctive multi-part predicates including patterns
     Given an empty graph
     And having defined kuzu types: mt_id:t

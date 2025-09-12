@@ -493,7 +493,7 @@ Feature: Merge5 - Merge relationships
       """
     Then a SyntaxError should be raised at compile time: NoSingleRelationshipType
 
-  @skip @semanticsTypeInference
+  @skip @wellDefinedSchema
   Scenario: [24] Fail when merging relationship without type, no colon
     Given any graph
     And having defined kuzu types: n:n-2

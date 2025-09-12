@@ -119,7 +119,7 @@ Feature: Literals8 - Maps
       | {k: 1}   |
     And no side effects
 
-  @fails @unsupportedHexadecimal #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedTypeHexadecimal #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [9] Return a map containing a hexadecimal integer
     Given any graph
     When executing query:
@@ -131,7 +131,7 @@ Feature: Literals8 - Maps
       | {F: -372036854} |
     And no side effects
 
-  @fails @unsupportedOctal #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedTypeOctal #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [10] Return a map containing a octal integer
     Given any graph
     When executing query:

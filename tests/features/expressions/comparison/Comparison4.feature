@@ -30,7 +30,7 @@
 
 Feature: Comparison4 - Combination of Comparisons
 
-  @note @unsupportedTernaryComparisons #https://github.com/kuzudb/kuzu/issues/5841
+  @note @unsupportedOperatorTernaryComparisons #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [1] Handling long chains of operators
     Given an empty graph
     And having defined kuzu types: abc_p2:r

@@ -285,7 +285,7 @@ Feature: Quantifier4 - All quantifier
       | [[:RB {name: 'b'}], [:RB {name: 'b'}], [:RB {name: 'b'}]] | false  |
     And no side effects
 
-  @fails @semanticsNullHandlingMismatch #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @semanticsNullHandling #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [10] All quantifier on lists containing nulls
     Given any graph
     When executing query:

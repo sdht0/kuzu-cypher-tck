@@ -30,7 +30,7 @@
 
 Feature: Comparison3 - Full-Bound Range
 
-  @fails @unsupportedTernaryComparisons #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedOperatorTernaryComparisons #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [1] Handling numerical ranges 1
     Given an empty graph
     And having defined kuzu types: n_num

@@ -348,7 +348,7 @@ Feature: WithOrderBy2 - Order by a single expression
       | [a.list2[1], a.list2[0], a.list[1]] + a.list + a.list2 DESC       |
       | [a.list2[1], a.list2[0], a.list[1]] + a.list + a.list2 DESCENDING |
 
-  @fails @unsupportedDatetimeFuncs #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedFuncDateTime #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [11] Sort by a date expression in ascending order
     Given an empty graph
     And having executed:
@@ -380,7 +380,7 @@ Feature: WithOrderBy2 - Order by a single expression
       | a.date + duration({months: 1, days: 2}) ASC       |
       | a.date + duration({months: 1, days: 2}) ASCENDING |
 
-  @fails @unsupportedDatetimeFuncs #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedFuncDateTime #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [12] Sort by a date expression in descending order
     Given an empty graph
     And having executed:
@@ -411,7 +411,7 @@ Feature: WithOrderBy2 - Order by a single expression
       | a.date + duration({months: 1, days: 2}) DESC       |
       | a.date + duration({months: 1, days: 2}) DESCENDING |
 
-  @fails @unsupportedDatetimeFuncs #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedFuncDateTime #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [13] Sort by a local time expression in ascending order
     Given an empty graph
     And having executed:
@@ -443,7 +443,7 @@ Feature: WithOrderBy2 - Order by a single expression
       | a.time + duration({minutes: 6}) ASC       |
       | a.time + duration({minutes: 6}) ASCENDING |
 
-  @fails @unsupportedDatetimeFuncs #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedFuncDateTime #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [14] Sort by a local time expression in descending order
     Given an empty graph
     And having executed:
@@ -474,7 +474,7 @@ Feature: WithOrderBy2 - Order by a single expression
       | a.time + duration({minutes: 6}) DESC       |
       | a.time + duration({minutes: 6}) DESCENDING |
 
-  @fails @unsupportedDatetimeFuncs #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedFuncDateTime #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [15] Sort by a time expression in ascending order
     Given an empty graph
     And having executed:
@@ -506,7 +506,7 @@ Feature: WithOrderBy2 - Order by a single expression
       | a.time + duration({minutes: 6}) ASC       |
       | a.time + duration({minutes: 6}) ASCENDING |
 
-  @fails @unsupportedDatetimeFuncs #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedFuncDateTime #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [16] Sort by a time expression in descending order
     Given an empty graph
     And having executed:
@@ -537,7 +537,7 @@ Feature: WithOrderBy2 - Order by a single expression
       | a.time + duration({minutes: 6}) DESC       |
       | a.time + duration({minutes: 6}) DESCENDING |
 
-  @fails @unsupportedDatetimeFuncs #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedFuncDateTime #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [17] Sort by a local date time expression in ascending order
     Given an empty graph
     And having executed:
@@ -569,7 +569,7 @@ Feature: WithOrderBy2 - Order by a single expression
       | a.datetime + duration({days: 4, minutes: 6}) ASC       |
       | a.datetime + duration({days: 4, minutes: 6}) ASCENDING |
 
-  @fails @unsupportedDatetimeFuncs #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedFuncDateTime #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [18] Sort by a local date time expression in descending order
     Given an empty graph
     And having executed:
@@ -600,7 +600,7 @@ Feature: WithOrderBy2 - Order by a single expression
       | a.datetime + duration({days: 4, minutes: 6}) DESC       |
       | a.datetime + duration({days: 4, minutes: 6}) DESCENDING |
 
-  @fails @unsupportedDatetimeFuncs #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedFuncDateTime #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [19] Sort by a date time expression in ascending order
     Given an empty graph
     And having executed:
@@ -632,7 +632,7 @@ Feature: WithOrderBy2 - Order by a single expression
       | a.datetime + duration({days: 4, minutes: 6}) ASC       |
       | a.datetime + duration({days: 4, minutes: 6}) ASCENDING |
 
-  @fails @unsupportedDatetimeFuncs #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedFuncDateTime #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [20] Sort by a date time expression in descending order
     Given an empty graph
     And having executed:

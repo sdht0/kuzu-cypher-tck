@@ -59,7 +59,7 @@ Feature: Aggregation8 - DISTINCT
       | 0                      |
     And no side effects
 
-  @fails @semanticsCollectNullHandling #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @semanticsNullHandlingCollect #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [3] Collect distinct nulls
     Given any graph
     When executing query:

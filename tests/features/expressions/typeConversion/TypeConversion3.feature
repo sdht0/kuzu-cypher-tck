@@ -43,7 +43,7 @@ Feature: TypeConversion3 - To Float
       | 3.0           |
     And no side effects
 
-  @skip @semanticsFailuresAsNullVsError
+  @skip @semanticsCastFailuresAsErrors
   Scenario: [2] `toFloat()` returning null on non-numerical string
     Given any graph
     When executing query:

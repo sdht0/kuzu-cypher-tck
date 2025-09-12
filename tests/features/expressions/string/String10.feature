@@ -70,7 +70,7 @@ Feature: String10 - Exact Substring Search
       | (:TheLabel {name: 'ABCDEF'}) |
     And no side effects
 
-  @fails @bugEmptyStringSearch #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @bugContainsEmptyString #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [3] Finding the empty substring
     Given an empty graph
     And having defined kuzu types: t2_name

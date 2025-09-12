@@ -207,7 +207,7 @@ Feature: Return2 - Return single expression (correctly projecting an expression)
       | 4611686018427387905 |
     And no side effects
 
-  @skip @unsupportedMultiTypeList
+  @skip @unsupportedMixedTypeLists
   Scenario: [12] Projecting a list of nodes and relationships
     Given an empty graph
     And having defined kuzu types: ab:t

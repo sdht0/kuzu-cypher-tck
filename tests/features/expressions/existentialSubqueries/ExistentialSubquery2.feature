@@ -77,7 +77,7 @@ Feature: ExistentialSubquery2 - Full existential subquery
       | (:A {prop:1}) |
     And no side effects
 
-  @fails @unsupportedExistentialSubquery #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedExistsSubquery #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [3] Full existential subquery with update clause should fail
     Given any graph
     When executing query:

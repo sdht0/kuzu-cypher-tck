@@ -31,7 +31,7 @@
 Feature: Temporal4 - Store Temporal Values
   # Storage tests, cannot be merged into fewer tests due to compatibility reasons
 
-  @fails @unsupportedDateTimeFuncs #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedFuncDateTime #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [1] Should store date
     Given an empty graph
     And having defined kuzu types: n_c
@@ -56,7 +56,7 @@ Feature: Temporal4 - Store Temporal Values
       | temporal                               | result       |
       | date({year: 1984, month: 10, day: 11}) | '1984-10-11' |
 
-  @fails @unsupportedDateTimeFuncs #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedFuncDateTime #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [2] Should store date array
     Given an empty graph
     When executing query:
@@ -81,7 +81,7 @@ Feature: Temporal4 - Store Temporal Values
       | [date({year: 1984, month: 10, day: 12})]                                                                                 | ['1984-10-12']                             |
       | [date({year: 1984, month: 10, day: 13}), date({year: 1984, month: 10, day: 14}), date({year: 1984, month: 10, day: 15})] | ['1984-10-13', '1984-10-14', '1984-10-15'] |
 
-  @fails @unsupportedDateTimeFuncs #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedFuncDateTime #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [3] Should store local time
     Given an empty graph
     When executing query:
@@ -105,7 +105,7 @@ Feature: Temporal4 - Store Temporal Values
       | temporal              | result  |
       | localtime({hour: 12}) | '12:00' |
 
-  @fails @unsupportedDateTimeFuncs #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedFuncDateTime #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [4] Should store local time array
     Given an empty graph
     When executing query:
@@ -130,7 +130,7 @@ Feature: Temporal4 - Store Temporal Values
       | [localtime({hour: 13})]                                               | ['13:00']                   |
       | [localtime({hour: 14}), localtime({hour: 15}), localtime({hour: 16})] | ['14:00', '15:00', '16:00'] |
 
-  @fails @unsupportedDateTimeFuncs #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedFuncDateTime #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [5] Should store time
     Given an empty graph
     When executing query:
@@ -154,7 +154,7 @@ Feature: Temporal4 - Store Temporal Values
       | temporal         | result   |
       | time({hour: 12}) | '12:00Z' |
 
-  @fails @unsupportedDateTimeFuncs #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedFuncDateTime #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [6] Should store time array
     Given an empty graph
     When executing query:
@@ -179,7 +179,7 @@ Feature: Temporal4 - Store Temporal Values
       | [time({hour: 13})]                                     | ['13:00Z']                     |
       | [time({hour: 14}), time({hour: 15}), time({hour: 16})] | ['14:00Z', '15:00Z', '16:00Z'] |
 
-  @fails @unsupportedDateTimeFuncs #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedFuncDateTime #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [7] Should store local date time
     Given an empty graph
     When executing query:
@@ -203,7 +203,7 @@ Feature: Temporal4 - Store Temporal Values
       | temporal                    | result             |
       | localdatetime({year: 1912}) | '1912-01-01T00:00' |
 
-  @fails @unsupportedDateTimeFuncs #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedFuncDateTime #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [8] Should store local date time array
     Given an empty graph
     When executing query:
@@ -228,7 +228,7 @@ Feature: Temporal4 - Store Temporal Values
       | [localdatetime({year: 1913})]                                                           | ['1913-01-01T00:00']                                         |
       | [localdatetime({year: 1914}), localdatetime({year: 1915}), localdatetime({year: 1916})] | ['1914-01-01T00:00', '1915-01-01T00:00', '1916-01-01T00:00'] |
 
-  @fails @unsupportedDateTimeFuncs #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedFuncDateTime #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [9] Should store date time
     Given an empty graph
     When executing query:
@@ -252,7 +252,7 @@ Feature: Temporal4 - Store Temporal Values
       | temporal               | result              |
       | datetime({year: 1912}) | '1912-01-01T00:00Z' |
 
-  @fails @unsupportedDateTimeFuncs #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedFuncDateTime #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [10] Should store date time array
     Given an empty graph
     When executing query:
@@ -277,7 +277,7 @@ Feature: Temporal4 - Store Temporal Values
       | [datetime({year: 1913})]                                                 | ['1913-01-01T00:00Z']                                           |
       | [datetime({year: 1914}), datetime({year: 1915}), datetime({year: 1916})] | ['1914-01-01T00:00Z', '1915-01-01T00:00Z', '1916-01-01T00:00Z'] |
 
-  @fails @unsupportedDateTimeFuncs #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedFuncDateTime #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [11] Should store duration
     Given an empty graph
     When executing query:
@@ -301,7 +301,7 @@ Feature: Temporal4 - Store Temporal Values
       | temporal                | result  |
       | duration({seconds: 12}) | 'PT12S' |
 
-  @fails @unsupportedDateTimeFuncs #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedFuncDateTime #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [12] Should store duration array
     Given an empty graph
     And having defined kuzu types: n_d
@@ -327,7 +327,7 @@ Feature: Temporal4 - Store Temporal Values
       | [duration({seconds: 13})]                                                   | ['PT13S']                   |
       | [duration({seconds: 14}), duration({seconds: 15}), duration({seconds: 16})] | ['PT14S', 'PT15S', 'PT16S'] |
 
-  @fails @unsupportedDateTimeFuncs #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedFuncDateTime #https://github.com/kuzudb/kuzu/issues/5841
   Scenario Outline: [13] Should propagate null
     Given any graph
     When executing query:

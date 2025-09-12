@@ -52,7 +52,7 @@ Feature: Match8 - Match clause interoperation with other clauses
       | (:B) | (:B) |
     And no side effects
 
-  @fails @bugVariableBinding #https://github.com/kuzudb/kuzu/issues/5963
+  @skip @semanticsMissingLabel
   Scenario: [2] Counting rows after MATCH, MERGE, OPTIONAL MATCH
     Given an empty graph
     And having defined kuzu types: ab:t12

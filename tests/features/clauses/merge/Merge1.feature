@@ -199,7 +199,7 @@ Feature: Merge1 - Merge node
       | +labels     | 1  |
       | +properties | 30 |
 
-  @fails @unsupportedMultiLabel #https://github.com/kuzudb/kuzu/issues/3117
+  @fails @unsupportedMultipleLabels #https://github.com/kuzudb/kuzu/issues/3117
   Scenario: [10] Merge must properly handle multiple labels
     Given an empty graph
     And having executed:
@@ -312,7 +312,7 @@ Feature: Merge1 - Merge node
       """
     Then a SyntaxError should be raised at compile time: InvalidParameterUse
 
-  @fails @semanticsMergeWithNullProperty #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @semanticsNullHandling #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [17] Fail on merging node with null property
     Given any graph
     And having defined kuzu types: n_num

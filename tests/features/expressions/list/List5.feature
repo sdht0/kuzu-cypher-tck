@@ -55,7 +55,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | true |
     And no side effects
 
-  @fails @bugListIndexIncorrectResult #https://github.com/kuzudb/kuzu/issues/6010
+  @fails @bugListSliceIncorrectResult #https://github.com/kuzudb/kuzu/issues/6010
   Scenario: [3] IN should work with list slices
     Given any graph
     When executing query:
@@ -68,7 +68,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | false |
     And no side effects
 
-  @fails @bugListIncorrectSlice #https://github.com/kuzudb/kuzu/issues/6010
+  @fails @bugListSliceIncorrectResult #https://github.com/kuzudb/kuzu/issues/6010
   Scenario: [4] IN should work with literal list slices
     Given any graph
     When executing query:
@@ -80,7 +80,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | false |
     And no side effects
 
-  @skip @unsupportedMixedTypesLists
+  @skip @unsupportedMixedTypeLists
   Scenario: [5] IN should return false when matching a number with a string
     Given any graph
     When executing query:
@@ -92,7 +92,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | false |
     And no side effects
 
-  @skip @unsupportedMixedTypesLists
+  @skip @unsupportedMixedTypeLists
   Scenario: [6] IN should return false when matching a number with a string - list version
     Given any graph
     When executing query:
@@ -176,7 +176,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | false |
     And no side effects
 
-  @skip @unsupportedMixedTypesLists
+  @skip @unsupportedMixedTypeLists
   Scenario: [13] IN should return false when matching a list with a nested list with same elements
     Given any graph
     When executing query:
@@ -236,7 +236,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | true |
     And no side effects
 
-  @skip @unsupportedMixedTypesLists
+  @skip @unsupportedMixedTypeLists
   Scenario: [18] IN should return false when LHS contains a nested list and type mismatch on RHS - singleton version
     Given any graph
     When executing query:
@@ -248,7 +248,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | false |
     And no side effects
 
-  @skip @unsupportedMixedTypesLists
+  @skip @unsupportedMixedTypeLists
   Scenario: [19] IN should return false when LHS contains a nested list and type mismatch on RHS
     Given any graph
     When executing query:
@@ -285,7 +285,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | null |
     And no side effects
 
-  @fails @semanticsNullHandling #https://github.com/kuzudb/kuzu/issues/5841
+  @skip @unsupportedMismatchedTypes
   Scenario: [22] IN should return null when LHS and RHS both ultimately contain null, even if LHS and RHS are of different types (nested list and flat list)
     Given any graph
     When executing query:
@@ -331,7 +331,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | null |
     And no side effects
 
-  @skip @unsupportedMixedTypesLists
+  @skip @unsupportedMixedTypeLists
   Scenario: [26] IN should return true if correct list found despite other lists having nulls
     Given any graph
     When executing query:
@@ -355,7 +355,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | true |
     And no side effects
 
-  @skip @unsupportedMixedTypesLists
+  @skip @unsupportedMixedTypeLists
   Scenario: [28] IN should return false if no match can be found, despite nulls
     Given any graph
     When executing query:
@@ -450,7 +450,7 @@ Feature: List5 - List Membership Validation - IN Operator
       | true |
     And no side effects
 
-  @skip @unsupportedmixedTypes
+  @skip @unsupportedMixedTypes
   Scenario: [36] IN should return false for the empty list if the LHS and RHS types differ
     Given any graph
     When executing query:

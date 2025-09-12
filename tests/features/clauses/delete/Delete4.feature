@@ -30,7 +30,7 @@
 
 Feature: Delete4 - Delete clause interoperation with other clauses
 
-  @fails @unsupportedUndirDelete #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedDeleteUndir #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [1] Undirected expand followed by delete and count
     Given an empty graph
     And having defined kuzu types: n:r

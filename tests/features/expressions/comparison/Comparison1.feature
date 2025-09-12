@@ -70,7 +70,7 @@ Feature: Comparison1 - Equality
       | n |
     And no side effects
 
-  @skip @unsupportedMultiTypeList
+  @skip @unsupportedMixedTypeLists
   Scenario: [3] Any-typed string comparison
     Given an empty graph
     And having defined kuzu types: n_id
@@ -150,7 +150,7 @@ Feature: Comparison1 - Equality
       | [[1], [2]]    | [[1], [null]] | null   |
       | [[1], [2, 3]] | [[1], [null]] | false  |
 
-  @skip @unsupportedDifferentMapTypes
+  @skip @unsupportedMixedTypes
   Scenario Outline: [7] Comparing maps to maps
     Given an empty graph
     When executing query:

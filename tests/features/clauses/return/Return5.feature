@@ -82,7 +82,7 @@ Feature: Return5 - Implicit grouping with distinct
       | 1     |
     And no side effects
 
-  @skip @unsupportedMultiTypeList
+  @skip @unsupportedMixedTypeLists
   Scenario: [4] DISTINCT inside aggregation should work with nested lists of maps in maps
     Given an empty graph
     And having defined kuzu types: n_l

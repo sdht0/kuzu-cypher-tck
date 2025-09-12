@@ -30,7 +30,7 @@
 
 Feature: Delete2 - Deleting relationships
 
-  @fails @unsupportedUndirDelete #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedDeleteUndir #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [1] Delete relationships
     Given an empty graph
     And having defined kuzu types: n:r
@@ -48,7 +48,7 @@ Feature: Delete2 - Deleting relationships
     And the side effects should be:
       | -relationships | 3 |
 
-  @fails @unsupportedUndirDelete #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedDeleteUndir #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [2] Delete optionally matched relationship
     Given an empty graph
     And having defined kuzu types: n
@@ -66,7 +66,7 @@ Feature: Delete2 - Deleting relationships
     And the side effects should be:
       | -nodes | 1 |
 
-  @fails @unsupportedUndirDelete #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedDeleteUndir #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [3] Delete relationship with bidirectional matching
     Given an empty graph
     And having defined kuzu types: n:t_id
@@ -85,7 +85,7 @@ Feature: Delete2 - Deleting relationships
       | -relationships | 1 |
       | -properties    | 1 |
 
-  @fails @unsupportedUndirDelete #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedDeleteUndir #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [4] Ignore null when deleting relationship
     Given an empty graph
     And having defined kuzu types: n:d
@@ -100,7 +100,7 @@ Feature: Delete2 - Deleting relationships
       |   |
     And no side effects
 
-  @fails @unsupportedUndirDelete #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedDeleteUndir #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [5] Failing when deleting a relationship type
     Given an empty graph
     And having defined kuzu types: n:t_id

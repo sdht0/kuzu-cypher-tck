@@ -74,7 +74,7 @@ Feature: Literals5 - Float
       | 0.3405892687 |
     And no side effects
 
-  @fails @unsupportedScientificNotation #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedTypeScientificNotation #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [5] Return a very long positive float
     Given any graph
     When executing query:
@@ -86,7 +86,7 @@ Feature: Literals5 - Float
       | 1.2635418652381264e305 |
     And no side effects
 
-  @fails @unsupportedScientificNotation #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedTypeScientificNotation #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [6] Return a very long positive float without integer digits
     Given any graph
     When executing query:
@@ -142,7 +142,7 @@ Feature: Literals5 - Float
       | -0     |
     And no side effects
 
-  @fails @unsupportedScientificNotation #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedTypeScientificNotation #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [11] Return a very long negative float
     Given any graph
     When executing query:
@@ -154,7 +154,7 @@ Feature: Literals5 - Float
       | -1.2635418652381264e305 |
     And no side effects
 
-  @fails @unsupportedScientificNotation #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedTypeScientificNotation #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [12] Return a very long negative float without integer digits
     Given any graph
     When executing query:
@@ -298,7 +298,7 @@ Feature: Literals5 - Float
       | -0.000001 |
     And no side effects
 
-  @fails @unsupportedScientificNotation #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedTypeScientificNotation #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [25] Return a positive float with one integer digit and maximum positive exponent
     Given any graph
     When executing query:
@@ -310,7 +310,7 @@ Feature: Literals5 - Float
       | 1e308   |
     And no side effects
 
-  @fails @unsupportedScientificNotation #https://github.com/kuzudb/kuzu/issues/5841
+  @fails @unsupportedTypeScientificNotation #https://github.com/kuzudb/kuzu/issues/5841
   Scenario: [26] Return a positive float with nine integer digit and maximum positive exponent
     Given any graph
     When executing query:
