@@ -42,5 +42,8 @@ if __name__ == "__main__":
 
     for pattern, data in all_files.items():
         print(f"\n== {pattern} ==")
+        counts = 0
         for k, v in sorted(data.items()):
-            print(f"    {v} {k}")
+            print(f"    {v:>3} {k}")
+            counts += v
+        print(f"    Total: {counts}")
