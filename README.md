@@ -22,13 +22,13 @@ Disable by removing `[env]` from `.cargo/config.toml`.
 All tests:
 
 ```bash
-cargo test --test kuzu -- -t 'not @fails'
+cargo test --release --test kuzu -- -t '(not @fails) and (not @skip)'
 ```
 
 Filter by file:
 
 ```bash
-cargo test --test kuzu -- -t 'not @fails' -i 'tests/**/Match1*'
+cargo test --release --test kuzu -- -t '(not @fails) and (not @skip)' -i 'tests/**/Match1.*'
 ```
 
 ## TCK compatibility
